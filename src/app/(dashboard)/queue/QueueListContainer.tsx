@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from 'react';
 import { usePrivacy } from '@/context/PrivacyContext';
-import { decryptPasswordAction, triggerQueueRolloverAction, logWhatsAppActivityAction } from '../clients/actions';
+import { decryptPasswordAction, triggerQueueRolloverAction, logWhatsAppActivityAction, getSystemSettingsAction } from '../clients/actions';
 import { 
   Search, Eye, EyeOff, Copy, Phone, MessageSquare, 
   RefreshCw, ClipboardCheck, ArrowUpRight, Loader2, UserPlus, CheckCircle 
@@ -96,13 +96,35 @@ export default function QueueListContainer({ initialQueue, selectedAY, ayList }:
       console.error('Failed to log WhatsApp activity:', err);
     }
 
+    // Fetch customized template and firm name
+    let template = 'Hello {client_name}, your ITR filing for AY {assessment_year} is pending. Please send us your Form 16, bank statements, and other documents at your earliest convenience to avoid last-minute rush. - {firm_name}';
+    let firmName = 'SDDS';
+
+    try {
+      const templateRes = await getSystemSettingsAction('whatsapp_templates');
+      if (templateRes.success && templateRes.value?.filing_reminder) {
+        template = templateRes.value.filing_reminder;
+      }
+      const profileRes = await getSystemSettingsAction('firm_profile');
+      if (profileRes.success && profileRes.value?.firmName) {
+        firmName = profileRes.value.firmName;
+      }
+    } catch (err) {
+      console.error('Failed to load system settings for WhatsApp reminder:', err);
+    }
+
+    // Replace placeholders
+    const message = template
+      .replace(/{client_name}/g, item.clients.name)
+      .replace(/{assessment_year}/g, item.assessment_year)
+      .replace(/{firm_name}/g, firmName);
+
     // Format Indian mobile number: prefix 91 if not present
     let rawNumber = item.clients.mobile.replace(/\D/g, '');
     if (rawNumber.length === 10) {
       rawNumber = `91${rawNumber}`;
     }
     
-    const message = `Dear ${item.clients.name}, this is SDDS. Please share your income tax documents (Form 16, Bank Statements, etc.) for the Assessment Year ${item.assessment_year} so we can initiate your ITR filing. Thank you!`;
     const url = `https://wa.me/${rawNumber}?text=${encodeURIComponent(message)}`;
     window.open(url, '_blank');
   };

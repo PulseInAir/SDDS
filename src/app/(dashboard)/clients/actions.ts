@@ -1149,6 +1149,16 @@ export async function logWhatsAppActivityAction(clientId: string, filingId: stri
   return { success: true };
 }
 
+export async function logWhatsAppPaymentActivityAction(clientId: string, invoiceNumber: string, amount: number) {
+  await logActivity(
+    clientId,
+    'WhatsApp Sent',
+    `Sent WhatsApp outstanding payment reminder for Invoice ${invoiceNumber} of amount ₹${amount}.`
+  );
+  return { success: true };
+}
+
+
 export async function createRevisedFilingAction(clientId: string, assessmentYear: string) {
   const supabase = await createClient();
 

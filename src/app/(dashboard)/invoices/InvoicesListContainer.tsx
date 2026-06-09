@@ -2,8 +2,9 @@
 
 import { useState } from 'react';
 import { usePrivacy } from '@/context/PrivacyContext';
-import { Search, Download, Eye, EyeOff, FileText, ArrowUpRight } from 'lucide-react';
+import { Search, Download, Eye, EyeOff, FileText, ArrowUpRight, MessageSquare } from 'lucide-react';
 import Link from 'next/link';
+import { getSystemSettingsAction, logWhatsAppPaymentActivityAction } from '../clients/actions';
 
 interface InvoiceItem {
   id: string;
@@ -90,6 +91,47 @@ export default function InvoicesListContainer({ invoices, selectedAY, ayList }: 
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+  };
+
+  const handleWhatsAppPaymentReminder = async (item: InvoiceItem) => {
+    try {
+      await logWhatsAppPaymentActivityAction(item.filings.client_id, item.invoice_number, item.outstanding_amount);
+    } catch (err) {
+      console.error('Failed to log WhatsApp payment reminder activity:', err);
+    }
+
+    // Fetch customized template and firm name
+    let template = 'Hello {client_name}, this is a gentle reminder that invoice {invoice_number} of amount ₹{amount} for your ITR filing is outstanding. Kindly clear the dues as soon as possible. - {firm_name}';
+    let firmName = 'SDDS';
+
+    try {
+      const templateRes = await getSystemSettingsAction('whatsapp_templates');
+      if (templateRes.success && templateRes.value?.payment_reminder) {
+        template = templateRes.value.payment_reminder;
+      }
+      const profileRes = await getSystemSettingsAction('firm_profile');
+      if (profileRes.success && profileRes.value?.firmName) {
+        firmName = profileRes.value.firmName;
+      }
+    } catch (err) {
+      console.error('Failed to load system settings for WhatsApp payment reminder:', err);
+    }
+
+    // Replace placeholders
+    const message = template
+      .replace(/{client_name}/g, item.filings.clients.name)
+      .replace(/{invoice_number}/g, item.invoice_number)
+      .replace(/{amount}/g, String(item.outstanding_amount))
+      .replace(/{firm_name}/g, firmName);
+
+    // Format Indian mobile number: prefix 91 if not present
+    let rawNumber = item.filings.clients.mobile.replace(/\D/g, '');
+    if (rawNumber.length === 10) {
+      rawNumber = `91${rawNumber}`;
+    }
+    
+    const url = `https://wa.me/${rawNumber}?text=${encodeURIComponent(message)}`;
+    window.open(url, '_blank');
   };
 
   return (
@@ -221,14 +263,26 @@ export default function InvoicesListContainer({ invoices, selectedAY, ayList }: 
                       </span>
                     </td>
                     <td className="p-4 text-right">
-                      <Link
-                        href={`/invoices/${item.id}`}
-                        className="inline-flex items-center space-x-1 px-3 py-1.5 bg-slate-950 border border-slate-850 hover:bg-slate-900 text-xs font-semibold text-slate-300 hover:text-white rounded-xl transition-all"
-                      >
-                        <FileText className="h-3.5 w-3.5 text-blue-400" />
-                        <span>Print Invoice</span>
-                        <ArrowUpRight className="h-3 w-3 shrink-0 text-slate-500 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
-                      </Link>
+                      <div className="flex items-center justify-end space-x-2">
+                        {item.payment_status !== 'Paid' && (
+                          <button
+                            type="button"
+                            onClick={() => handleWhatsAppPaymentReminder(item)}
+                            title="Send WhatsApp Payment Reminder"
+                            className="p-2 bg-slate-950 border border-slate-800 text-slate-400 hover:text-emerald-400 hover:border-slate-700 rounded-xl transition-all cursor-pointer"
+                          >
+                            <MessageSquare className="h-4 w-4" />
+                          </button>
+                        )}
+                        <Link
+                          href={`/invoices/${item.id}`}
+                          className="inline-flex items-center space-x-1 px-3 py-1.5 bg-slate-950 border border-slate-850 hover:bg-slate-900 text-xs font-semibold text-slate-300 hover:text-white rounded-xl transition-all"
+                        >
+                          <FileText className="h-3.5 w-3.5 text-blue-400" />
+                          <span>Print Invoice</span>
+                          <ArrowUpRight className="h-3 w-3 shrink-0 text-slate-500 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+                        </Link>
+                      </div>
                     </td>
                   </tr>
                 );
