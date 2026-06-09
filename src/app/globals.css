@@ -1,0 +1,83 @@
+@import "tailwindcss";
+
+:root {
+  --background: #ffffff;
+  --foreground: #0f172a;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans), system-ui, -apple-system, sans-serif;
+  --font-mono: var(--font-geist-mono), monospace;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #020617; /* Slate 950 - deeper and richer than pure black */
+    --foreground: #f1f5f9; /* Slate 100 */
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  overflow-x: hidden;
+}
+
+/* Custom Sleek Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(30, 41, 59, 0.5); /* Slate 800 with transparency */
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(51, 65, 85, 0.8); /* Slate 700 with transparency */
+}
+
+/* Selection Highlight Color */
+::selection {
+  background-color: rgba(59, 130, 246, 0.25); /* Blue 500 with opacity */
+  color: #60a5fa; /* Blue 400 */
+}
+
+/* Glassmorphism helpers */
+.glass-panel {
+  background: rgba(15, 23, 42, 0.45);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.glass-panel-hover {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.glass-panel-hover:hover {
+  background: rgba(15, 23, 42, 0.6);
+  border-color: rgba(59, 130, 246, 0.2);
+  box-shadow: 0 10px 30px -10px rgba(59, 130, 246, 0.08);
+}
+
+/* Premium Focus Glow */
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.3), 0 0 16px rgba(59, 130, 246, 0.1);
+  border-color: rgba(59, 130, 246, 0.4) !important;
+}
+
+/* Pulsing Status Glow */
+.status-glow-emerald {
+  box-shadow: 0 0 10px rgba(16, 185, 129, 0.4);
+}
+.status-glow-amber {
+  box-shadow: 0 0 10px rgba(245, 158, 11, 0.4);
+}
+.status-glow-blue {
+  box-shadow: 0 0 10px rgba(59, 130, 246, 0.4);
+}
