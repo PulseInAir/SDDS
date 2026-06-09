@@ -1,12 +1,12 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useState } from 'react';
 import { usePrivacy } from '@/context/PrivacyContext';
-import { createClientAction, decryptPasswordAction } from './actions';
+import { decryptPasswordAction } from './actions';
 import Link from 'next/link';
 import { 
-  Search, Eye, EyeOff, Copy, Plus, Phone, Mail, 
-  UserPlus, X, Loader2, Calendar, ClipboardCheck, ArrowUpRight 
+  Search, Eye, EyeOff, Copy, Phone, Mail, 
+  UserPlus, Calendar, ClipboardCheck, ArrowUpRight, Loader2
 } from 'lucide-react';
 
 interface Client {
@@ -27,51 +27,13 @@ interface Client {
 
 export default function ClientListContainer({ initialClients }: { initialClients: Client[] }) {
   const { isPrivacyMode } = usePrivacy();
-  const [clients, setClients] = useState<Client[]>(initialClients);
+  const [clients] = useState<Client[]>(initialClients);
   const [search, setSearch] = useState('');
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<string | null>(null);
-  const [isPending, startTransition] = useTransition();
 
   // Local masks for specific rows when privacy mode is ON
   const [revealedClients, setRevealedClients] = useState<Record<string, boolean>>({});
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [decryptingId, setDecryptingId] = useState<string | null>(null);
-
-  const [panInput, setPanInput] = useState('');
-  const [passwordInput, setPasswordInput] = useState('');
-  const [isPasswordManual, setIsPasswordManual] = useState(false);
-
-  const handleOpenModal = () => {
-    setPanInput('');
-    setPasswordInput('');
-    setIsPasswordManual(false);
-    setError(null);
-    setSuccess(null);
-    setIsModalOpen(true);
-  };
-
-  const handlePanChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const val = e.target.value.toUpperCase();
-    setPanInput(val);
-    
-    if (!isPasswordManual) {
-      if (val.length === 10) {
-        const firstFive = val.substring(0, 5).toLowerCase();
-        const numbers = val.substring(5, 9);
-        const lastOne = val.substring(9, 10).toUpperCase();
-        setPasswordInput(`${firstFive}*${numbers}${lastOne}`);
-      } else {
-        setPasswordInput('');
-      }
-    }
-  };
-
-  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setPasswordInput(e.target.value);
-    setIsPasswordManual(true);
-  };
 
   // Toggle local reveal for a specific client row
   const toggleRowReveal = (clientId: string) => {
@@ -114,7 +76,6 @@ export default function ClientListContainer({ initialClients }: { initialClients
         return;
       }
       
-      // Copy formatted: PAN [TAB] Password (or space) as requested
       const textToCopy = `${client.pan.toUpperCase()}\t${res.password}`;
       await navigator.clipboard.writeText(textToCopy);
       
@@ -132,39 +93,16 @@ export default function ClientListContainer({ initialClients }: { initialClients
     return isMasked ? '••••••••••' : text;
   };
 
-  // Handle Client Creation Submission
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setError(null);
-    setSuccess(null);
-
-    const formData = new FormData(e.currentTarget);
-    
-    startTransition(async () => {
-      const res = await createClientAction(formData);
-      if (res.error) {
-        setError(res.error);
-      } else {
-        setSuccess('Client added successfully and enrolled in current AY filing queue!');
-        // Refresh local state list
-        const newClientRecord: Client = {
-          id: res.clientId!,
-          name: formData.get('name') as string,
-          pan: (formData.get('pan') as string).toUpperCase().trim(),
-          mobile: formData.get('mobile') as string,
-          email: (formData.get('email') as string) || null,
-          dob: formData.get('dob') as string,
-          family_group: (formData.get('family_group') as string) || null
-        };
-        setClients(prev => [newClientRecord, ...prev].sort((a, b) => a.name.localeCompare(b.name)));
-        
-        // Reset form
-        setTimeout(() => {
-          setIsModalOpen(false);
-          setSuccess(null);
-        }, 1500);
-      }
-    });
+  // Format date utility
+  const formatDOB = (dobString: string) => {
+    if (!dobString) return '-';
+    // Split date assuming it is stored as YYYY-MM-DD
+    const parts = dobString.split('-');
+    if (parts.length === 3) {
+      const [y, m, d] = parts;
+      return `${d}-${m}-${y}`;
+    }
+    return new Date(dobString).toLocaleDateString('en-IN', { day: '2-digit', month: '2-digit', year: 'numeric' });
   };
 
   return (
@@ -184,13 +122,13 @@ export default function ClientListContainer({ initialClients }: { initialClients
           />
         </div>
 
-        <button
-          onClick={handleOpenModal}
-          className="w-full sm:w-auto flex items-center justify-center space-x-2 px-4 py-2 rounded-xl text-sm font-semibold text-white bg-blue-600 hover:bg-blue-500 cursor-pointer transition-colors shadow-lg shadow-blue-500/10 shrink-0"
+        <Link
+          href="/clients/new"
+          className="w-full sm:w-auto flex items-center justify-center space-x-2 px-4 py-2 rounded-xl text-sm font-semibold text-white bg-blue-600 hover:bg-blue-500 transition-colors shadow-lg shadow-blue-500/10 shrink-0 select-none"
         >
           <UserPlus className="h-4 w-4" />
           <span>New Client</span>
-        </button>
+        </Link>
       </div>
 
       {/* Client Table List */}
@@ -206,7 +144,7 @@ export default function ClientListContainer({ initialClients }: { initialClients
               <th className="p-4 text-right">Actions</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-800/50">
+          <tbody className="divide-y divide-slate-880">
             {filteredClients.length > 0 ? (
               filteredClients.map((client) => {
                 const isMasked = isPrivacyMode && !revealedClients[client.id];
@@ -222,7 +160,7 @@ export default function ClientListContainer({ initialClients }: { initialClients
                           <button
                             type="button"
                             onClick={() => toggleRowReveal(client.id)}
-                            className="p-1 hover:bg-slate-800 rounded text-slate-500 hover:text-slate-300 transition-colors"
+                            className="p-1 hover:bg-slate-800 rounded text-slate-500 hover:text-slate-350 transition-colors cursor-pointer"
                           >
                             {revealedClients[client.id] ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
                           </button>
@@ -235,7 +173,7 @@ export default function ClientListContainer({ initialClients }: { initialClients
                         <span>
                           {isMasked 
                             ? '••••••••••' 
-                            : new Date(client.dob).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}
+                            : formatDOB(client.dob)}
                         </span>
                       </div>
                     </td>
@@ -256,7 +194,6 @@ export default function ClientListContainer({ initialClients }: { initialClients
                     </td>
                     <td className="p-4 text-right">
                       <div className="flex items-center justify-end space-x-2">
-                        {/* Copy Login Credentials Action */}
                         <button
                           type="button"
                           onClick={() => handleCopyCredentials(client)}
@@ -299,197 +236,6 @@ export default function ClientListContainer({ initialClients }: { initialClients
           </tbody>
         </table>
       </div>
-
-      {/* Add Client Slide-Over Modal */}
-      {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-end bg-slate-950/70 backdrop-blur-sm animate-in fade-in duration-200">
-          <div 
-            className="w-full max-w-lg h-full bg-slate-900 border-l border-slate-800 shadow-2xl p-6 flex flex-col justify-between overflow-y-auto animate-in slide-in-from-right duration-300"
-          >
-            <div>
-              <div className="flex items-center justify-between pb-6 border-b border-slate-800">
-                <div className="flex items-center space-x-2.5">
-                  <UserPlus className="h-5 w-5 text-blue-400" />
-                  <h2 className="text-xl font-bold text-white">Add New Client Record</h2>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setIsModalOpen(false)}
-                  className="p-1.5 hover:bg-slate-800 rounded-lg text-slate-400 hover:text-white transition-colors"
-                >
-                  <X className="h-5 w-5" />
-                </button>
-              </div>
-
-              {/* Form elements */}
-              <form id="add-client-form" onSubmit={handleSubmit} className="py-6 space-y-5">
-                {error && (
-                  <div className="p-4 bg-red-950/30 border border-red-800/60 rounded-xl text-red-200 text-sm">
-                    {error}
-                  </div>
-                )}
-                {success && (
-                  <div className="p-4 bg-emerald-950/30 border border-emerald-800/60 rounded-xl text-emerald-200 text-sm">
-                    {success}
-                  </div>
-                )}
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="col-span-2">
-                    <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">
-                      Client Full Name *
-                    </label>
-                    <input
-                      type="text"
-                      name="name"
-                      required
-                      placeholder="e.g., Rahul Sharma"
-                      className="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500 transition-all"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">
-                      PAN Number (10 chars) *
-                    </label>
-                    <input
-                      type="text"
-                      name="pan"
-                      required
-                      maxLength={10}
-                      value={panInput}
-                      onChange={handlePanChange}
-                      placeholder="e.g., ABCDE1234F"
-                      className="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-white font-mono uppercase tracking-wide text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500 transition-all"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">
-                      Date of Birth (DOB) *
-                    </label>
-                    <input
-                      type="date"
-                      name="dob"
-                      required
-                      className="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500 transition-all"
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">
-                      Mobile Number *
-                    </label>
-                    <input
-                      type="tel"
-                      name="mobile"
-                      required
-                      placeholder="e.g., 9876543210"
-                      className="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500 transition-all"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">
-                      Email Address
-                    </label>
-                    <input
-                      type="email"
-                      name="email"
-                      placeholder="e.g., client@email.com"
-                      className="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500 transition-all"
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">
-                      Aadhaar Number
-                    </label>
-                    <input
-                      type="text"
-                      name="aadhaar"
-                      placeholder="e.g., 1234 5678 9012"
-                      className="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500 transition-all"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">
-                      Family Group Name
-                    </label>
-                    <input
-                      type="text"
-                      name="family_group"
-                      placeholder="e.g., Sharma Family"
-                      className="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500 transition-all"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">
-                    ITR Portal Password *
-                  </label>
-                  <input
-                    type="text"
-                    name="password"
-                    required
-                    value={passwordInput}
-                    onChange={handlePasswordChange}
-                    placeholder="Portal password to encrypt in DB"
-                    className="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500 transition-all"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">
-                    Residential Address
-                  </label>
-                  <textarea
-                    name="address"
-                    rows={3}
-                    placeholder="Residential address details..."
-                    className="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500 transition-all resize-none"
-                  />
-                </div>
-              </form>
-            </div>
-
-            {/* Bottom Actions */}
-            <div className="pt-6 border-t border-slate-800 flex items-center justify-end space-x-3">
-              <button
-                type="button"
-                onClick={() => setIsModalOpen(false)}
-                className="px-4 py-2 rounded-xl text-sm font-semibold text-slate-400 hover:text-white hover:bg-slate-800 transition-colors cursor-pointer"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                form="add-client-form"
-                disabled={isPending}
-                className="flex items-center space-x-2 px-5 py-2.5 rounded-xl text-sm font-semibold text-white bg-blue-600 hover:bg-blue-500 cursor-pointer disabled:opacity-50 transition-all shadow-lg shadow-blue-500/10"
-              >
-                {isPending ? (
-                  <>
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                    <span>Adding...</span>
-                  </>
-                ) : (
-                  <>
-                    <UserPlus className="h-4 w-4" />
-                    <span>Add Client</span>
-                  </>
-                )}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

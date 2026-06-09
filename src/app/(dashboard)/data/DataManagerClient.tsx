@@ -489,15 +489,15 @@ export default function DataManagerClient({
                   </tr>
                   <tr className="text-slate-300">
                     <td className="p-3 font-mono font-bold text-white">Date of Birth</td>
-                    <td className="p-3 text-amber-500 font-bold">New Clients Only</td>
-                    <td className="p-3">1990-01-31, 31/01/1990</td>
-                    <td className="p-3 text-slate-500">DD/MM/YYYY or YYYY-MM-DD.</td>
+                    <td className="p-3 text-blue-400 font-bold">Yes (New Clients)</td>
+                    <td className="p-3">31-01-1990</td>
+                    <td className="p-3 text-slate-500">Strictly in DD-MM-YYYY format (with hyphen separator).</td>
                   </tr>
                   <tr className="text-slate-300">
                     <td className="p-3 font-mono font-bold text-white">ITR Portal Password</td>
-                    <td className="p-3">No</td>
+                    <td className="p-3 text-blue-400 font-bold">Yes</td>
                     <td className="p-3 font-mono">abcde*1234F</td>
-                    <td className="p-3 text-slate-500">ITR Portal login. Defaults to PAN-based structured password.</td>
+                    <td className="p-3 text-slate-500">ITR Portal login password. Mandatory.</td>
                   </tr>
                   <tr className="text-slate-300">
                     <td className="p-3 font-mono font-bold text-white">Filing Charge</td>

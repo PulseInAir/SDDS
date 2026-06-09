@@ -101,6 +101,20 @@ export default function ClientProfileContainer({
     return `${day}${month}${year}`;
   };
 
+  const formatDOBToDDMMYYYY = (dobString: string) => {
+    if (!dobString) return '';
+    const parts = dobString.split('-');
+    if (parts.length === 3) {
+      const [y, m, d] = parts;
+      return `${d}-${m}-${y}`;
+    }
+    const date = new Date(dobString);
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+    return `${day}-${month}-${year}`;
+  };
+
   const intimationPassword = (client.pan.toLowerCase() + formatDOBForPassword(client.dob)).trim();
 
   // Helper to copy text to clipboard
@@ -145,6 +159,50 @@ export default function ClientProfileContainer({
 
     const formData = new FormData(e.currentTarget);
     
+    // Client-side validations
+    const name = (formData.get('name') as string).trim();
+    const dobRaw = (formData.get('dob') as string).trim(); // Expected DD-MM-YYYY
+    const mobile = (formData.get('mobile') as string).trim();
+    const aadhaarRaw = (formData.get('aadhaar') as string).replace(/\s/g, ''); // strip spaces
+
+    if (!name || !dobRaw || !mobile) {
+      setErrorMsg('Full Name, Mobile, and Date of Birth are required.');
+      return;
+    }
+
+    // 1. Mobile validation (exactly 10 digits)
+    const mobileRegex = /^[0-9]{10}$/;
+    if (!mobileRegex.test(mobile)) {
+      setErrorMsg('Invalid Mobile number. Must be exactly 10 digits (no country code).');
+      return;
+    }
+
+    // 2. DOB validation (DD-MM-YYYY)
+    const dobRegex = /^(0[1-9]|[12][0-9]|3[01])-(0[1-9]|1[0-2])-\d{4}$/;
+    if (!dobRegex.test(dobRaw)) {
+      setErrorMsg('Invalid Date of Birth format. Must be in DD-MM-YYYY format (e.g., 31-01-1990).');
+      return;
+    }
+
+    // 3. Aadhaar validation (if entered, must be exactly 12 digits)
+    if (aadhaarRaw) {
+      const aadhaarRegex = /^[0-9]{12}$/;
+      if (!aadhaarRegex.test(aadhaarRaw)) {
+        setErrorMsg('Invalid Aadhaar number. Must be exactly 12 digits if provided.');
+        return;
+      }
+    }
+
+    // Format DOB to YYYY-MM-DD for PostgreSQL DATE type
+    const [d, m, y] = dobRaw.split('-');
+    const formattedDob = `${y}-${m}-${d}`;
+
+    // Update FormData values
+    formData.set('dob', formattedDob);
+    if (aadhaarRaw) {
+      formData.set('aadhaar', aadhaarRaw);
+    }
+
     startTransition(async () => {
       const res = await updateClientAction(client.id, formData);
       if (res.error) {
@@ -1035,7 +1093,7 @@ export default function ClientProfileContainer({
                   </div>
                   <div>
                     <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Date of Birth</label>
-                    <input type="date" name="dob" defaultValue={client.dob} required className="w-full px-4 py-2 bg-slate-950 border border-slate-850 rounded-xl text-white text-sm focus:ring-2 focus:ring-blue-500/40" />
+                    <input type="text" name="dob" defaultValue={formatDOBToDDMMYYYY(client.dob)} placeholder="DD-MM-YYYY" required className="w-full px-4 py-2 bg-slate-950 border border-slate-850 rounded-xl text-white text-sm focus:ring-2 focus:ring-blue-500/40" />
                   </div>
                 </div>
 

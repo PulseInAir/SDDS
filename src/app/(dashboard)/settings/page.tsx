@@ -52,6 +52,8 @@ export default async function SettingsPage() {
     payment_reminder: 'Hello {client_name}, this is a gentle reminder that invoice {invoice_number} of amount ₹{amount} for your ITR filing is outstanding. Kindly clear the dues as soon as possible. - {firm_name}'
   };
 
+  const themePreference = settingsMap['theme_preference'] || 'dark';
+
   return (
     <div className="space-y-8 max-w-5xl mx-auto">
       <div>
@@ -68,6 +70,7 @@ export default async function SettingsPage() {
         initialFirmProfile={firmProfile}
         initialFeePresets={feePresets}
         initialWhatsappTemplates={whatsappTemplates}
+        initialThemePreference={themePreference}
       />
     </div>
   );

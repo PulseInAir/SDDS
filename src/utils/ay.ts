@@ -24,11 +24,11 @@ export function getCurrentAssessmentYear(): string {
  */
 export function getAssessmentYears(): string[] {
   const currentAY = getCurrentAssessmentYear();
-  const start = parseInt(currentAY.split('-')[0]) - 3; // 3 years back
+  const currentStartYear = parseInt(currentAY.split('-')[0]);
+  const start = currentStartYear - 3; // 3 years back
   const list: string[] = [];
 
-  for (let i = 0; i < 6; i++) {
-    const y = start + i;
+  for (let y = start; y <= currentStartYear; y++) {
     const nextYShort = String(y + 1).slice(-2);
     list.push(`${y}-${nextYShort}`);
   }

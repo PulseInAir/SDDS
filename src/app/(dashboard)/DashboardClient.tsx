@@ -58,7 +58,7 @@ export default function DashboardClient({
       {/* Header section with AY selector */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
         <div>
-          <h1 className="text-3xl font-extrabold text-white tracking-tight">Practice Dashboard</h1>
+          <h1 className="text-3xl font-extrabold text-white tracking-tight">Dashboard</h1>
           <p className="text-slate-400 text-sm mt-1">Overview of clients, filings, and collections.</p>
         </div>
 
@@ -73,7 +73,7 @@ export default function DashboardClient({
             </div>
           </div>
           <Link
-            href="/clients"
+            href="/clients/new"
             className="flex items-center space-x-2 px-4 py-2 rounded-xl text-sm font-semibold text-white bg-blue-600 hover:bg-blue-500 transition-colors shadow-lg shadow-blue-500/10"
           >
             <Plus className="h-4 w-4" />

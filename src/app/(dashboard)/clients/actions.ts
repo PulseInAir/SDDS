@@ -35,19 +35,49 @@ export async function createClientAction(formData: FormData) {
   const pan = (formData.get('pan') as string).toUpperCase().trim();
   const email = formData.get('email') as string;
   const mobile = formData.get('mobile') as string;
-  const dob = formData.get('dob') as string; // YYYY-MM-DD
+  const dob = formData.get('dob') as string;
   const aadhaar = formData.get('aadhaar') as string;
   const address = formData.get('address') as string;
   const family_group = formData.get('family_group') as string;
   const password = formData.get('password') as string; // Plaintext to encrypt
 
-  let finalPassword = password ? password.trim() : '';
-  if (!finalPassword) {
-    finalPassword = generateDefaultPassword(pan);
-  }
+  const finalPassword = password ? password.trim() : '';
 
   if (!name || !pan || !mobile || !dob || !finalPassword) {
     return { error: 'Name, PAN, Mobile, DOB, and ITR Portal Password are required.' };
+  }
+
+  // 1. PAN validation (exactly 10 chars: 5 letters, 4 digits, 1 letter)
+  const panRegex = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/;
+  if (!panRegex.test(pan)) {
+    return { error: 'Invalid PAN format. Must be 10 characters (e.g. ABCDE1234F: 5 letters, 4 numbers, 1 letter).' };
+  }
+
+  // 2. Mobile validation (exactly 10 digits)
+  const mobileRegex = /^[0-9]{10}$/;
+  if (!mobileRegex.test(mobile)) {
+    return { error: 'Invalid Mobile number. Must be exactly 10 digits (e.g. 9876543210).' };
+  }
+
+  // 3. DOB validation (DD-MM-YYYY or YYYY-MM-DD)
+  const dobRegexYYYYMMDD = /^\d{4}-\d{2}-\d{2}$/;
+  const dobRegexDDMMYYYY = /^(0[1-9]|[12][0-9]|3[01])-(0[1-9]|1[0-2])-\d{4}$/;
+  
+  let parsedDob = dob.trim();
+  if (dobRegexDDMMYYYY.test(parsedDob)) {
+    const [d, m, y] = parsedDob.split('-');
+    parsedDob = `${y}-${m}-${d}`;
+  } else if (!dobRegexYYYYMMDD.test(parsedDob)) {
+    return { error: 'Invalid Date of Birth format. Must be DD-MM-YYYY (e.g. 31-01-1990).' };
+  }
+
+  // 4. Aadhaar validation (if provided, must be exactly 12 digits)
+  const cleanAadhaar = aadhaar ? aadhaar.replace(/\s/g, '') : '';
+  if (cleanAadhaar) {
+    const aadhaarRegex = /^[0-9]{12}$/;
+    if (!aadhaarRegex.test(cleanAadhaar)) {
+      return { error: 'Invalid Aadhaar number. Must be exactly 12 digits.' };
+    }
   }
 
   // 1. Insert Client Profile
@@ -58,16 +88,16 @@ export async function createClientAction(formData: FormData) {
       pan,
       email: email || null,
       mobile,
-      dob,
-      aadhaar: aadhaar || null,
+      dob: parsedDob,
+      aadhaar: cleanAadhaar || null,
       address: address || null,
       family_group: family_group || null
     })
     .select()
     .single();
 
-  if (clientError) {
-    return { error: `Client creation failed: ${clientError.message}` };
+  if (clientError || !newClient) {
+    return { error: `Client creation failed: ${clientError?.message || 'Unknown error'}` };
   }
 
   const clientId = newClient.id;
@@ -154,6 +184,33 @@ export async function updateClientAction(clientId: string, formData: FormData) {
     return { error: 'Name, Mobile, and Date of Birth are required.' };
   }
 
+  // 1. Mobile validation (exactly 10 digits)
+  const mobileRegex = /^[0-9]{10}$/;
+  if (!mobileRegex.test(mobile)) {
+    return { error: 'Invalid Mobile number. Must be exactly 10 digits (no country code).' };
+  }
+
+  // 2. DOB validation (DD-MM-YYYY or YYYY-MM-DD)
+  const dobRegexYYYYMMDD = /^\d{4}-\d{2}-\d{2}$/;
+  const dobRegexDDMMYYYY = /^(0[1-9]|[12][0-9]|3[01])-(0[1-9]|1[0-2])-\d{4}$/;
+  
+  let parsedDob = dob.trim();
+  if (dobRegexDDMMYYYY.test(parsedDob)) {
+    const [d, m, y] = parsedDob.split('-');
+    parsedDob = `${y}-${m}-${d}`;
+  } else if (!dobRegexYYYYMMDD.test(parsedDob)) {
+    return { error: 'Invalid Date of Birth format. Must be DD-MM-YYYY (e.g. 31-01-1990).' };
+  }
+
+  // 3. Aadhaar validation (if provided, must be exactly 12 digits)
+  const cleanAadhaar = aadhaar ? aadhaar.replace(/\s/g, '') : '';
+  if (cleanAadhaar) {
+    const aadhaarRegex = /^[0-9]{12}$/;
+    if (!aadhaarRegex.test(cleanAadhaar)) {
+      return { error: 'Invalid Aadhaar number. Must be exactly 12 digits.' };
+    }
+  }
+
   // 1. Update Profile
   const { error: updateError } = await supabase
     .from('clients')
@@ -161,8 +218,8 @@ export async function updateClientAction(clientId: string, formData: FormData) {
       name,
       email: email || null,
       mobile,
-      dob,
-      aadhaar: aadhaar || null,
+      dob: parsedDob,
+      aadhaar: cleanAadhaar || null,
       address: address || null,
       family_group: family_group || null,
       is_excluded_from_queue
@@ -807,6 +864,31 @@ export async function deleteDocumentAction(documentId: string, clientId: string)
   }
 }
 
+function parseDateToISO(dateStr?: any): string | null {
+  if (dateStr === null || dateStr === undefined) return null;
+  const cleaned = String(dateStr).trim();
+  if (!cleaned) return null;
+
+  if (/^\d{4}-\d{2}-\d{2}$/.test(cleaned)) {
+    return cleaned;
+  }
+
+  const dmyMatch = cleaned.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/);
+  if (dmyMatch) {
+    const [_, d, m, y] = dmyMatch;
+    return `${y}-${m.padStart(2, '0')}-${d.padStart(2, '0')}`;
+  }
+
+  try {
+    const d = new Date(cleaned);
+    if (!isNaN(d.getTime())) {
+      return d.toISOString().split('T')[0];
+    }
+  } catch {}
+
+  return null;
+}
+
 export async function importClientsCSVAction(rows: any[], assessmentYear: string) {
   const supabase = await createClient();
 
@@ -840,31 +922,6 @@ export async function importClientsCSVAction(rows: any[], assessmentYear: string
     return undefined;
   };
 
-  const parseDateToISO = (dateStr?: any): string | null => {
-    if (dateStr === null || dateStr === undefined) return null;
-    const cleaned = String(dateStr).trim();
-    if (!cleaned) return null;
-
-    if (/^\d{4}-\d{2}-\d{2}$/.test(cleaned)) {
-      return cleaned;
-    }
-
-    const dmyMatch = cleaned.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/);
-    if (dmyMatch) {
-      const [_, d, m, y] = dmyMatch;
-      return `${y}-${m.padStart(2, '0')}-${d.padStart(2, '0')}`;
-    }
-
-    try {
-      const d = new Date(cleaned);
-      if (!isNaN(d.getTime())) {
-        return d.toISOString().split('T')[0];
-      }
-    } catch {}
-
-    return null;
-  };
-
   for (let idx = 0; idx < rows.length; idx++) {
     const row = rows[idx];
     const rowNum = idx + 2; // Row number in CSV (1-based, plus header)
@@ -875,7 +932,11 @@ export async function importClientsCSVAction(rows: any[], assessmentYear: string
     const mobileRaw = findValue(row, ['mobile', 'phone', 'mobilenumber', 'mobile_number', 'mobile number']);
     const mobile = mobileRaw ? String(mobileRaw).trim() : '';
     const dobRaw = findValue(row, ['dob', 'dateofbirth', 'date_of_birth', 'date of birth']);
-    const dob = parseDateToISO(dobRaw);
+    const dobStr = dobRaw ? String(dobRaw).trim() : '';
+    const aadhaarRaw = findValue(row, ['aadhaar', 'aadhaarcard', 'aadhaar_card', 'aadhaarnumber', 'aadhaar_number', 'aadhaar number']);
+    const cleanAadhaar = aadhaarRaw ? String(aadhaarRaw).replace(/\s/g, '') : '';
+    const passwordRaw = findValue(row, ['password', 'itrpassword', 'itr_password', 'itr password', 'portalpassword', 'portal_password', 'portal password']);
+    const password = passwordRaw ? String(passwordRaw).trim() : '';
 
     if (!pan) {
       results.failCount++;
@@ -883,9 +944,62 @@ export async function importClientsCSVAction(rows: any[], assessmentYear: string
       continue;
     }
 
+    // PAN validation (exactly 10 chars: 5 letters, 4 digits, 1 letter)
+    const panRegex = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/;
+    if (!panRegex.test(pan)) {
+      results.failCount++;
+      results.errors.push(`Row ${rowNum} (${pan}): Invalid PAN format. Must be 10 characters (e.g. ABCDE1234F: 5 letters, 4 numbers, 1 letter) in uppercase.`);
+      continue;
+    }
+
     if (!name) {
       results.failCount++;
       results.errors.push(`Row ${rowNum} (${pan}): Missing client Name.`);
+      continue;
+    }
+
+    // Mobile validation (exactly 10 digits)
+    const mobileRegex = /^[0-9]{10}$/;
+    if (!mobile) {
+      results.failCount++;
+      results.errors.push(`Row ${rowNum} (${pan}): Missing Mobile number.`);
+      continue;
+    }
+    if (!mobileRegex.test(mobile)) {
+      results.failCount++;
+      results.errors.push(`Row ${rowNum} (${pan}): Invalid Mobile number "${mobile}". Must be exactly 10 digits (no country code).`);
+      continue;
+    }
+
+    // DOB validation (DD-MM-YYYY)
+    const dobRegex = /^(0[1-9]|[12][0-9]|3[01])-(0[1-9]|1[0-2])-\d{4}$/;
+    if (!dobStr) {
+      results.failCount++;
+      results.errors.push(`Row ${rowNum} (${pan}): Missing Date of Birth.`);
+      continue;
+    }
+    if (!dobRegex.test(dobStr)) {
+      results.failCount++;
+      results.errors.push(`Row ${rowNum} (${pan}): Invalid Date of Birth "${dobStr}". Must be in DD-MM-YYYY format (e.g., 31-01-1990).`);
+      continue;
+    }
+    const [d, m, y] = dobStr.split('-');
+    const dobISO = `${y}-${m}-${d}`;
+
+    // Aadhaar validation (if provided, must be exactly 12 digits)
+    if (cleanAadhaar) {
+      const aadhaarRegex = /^[0-9]{12}$/;
+      if (!aadhaarRegex.test(cleanAadhaar)) {
+        results.failCount++;
+        results.errors.push(`Row ${rowNum} (${pan}): Invalid Aadhaar number "${cleanAadhaar}". Must be exactly 12 digits.`);
+        continue;
+      }
+    }
+
+    // Password validation (mandatory)
+    if (!password) {
+      results.failCount++;
+      results.errors.push(`Row ${rowNum} (${pan}): Missing ITR Portal Password.`);
       continue;
     }
 
@@ -903,35 +1017,28 @@ export async function importClientsCSVAction(rows: any[], assessmentYear: string
         // Update details if provided
         const updateData: any = {};
         const email = findValue(row, ['email', 'emailaddress', 'email_address', 'email address']);
-        const aadhaar = findValue(row, ['aadhaar', 'aadhaarcard', 'aadhaar_card', 'aadhaarnumber', 'aadhaar_number', 'aadhaar number']);
         const address = findValue(row, ['address']);
         const family_group = findValue(row, ['familygroup', 'family_group', 'family group', 'group']);
 
         if (email) updateData.email = String(email).trim();
-        if (aadhaar) updateData.aadhaar = String(aadhaar).trim();
+        if (cleanAadhaar) updateData.aadhaar = cleanAadhaar;
         if (address) updateData.address = String(address).trim();
         if (family_group) updateData.family_group = String(family_group).trim();
         if (mobile && mobile !== client.mobile) updateData.mobile = mobile;
-        if (dob && dob !== client.dob) updateData.dob = dob;
+        if (dobISO !== client.dob) updateData.dob = dobISO;
 
         if (Object.keys(updateData).length > 0) {
           await supabase.from('clients').update(updateData).eq('id', client.id);
         }
-      } else {
-        // Create new client
-        if (!mobile) {
-          results.failCount++;
-          results.errors.push(`Row ${rowNum} (${pan}): Mobile number required for new clients.`);
-          continue;
-        }
-        if (!dob) {
-          results.failCount++;
-          results.errors.push(`Row ${rowNum} (${pan}): Date of Birth required for new clients.`);
-          continue;
-        }
 
+        // Update password if provided
+        const encrypted = encrypt(password);
+        await supabase.from('client_secrets').upsert({
+          client_id: client.id,
+          encrypted_password: encrypted
+        });
+      } else {
         const email = findValue(row, ['email', 'emailaddress', 'email_address', 'email address']);
-        const aadhaar = findValue(row, ['aadhaar', 'aadhaarcard', 'aadhaar_card', 'aadhaarnumber', 'aadhaar_number', 'aadhaar number']);
         const address = findValue(row, ['address']);
         const family_group = findValue(row, ['familygroup', 'family_group', 'family group', 'group']);
 
@@ -941,9 +1048,9 @@ export async function importClientsCSVAction(rows: any[], assessmentYear: string
             name,
             pan,
             mobile,
-            dob,
+            dob: dobISO,
             email: email ? String(email).trim() : null,
-            aadhaar: aadhaar ? String(aadhaar).trim() : null,
+            aadhaar: cleanAadhaar || null,
             address: address ? String(address).trim() : null,
             family_group: family_group ? String(family_group).trim() : null
           })
@@ -958,8 +1065,6 @@ export async function importClientsCSVAction(rows: any[], assessmentYear: string
         client = newClient;
 
         // Encrypt password
-        const passwordRaw = findValue(row, ['password', 'itrpassword', 'itr_password', 'itr password', 'portalpassword', 'portal_password', 'portal password']);
-        const password = passwordRaw ? String(passwordRaw).trim() : generateDefaultPassword(pan);
         const encrypted = encrypt(password);
         await supabase.from('client_secrets').insert({
           client_id: client.id,

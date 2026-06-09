@@ -33,6 +33,7 @@ interface SettingsClientProps {
     filing_reminder: string;
     payment_reminder: string;
   };
+  initialThemePreference: string;
 }
 
 export default function SettingsClient({
@@ -41,23 +42,27 @@ export default function SettingsClient({
   configStatus,
   initialFirmProfile,
   initialFeePresets,
-  initialWhatsappTemplates
+  initialWhatsappTemplates,
+  initialThemePreference
 }: SettingsClientProps) {
   // State for forms
   const [firmProfile, setFirmProfile] = useState(initialFirmProfile);
   const [feePresets, setFeePresets] = useState(initialFeePresets);
   const [whatsappTemplates, setWhatsappTemplates] = useState(initialWhatsappTemplates);
+  const [themePreference, setThemePreference] = useState(initialThemePreference);
 
   // Transitions for savings
   const [isFirmPending, startFirmTransition] = useTransition();
   const [isFeePending, startFeeTransition] = useTransition();
   const [isWaPending, startWaTransition] = useTransition();
+  const [isThemePending, startThemeTransition] = useTransition();
   const [isBackfilling, setIsBackfilling] = useState(false);
 
   // Status feedback messages
   const [firmStatus, setFirmStatus] = useState<{ type: 'success' | 'error', text: string } | null>(null);
   const [feeStatus, setFeeStatus] = useState<{ type: 'success' | 'error', text: string } | null>(null);
   const [waStatus, setWaStatus] = useState<{ type: 'success' | 'error', text: string } | null>(null);
+  const [themeStatus, setThemeStatus] = useState<{ type: 'success' | 'error', text: string } | null>(null);
   const [backfillResult, setBackfillResult] = useState<{ type: 'success' | 'error', text: string } | null>(null);
 
   // Handlers for saves
@@ -116,6 +121,27 @@ export default function SettingsClient({
         }
       } catch (err: any) {
         setWaStatus({ type: 'error', text: err.message || 'An unexpected error occurred.' });
+      }
+    });
+  };
+
+  const handleSaveTheme = (newTheme: string) => {
+    setThemePreference(newTheme);
+    setThemeStatus(null);
+    startThemeTransition(async () => {
+      try {
+        const res = await saveSystemSettingsAction('theme_preference', newTheme);
+        if (res.error) {
+          setThemeStatus({ type: 'error', text: res.error });
+        } else {
+          setThemeStatus({ type: 'success', text: 'Theme preference saved!' });
+          setTimeout(() => {
+            setThemeStatus(null);
+            window.location.reload(); // Reload immediately to apply theme
+          }, 500);
+        }
+      } catch (err: any) {
+        setThemeStatus({ type: 'error', text: err.message || 'An unexpected error occurred.' });
       }
     });
   };
@@ -396,6 +422,54 @@ export default function SettingsClient({
 
       {/* Right Column: Health Status & Utilities (Password Backfill) */}
       <div className="space-y-6 select-none">
+        
+        {/* App Theme Selection Card */}
+        <div className="bg-slate-900/40 border border-slate-800/80 rounded-3xl p-6 space-y-4">
+          <div>
+            <h2 className="text-lg font-bold text-white flex items-center gap-2">
+              <span>App Visual Theme</span>
+            </h2>
+            <p className="text-xs text-slate-500 mt-1">Select your preferred user interface design preference.</p>
+          </div>
+
+          {themeStatus && (
+            <div className={`p-3 rounded-xl border text-xs font-semibold ${
+              themeStatus.type === 'success' 
+                ? 'bg-emerald-950/20 border-emerald-900/30 text-emerald-400' 
+                : 'bg-red-950/20 border-red-900/30 text-red-400'
+            }`}>
+              {themeStatus.text}
+            </div>
+          )}
+
+          <div className="grid grid-cols-2 gap-3">
+            <button
+              onClick={() => handleSaveTheme('light')}
+              disabled={isThemePending}
+              className={`flex flex-col items-center justify-center p-4 rounded-2xl border text-xs font-bold transition-all cursor-pointer ${
+                themePreference === 'light'
+                  ? 'bg-slate-800 border-slate-700 text-slate-200 shadow-md'
+                  : 'bg-slate-950 border-slate-850 text-slate-500 hover:text-slate-350'
+              }`}
+            >
+              <span className="text-xl mb-1">☀️</span>
+              <span>Light Mode</span>
+            </button>
+
+            <button
+              onClick={() => handleSaveTheme('dark')}
+              disabled={isThemePending}
+              className={`flex flex-col items-center justify-center p-4 rounded-2xl border text-xs font-bold transition-all cursor-pointer ${
+                themePreference === 'dark'
+                  ? 'bg-slate-900 border-slate-750 text-white shadow-md'
+                  : 'bg-slate-950 border-slate-850 text-slate-500 hover:text-slate-350'
+              }`}
+            >
+              <span className="text-xl mb-1">🌙</span>
+              <span>Dark Mode</span>
+            </button>
+          </div>
+        </div>
         
         {/* Credentials/Drive health check card */}
         <div className="bg-slate-900/40 border border-slate-800/80 rounded-3xl p-6 space-y-6">

@@ -1,8 +1,48 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #0f172a;
+  --background: #020617; /* Slate 950 - default to dark mode */
+  --foreground: #f1f5f9; /* Slate 100 */
+}
+
+/* Light Theme Variables */
+html[data-theme='light'] {
+  --background: #f8fafc; /* Slate 50 */
+  --foreground: #0f172a; /* Slate 900 */
+  
+  --color-slate-950: #f8fafc;
+  --color-slate-900: #ffffff;
+  --color-slate-850: #f1f5f9;
+  --color-slate-800: #e2e8f0;
+  --color-slate-750: #cbd5e1;
+  --color-slate-700: #94a3b8;
+  --color-slate-600: #64748b;
+  --color-slate-500: #475569;
+  --color-slate-400: #334155;
+  --color-slate-300: #1e293b;
+  --color-slate-200: #0f172a;
+  --color-slate-100: #0f172a;
+  --color-slate-50: #0f172a;
+}
+
+/* Dark Theme Variables */
+html[data-theme='dark'] {
+  --background: #020617;
+  --foreground: #f1f5f9;
+  
+  --color-slate-950: #020617;
+  --color-slate-900: #0f172a;
+  --color-slate-850: #1e293b;
+  --color-slate-800: #334155;
+  --color-slate-750: #475569;
+  --color-slate-700: #64748b;
+  --color-slate-600: #94a3b8;
+  --color-slate-500: #cbd5e1;
+  --color-slate-400: #f1f5f9;
+  --color-slate-300: #f8fafc;
+  --color-slate-200: #ffffff;
+  --color-slate-100: #ffffff;
+  --color-slate-50: #ffffff;
 }
 
 @theme inline {
@@ -12,18 +52,12 @@
   --font-mono: var(--font-geist-mono), monospace;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #020617; /* Slate 950 - deeper and richer than pure black */
-    --foreground: #f1f5f9; /* Slate 100 */
-  }
-}
-
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans);
   overflow-x: hidden;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 /* Custom Sleek Scrollbar */
@@ -35,17 +69,29 @@ body {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(30, 41, 59, 0.5); /* Slate 800 with transparency */
+  background: rgba(30, 41, 59, 0.5);
   border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(51, 65, 85, 0.8); /* Slate 700 with transparency */
+  background: rgba(51, 65, 85, 0.8);
+}
+
+html[data-theme='light'] ::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.5);
+}
+html[data-theme='light'] ::-webkit-scrollbar-thumb:hover {
+  background: rgba(100, 116, 139, 0.8);
 }
 
 /* Selection Highlight Color */
 ::selection {
-  background-color: rgba(59, 130, 246, 0.25); /* Blue 500 with opacity */
-  color: #60a5fa; /* Blue 400 */
+  background-color: rgba(59, 130, 246, 0.25);
+  color: #60a5fa;
+}
+
+html[data-theme='light'] ::selection {
+  background-color: rgba(59, 130, 246, 0.15);
+  color: #2563eb;
 }
 
 /* Glassmorphism helpers */
@@ -61,6 +107,16 @@ body {
 .glass-panel-hover:hover {
   background: rgba(15, 23, 42, 0.6);
   border-color: rgba(59, 130, 246, 0.2);
+  box-shadow: 0 10px 30px -10px rgba(59, 130, 246, 0.08);
+}
+
+html[data-theme='light'] .glass-panel {
+  background: rgba(255, 255, 255, 0.45);
+  border: 1px solid rgba(15, 23, 42, 0.08);
+}
+html[data-theme='light'] .glass-panel-hover:hover {
+  background: rgba(255, 255, 255, 0.6);
+  border-color: rgba(59, 130, 246, 0.3);
   box-shadow: 0 10px 30px -10px rgba(59, 130, 246, 0.08);
 }
 
@@ -80,4 +136,39 @@ input:focus, select:focus, textarea:focus {
 }
 .status-glow-blue {
   box-shadow: 0 0 10px rgba(59, 130, 246, 0.4);
+}
+
+/* Light Theme overrides for headings and text-white to support dark labels */
+html[data-theme='light'] h1,
+html[data-theme='light'] h2,
+html[data-theme='light'] h3,
+html[data-theme='light'] h4,
+html[data-theme='light'] th,
+html[data-theme='light'] .text-white {
+  color: #0f172a;
+}
+
+/* Preserve white text color for high contrast inside colored components in light mode */
+html[data-theme='light'] .bg-blue-600,
+html[data-theme='light'] .bg-blue-500,
+html[data-theme='light'] .bg-emerald-600,
+html[data-theme='light'] .bg-emerald-500,
+html[data-theme='light'] .bg-indigo-600,
+html[data-theme='light'] .bg-indigo-500,
+html[data-theme='light'] .bg-purple-600,
+html[data-theme='light'] .bg-red-600,
+html[data-theme='light'] .bg-red-950\/20 {
+  color: #ffffff !important;
+}
+
+html[data-theme='light'] .bg-blue-600 *,
+html[data-theme='light'] .bg-blue-500 *,
+html[data-theme='light'] .bg-emerald-600 *,
+html[data-theme='light'] .bg-emerald-500 *,
+html[data-theme='light'] .bg-indigo-600 *,
+html[data-theme='light'] .bg-indigo-500 *,
+html[data-theme='light'] .bg-purple-600 *,
+html[data-theme='light'] .bg-red-600 *,
+html[data-theme='light'] .bg-red-950\/20 * {
+  color: #ffffff !important;
 }
