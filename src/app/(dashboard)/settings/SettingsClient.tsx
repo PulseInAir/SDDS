@@ -50,6 +50,7 @@ export default function SettingsClient({
   const [feePresets, setFeePresets] = useState(initialFeePresets);
   const [whatsappTemplates, setWhatsappTemplates] = useState(initialWhatsappTemplates);
   const [themePreference, setThemePreference] = useState(initialThemePreference);
+  const [savingTheme, setSavingTheme] = useState<string | null>(null);
 
   // Transitions for savings
   const [isFirmPending, startFirmTransition] = useTransition();
@@ -126,6 +127,7 @@ export default function SettingsClient({
   };
 
   const handleSaveTheme = (newTheme: string) => {
+    setSavingTheme(newTheme);
     setThemePreference(newTheme);
     setThemeStatus(null);
     startThemeTransition(async () => {
@@ -133,6 +135,7 @@ export default function SettingsClient({
         const res = await saveSystemSettingsAction('theme_preference', newTheme);
         if (res.error) {
           setThemeStatus({ type: 'error', text: res.error });
+          setSavingTheme(null);
         } else {
           setThemeStatus({ type: 'success', text: 'Theme preference saved!' });
           setTimeout(() => {
@@ -142,6 +145,7 @@ export default function SettingsClient({
         }
       } catch (err: any) {
         setThemeStatus({ type: 'error', text: err.message || 'An unexpected error occurred.' });
+        setSavingTheme(null);
       }
     });
   };
@@ -452,7 +456,11 @@ export default function SettingsClient({
                   : 'bg-slate-950 border-slate-850 text-slate-500 hover:text-slate-350'
               }`}
             >
-              <span className="text-xl mb-1">☀️</span>
+              {isThemePending && savingTheme === 'light' ? (
+                <Loader2 className="h-5 w-5 animate-spin mb-1 text-blue-400" />
+              ) : (
+                <span className="text-xl mb-1">☀️</span>
+              )}
               <span>Light Mode</span>
             </button>
 
@@ -465,7 +473,11 @@ export default function SettingsClient({
                   : 'bg-slate-950 border-slate-850 text-slate-500 hover:text-slate-350'
               }`}
             >
-              <span className="text-xl mb-1">🌙</span>
+              {isThemePending && savingTheme === 'dark' ? (
+                <Loader2 className="h-5 w-5 animate-spin mb-1 text-blue-400" />
+              ) : (
+                <span className="text-xl mb-1">🌙</span>
+              )}
               <span>Dark Mode</span>
             </button>
           </div>

@@ -12,3 +12,8 @@ ALTER TABLE system_settings ENABLE ROW LEVEL SECURITY;
 -- Since SDDS operates on service role or admin client under authenticated routes:
 CREATE POLICY "Allow all operations for authenticated users" ON system_settings
   FOR ALL TO authenticated USING (true) WITH CHECK (true);
+
+-- Allow anonymous read of theme preference key only, so the login page can load it
+CREATE POLICY "Allow anonymous read of theme preference" ON system_settings
+  FOR SELECT TO anon USING (key = 'theme_preference');
+

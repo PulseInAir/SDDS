@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useState, useTransition, useEffect } from 'react';
 import { usePrivacy } from '@/context/PrivacyContext';
 import { getCurrentAssessmentYear } from '@/utils/ay';
 import { 
@@ -35,17 +35,36 @@ interface ClientProfileContainerProps {
 }
 
 export default function ClientProfileContainer({
-  client,
-  filings,
-  invoices,
-  payments,
-  activityLogs,
+  client: clientProp,
+  filings: filingsProp,
+  invoices: invoicesProp,
+  payments: paymentsProp,
+  activityLogs: activityLogsProp,
   selectedAY,
   ayList
 }: ClientProfileContainerProps) {
   const { isPrivacyMode } = usePrivacy();
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
+
+  // Local States for Optimistic UI Updates
+  const [localClient, setLocalClient] = useState(clientProp);
+  const [localFilings, setLocalFilings] = useState(filingsProp);
+  const [localInvoices, setLocalInvoices] = useState(invoicesProp);
+  const [localPayments, setLocalPayments] = useState(paymentsProp);
+  const [localActivityLogs, setLocalActivityLogs] = useState(activityLogsProp);
+
+  useEffect(() => { setLocalClient(clientProp); }, [clientProp]);
+  useEffect(() => { setLocalFilings(filingsProp); }, [filingsProp]);
+  useEffect(() => { setLocalInvoices(invoicesProp); }, [invoicesProp]);
+  useEffect(() => { setLocalPayments(paymentsProp); }, [paymentsProp]);
+  useEffect(() => { setLocalActivityLogs(activityLogsProp); }, [activityLogsProp]);
+
+  const client = localClient;
+  const filings = localFilings;
+  const invoices = localInvoices;
+  const payments = localPayments;
+  const activityLogs = localActivityLogs;
 
   const handleDeleteClient = async () => {
     if (!confirm(`Are you sure you want to permanently delete this client profile? This will delete all filings, invoices, and credentials associated with ${client.name}. This action cannot be undone.`)) {
@@ -183,6 +202,9 @@ export default function ClientProfileContainer({
     const dobRaw = (formData.get('dob') as string).trim(); // Expected DD-MM-YYYY
     const mobile = (formData.get('mobile') as string).trim();
     const aadhaarRaw = (formData.get('aadhaar') as string).replace(/\s/g, ''); // strip spaces
+    const email = (formData.get('email') as string).trim();
+    const address = (formData.get('address') as string).trim();
+    const familyGroup = (formData.get('family_group') as string).trim();
 
     if (!name || !dobRaw || !mobile) {
       setErrorMsg('Full Name, Mobile, and Date of Birth are required.');
@@ -222,10 +244,38 @@ export default function ClientProfileContainer({
       formData.set('aadhaar', aadhaarRaw);
     }
 
+    const previousClient = { ...localClient };
+
+    // Optimistically update local client details
+    setLocalClient((prev: any) => ({
+      ...prev,
+      name,
+      dob: formattedDob,
+      mobile,
+      email: email || null,
+      aadhaar: aadhaarRaw || null,
+      address: address || null,
+      family_group: familyGroup || null
+    }));
+
+    // Add optimistic log
+    const tempLogId = Math.random().toString();
+    const optLog = {
+      id: tempLogId,
+      client_id: client.id,
+      action_type: 'Profile Updated',
+      description: 'Client personal details updated.',
+      created_at: new Date().toISOString()
+    };
+    setLocalActivityLogs(prev => [optLog, ...prev]);
+
     startTransition(async () => {
       const res = await updateClientAction(client.id, formData);
       if (res.error) {
         setErrorMsg(res.error);
+        // Rollback
+        setLocalClient(previousClient);
+        setLocalActivityLogs(prev => prev.filter(log => log.id !== tempLogId));
       } else {
         setSuccessMsg('Profile updated successfully!');
         setTimeout(() => {
@@ -258,10 +308,122 @@ export default function ClientProfileContainer({
       discount: Number(formData.get('discount') || 0)
     };
 
+    // Save previous state for rollback
+    const previousFilings = [...localFilings];
+    const previousInvoices = [...localInvoices];
+    const previousLogs = [...localActivityLogs];
+
+    // Optimistically update filings
+    setLocalFilings(prev => prev.map(f => {
+      if (f.id === currentFiling.id) {
+        return {
+          ...f,
+          filing_status: statusDetails.filing_status,
+          itr_type: statusDetails.itr_type || null,
+          filing_date: statusDetails.filing_date || null,
+          acknowledgement_number: statusDetails.acknowledgement_number || null,
+          refund_amount: statusDetails.refund_amount,
+          refund_status: statusDetails.refund_status,
+          refund_received_date: statusDetails.refund_received_date || null,
+          intimation_status: statusDetails.intimation_status,
+          updated_at: new Date().toISOString()
+        };
+      }
+      return f;
+    }));
+
+    // Recalculate invoice optimistically
+    if (currentInvoice) {
+      setLocalInvoices(prev => prev.map(inv => {
+        if (inv.id === currentInvoice.id) {
+          const refundCharge = statusDetails.refund_amount * (statusDetails.refund_charge_pct / 100);
+          const invoiceAmount = statusDetails.filing_charge + refundCharge;
+          const settlementAmount = Math.max(0, invoiceAmount - statusDetails.discount);
+          const amountReceived = Number(inv.amount_received || 0);
+          const outstandingAmount = Math.max(0, settlementAmount - amountReceived);
+          let newStatus = 'Unpaid';
+          if (outstandingAmount <= 0 && settlementAmount > 0) {
+            newStatus = 'Paid';
+          } else if (amountReceived > 0) {
+            newStatus = 'Partial';
+          }
+
+          return {
+            ...inv,
+            filing_charge: statusDetails.filing_charge,
+            refund_charge_pct: statusDetails.refund_charge_pct,
+            refund_charge: refundCharge,
+            discount: statusDetails.discount,
+            invoice_amount: invoiceAmount,
+            settlement_amount: settlementAmount,
+            outstanding_amount: outstandingAmount,
+            payment_status: newStatus,
+            updated_at: new Date().toISOString()
+          };
+        }
+        return inv;
+      }));
+    }
+
+    // Add activity logs optimistically
+    const optLogs: any[] = [];
+    if (currentFiling.filing_status !== statusDetails.filing_status) {
+      optLogs.push({
+        id: Math.random().toString(),
+        client_id: client.id,
+        action_type: 'Status Changed',
+        description: `ITR filing status updated to: ${statusDetails.filing_status}`,
+        created_at: new Date().toISOString()
+      });
+    }
+    if (statusDetails.filing_status === 'Filed' && currentFiling.filing_status !== 'Filed') {
+      optLogs.push({
+        id: Math.random().toString(),
+        client_id: client.id,
+        action_type: 'ITR Filed',
+        description: `Income Tax Return filed for AY ${currentFiling.assessment_year}.`,
+        created_at: new Date().toISOString()
+      });
+    }
+    if (statusDetails.acknowledgement_number && currentFiling.acknowledgement_number !== statusDetails.acknowledgement_number) {
+      optLogs.push({
+        id: Math.random().toString(),
+        client_id: client.id,
+        action_type: 'Ack Added',
+        description: `ITR Acknowledgement Number added: ${statusDetails.acknowledgement_number}`,
+        created_at: new Date().toISOString()
+      });
+    }
+    if (statusDetails.intimation_status && currentFiling.intimation_status !== statusDetails.intimation_status) {
+      optLogs.push({
+        id: Math.random().toString(),
+        client_id: client.id,
+        action_type: 'Intimation Received',
+        description: `Intimation status changed to: ${statusDetails.intimation_status}`,
+        created_at: new Date().toISOString()
+      });
+    }
+    if (statusDetails.refund_amount && Number(currentFiling.refund_amount) !== Number(statusDetails.refund_amount)) {
+      optLogs.push({
+        id: Math.random().toString(),
+        client_id: client.id,
+        action_type: 'Refund Determined',
+        description: `Refund details updated. Refund amount: ₹${statusDetails.refund_amount}`,
+        created_at: new Date().toISOString()
+      });
+    }
+    if (optLogs.length > 0) {
+      setLocalActivityLogs(prev => [...optLogs, ...prev]);
+    }
+
     startTransition(async () => {
       const res = await updateFilingStatusAction(client.id, currentFiling.id, statusDetails);
       if (res.error) {
         setErrorMsg(res.error);
+        // Rollback
+        setLocalFilings(previousFilings);
+        setLocalInvoices(previousInvoices);
+        setLocalActivityLogs(previousLogs);
       } else {
         setSuccessMsg('Filing and billing records updated successfully!');
         setTimeout(() => {
@@ -284,10 +446,66 @@ export default function ClientProfileContainer({
     const date = formData.get('payment_date') as string;
     const notes = formData.get('notes') as string;
 
+    if (!currentInvoice) return;
+
+    // Save previous state for rollback
+    const previousPayments = [...localPayments];
+    const previousInvoices = [...localInvoices];
+    const previousLogs = [...localActivityLogs];
+
+    // Optimistic payment record
+    const tempPaymentId = Math.random().toString();
+    const optPayment = {
+      id: tempPaymentId,
+      invoice_id: currentInvoice.id,
+      amount,
+      payment_mode: mode,
+      payment_date: date,
+      notes: notes || null,
+      created_at: new Date().toISOString()
+    };
+
+    setLocalPayments(prev => [optPayment, ...prev]);
+
+    // Recalculate invoice optimistically
+    setLocalInvoices(prev => prev.map(inv => {
+      if (inv.id === currentInvoice.id) {
+        const newReceived = Number(inv.amount_received || 0) + amount;
+        const newOutstanding = Math.max(0, Number(inv.settlement_amount || 0) - newReceived);
+        let newStatus = 'Unpaid';
+        if (newOutstanding <= 0 && Number(inv.settlement_amount || 0) > 0) {
+          newStatus = 'Paid';
+        } else if (newReceived > 0) {
+          newStatus = 'Partial';
+        }
+        return {
+          ...inv,
+          amount_received: newReceived,
+          outstanding_amount: newOutstanding,
+          payment_status: newStatus
+        };
+      }
+      return inv;
+    }));
+
+    // Add activity log optimistically
+    const optLog = {
+      id: Math.random().toString(),
+      client_id: client.id,
+      action_type: 'Payment Received',
+      description: `Received payment installment of ₹${amount} via ${mode}. Notes: ${notes || 'none'}`,
+      created_at: new Date().toISOString()
+    };
+    setLocalActivityLogs(prev => [optLog, ...prev]);
+
     startTransition(async () => {
       const res = await recordPaymentAction(currentInvoice.id, amount, mode, date, notes, client.id);
       if (res.error) {
         setErrorMsg(res.error);
+        // Rollback
+        setLocalPayments(previousPayments);
+        setLocalInvoices(previousInvoices);
+        setLocalActivityLogs(previousLogs);
       } else {
         setSuccessMsg('Payment installment recorded!');
         setTimeout(() => {
@@ -302,34 +520,175 @@ export default function ClientProfileContainer({
   const handleAddNote = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const form = e.currentTarget;
-    const noteText = (new FormData(form)).get('note') as string;
+    const noteInput = form.elements.namedItem('note') as HTMLInputElement;
+    const noteText = noteInput.value;
 
     if (!noteText || noteText.trim().length === 0) return;
 
-    const res = await addNoteAction(client.id, noteText);
-    if (!res.error) {
-      form.reset();
-    }
+    // Optimistic note log
+    const tempId = Math.random().toString();
+    const optLog = {
+      id: tempId,
+      client_id: client.id,
+      action_type: 'Note Added',
+      description: noteText,
+      created_at: new Date().toISOString()
+    };
+
+    // Clear input immediately to make it feel fast
+    noteInput.value = '';
+
+    setLocalActivityLogs(prev => [optLog, ...prev]);
+
+    startTransition(async () => {
+      const res = await addNoteAction(client.id, noteText);
+      if (res && res.error) {
+        alert(res.error);
+        // Rollback optimistic update
+        setLocalActivityLogs(prev => prev.filter(log => log.id !== tempId));
+        // Restore input value
+        noteInput.value = noteText;
+      }
+    });
   };
 
   // Handle Dynamic filing creation for other Assessment Years
   const handleCreateFilingForAY = async (ay: string) => {
     if (confirm(`Do you want to initialize the ITR filing workflow for Assessment Year ${ay}?`)) {
-      const res = await createFilingForAYAction(client.id, ay);
-      if (res.error) {
-        alert(res.error);
-      }
+      const tempFilingId = Math.random().toString();
+      const tempInvoiceId = Math.random().toString();
+      
+      const optFiling = {
+        id: tempFilingId,
+        client_id: client.id,
+        assessment_year: ay,
+        filing_status: 'Yet To File',
+        itr_type: null,
+        acknowledgement_number: null,
+        refund_amount: 0,
+        refund_status: 'Yet to receive',
+        intimation_status: 'Not Received',
+        filing_documents: [],
+        created_at: new Date().toISOString()
+      };
+      
+      const optInvoice = {
+        id: tempInvoiceId,
+        filing_id: tempFilingId,
+        invoice_number: `SDDS/ITR/${ay}/TEMP-${Math.floor(Math.random()*1000)}`,
+        serial_number: 999,
+        assessment_year: ay,
+        filing_charge: 0,
+        refund_charge_pct: 0,
+        refund_charge: 0,
+        discount: 0,
+        invoice_amount: 0,
+        settlement_amount: 0,
+        amount_received: 0,
+        outstanding_amount: 0,
+        payment_status: 'Unpaid',
+        created_at: new Date().toISOString()
+      };
+      
+      const optLog = {
+        id: Math.random().toString(),
+        client_id: client.id,
+        filing_id: tempFilingId,
+        action_type: 'Filing Enrolled',
+        description: `Started dynamic filing workflow for Assessment Year ${ay}.`,
+        created_at: new Date().toISOString()
+      };
+
+      const previousFilings = [...localFilings];
+      const previousInvoices = [...localInvoices];
+      const previousLogs = [...localActivityLogs];
+
+      setLocalFilings(prev => [optFiling, ...prev]);
+      setLocalInvoices(prev => [optInvoice, ...prev]);
+      setLocalActivityLogs(prev => [optLog, ...prev]);
+
+      startTransition(async () => {
+        const res = await createFilingForAYAction(client.id, ay);
+        if (res.error) {
+          alert(res.error);
+          // Rollback
+          setLocalFilings(previousFilings);
+          setLocalInvoices(previousInvoices);
+          setLocalActivityLogs(previousLogs);
+        }
+      });
     }
   };
 
   const handleCreateRevisedReturn = async () => {
     if (confirm(`Do you want to initialize a Revised Return filing for Assessment Year ${selectedAY}?`)) {
-      const res = await createRevisedFilingAction(client.id, selectedAY);
-      if (res.error) {
-        alert(res.error);
-      } else {
-        setSelectedFilingId(null);
-      }
+      const latestRevision = ayFilings.reduce((max, f) => Math.max(max, f.revision_number || 0), 0);
+      const nextRevision = latestRevision + 1;
+      const tempFilingId = Math.random().toString();
+      const tempInvoiceId = Math.random().toString();
+
+      const optFiling = {
+        id: tempFilingId,
+        client_id: client.id,
+        assessment_year: selectedAY,
+        return_type: 'Revised',
+        revision_number: nextRevision,
+        filing_status: 'Yet To File',
+        itr_type: null,
+        acknowledgement_number: null,
+        refund_amount: 0,
+        refund_status: 'Yet to receive',
+        intimation_status: 'Not Received',
+        filing_documents: [],
+        created_at: new Date().toISOString()
+      };
+      
+      const optInvoice = {
+        id: tempInvoiceId,
+        filing_id: tempFilingId,
+        invoice_number: `SDDS/ITR/${selectedAY}/TEMP-REV-${Math.floor(Math.random()*1000)}`,
+        serial_number: 999,
+        assessment_year: selectedAY,
+        filing_charge: 0,
+        refund_charge_pct: 0,
+        refund_charge: 0,
+        discount: 0,
+        invoice_amount: 0,
+        settlement_amount: 0,
+        amount_received: 0,
+        outstanding_amount: 0,
+        payment_status: 'Unpaid',
+        created_at: new Date().toISOString()
+      };
+
+      const optLog = {
+        id: Math.random().toString(),
+        client_id: client.id,
+        filing_id: tempFilingId,
+        action_type: 'Filing Enrolled',
+        description: `Started revised filing workflow (Rev ${nextRevision}) for Assessment Year ${selectedAY}.`,
+        created_at: new Date().toISOString()
+      };
+
+      const previousFilings = [...localFilings];
+      const previousInvoices = [...localInvoices];
+      const previousLogs = [...localActivityLogs];
+
+      setLocalFilings(prev => [optFiling, ...prev]);
+      setLocalInvoices(prev => [optInvoice, ...prev]);
+      setLocalActivityLogs(prev => [optLog, ...prev]);
+      setSelectedFilingId(null);
+
+      startTransition(async () => {
+        const res = await createRevisedFilingAction(client.id, selectedAY);
+        if (res.error) {
+          alert(res.error);
+          // Rollback
+          setLocalFilings(previousFilings);
+          setLocalInvoices(previousInvoices);
+          setLocalActivityLogs(previousLogs);
+        }
+      });
     }
   };
 
@@ -385,15 +744,33 @@ export default function ClientProfileContainer({
 
   const handleDeleteDocument = async (docId: string) => {
     if (!confirm('Are you sure you want to permanently delete this document?')) return;
+    
+    const previousFilings = [...localFilings];
+
+    // Optimistically update document list
+    if (currentFiling) {
+      setLocalFilings(prev => prev.map(f => {
+        if (f.id === currentFiling.id) {
+          return {
+            ...f,
+            filing_documents: (f.filing_documents || []).filter((d: any) => d.id !== docId)
+          };
+        }
+        return f;
+      }));
+    }
+
     try {
       const res = await deleteDocumentAction(docId, client.id);
       if (res.error) {
         alert(res.error);
+        setLocalFilings(previousFilings);
       } else {
         setDocMessage({ type: 'success', text: res.message || 'Document deleted successfully!' });
       }
     } catch (err: any) {
-      alert('Failed to delete document: ' + err.message);
+      alert('Delete failed: ' + err.message);
+      setLocalFilings(previousFilings);
     }
   };
 
@@ -1038,9 +1415,10 @@ export default function ClientProfileContainer({
           />
           <button
             type="submit"
-            className="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-slate-200 cursor-pointer transition-colors"
+            disabled={isPending}
+            className="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-slate-200 cursor-pointer transition-colors disabled:opacity-55"
           >
-            <Send className="h-3 w-3" />
+            {isPending ? <Loader2 className="h-3 w-3 animate-spin text-blue-400" /> : <Send className="h-3 w-3" />}
             <span>Post</span>
           </button>
         </form>
@@ -1162,8 +1540,9 @@ export default function ClientProfileContainer({
 
             <div className="pt-6 border-t border-slate-800 flex justify-end space-x-3">
               <button onClick={() => setIsEditProfileOpen(false)} className="px-4 py-2 text-slate-400 hover:text-white">Cancel</button>
-              <button type="submit" form="edit-client-form" disabled={isPending} className="px-5 py-2.5 bg-blue-600 hover:bg-blue-500 rounded-xl text-sm font-semibold text-white cursor-pointer disabled:opacity-50">
-                Save Changes
+              <button type="submit" form="edit-client-form" disabled={isPending} className="px-5 py-2.5 bg-blue-600 hover:bg-blue-500 rounded-xl text-sm font-semibold text-white cursor-pointer disabled:opacity-50 flex items-center justify-center space-x-1.5">
+                {isPending && <Loader2 className="h-3.5 w-3.5 animate-spin text-blue-400" />}
+                <span>{isPending ? 'Saving...' : 'Save Changes'}</span>
               </button>
             </div>
           </div>
@@ -1212,8 +1591,9 @@ export default function ClientProfileContainer({
 
             <div className="mt-6 flex justify-end space-x-3 border-t border-slate-800 pt-4">
               <button onClick={() => setIsRecordPaymentOpen(false)} className="px-4 py-2 text-slate-400 hover:text-white text-sm font-semibold">Cancel</button>
-              <button type="submit" form="record-payment-form" disabled={isPending} className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-sm font-semibold cursor-pointer disabled:opacity-50">
-                Confirm Payment
+              <button type="submit" form="record-payment-form" disabled={isPending} className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-sm font-semibold cursor-pointer disabled:opacity-50 flex items-center justify-center space-x-1.5">
+                {isPending && <Loader2 className="h-3.5 w-3.5 animate-spin text-emerald-200" />}
+                <span>{isPending ? 'Confirming...' : 'Confirm Payment'}</span>
               </button>
             </div>
           </div>
@@ -1330,8 +1710,9 @@ export default function ClientProfileContainer({
 
             <div className="pt-6 border-t border-slate-800 flex justify-end space-x-3">
               <button onClick={() => setIsUpdateFilingOpen(false)} className="px-4 py-2 text-slate-400 hover:text-white">Cancel</button>
-              <button type="submit" form="update-filing-form" disabled={isPending} className="px-5 py-2.5 bg-blue-600 hover:bg-blue-500 rounded-xl text-sm font-semibold text-white cursor-pointer disabled:opacity-50">
-                Confirm Update
+              <button type="submit" form="update-filing-form" disabled={isPending} className="px-5 py-2.5 bg-blue-600 hover:bg-blue-500 rounded-xl text-sm font-semibold text-white cursor-pointer disabled:opacity-50 flex items-center justify-center space-x-1.5">
+                {isPending && <Loader2 className="h-3.5 w-3.5 animate-spin text-blue-400" />}
+                <span>{isPending ? 'Updating...' : 'Confirm Update'}</span>
               </button>
             </div>
           </div>

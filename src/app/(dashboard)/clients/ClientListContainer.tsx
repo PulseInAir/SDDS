@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { usePrivacy } from '@/context/PrivacyContext';
 import { deleteClientsAction } from './actions';
 import Link from 'next/link';
@@ -131,27 +131,28 @@ export default function ClientListContainer({ initialClients }: { initialClients
   };
 
   // Filter clients
-  const filteredClients = clients.filter(c => {
+  const filteredClients = useMemo(() => {
     const term = search.toLowerCase();
-    
-    // Check nested filings & invoices
-    const matchesAck = c.filings?.some(f => f.acknowledgement_number?.toLowerCase().includes(term)) || false;
-    const matchesInv = c.filings?.some(f => {
-      if (!f.invoices) return false;
-      if (Array.isArray(f.invoices)) {
-        return f.invoices.some((inv: any) => inv.invoice_number?.toLowerCase().includes(term));
-      }
-      return (f.invoices as any).invoice_number?.toLowerCase().includes(term);
-    }) || false;
+    return clients.filter(c => {
+      // Check nested filings & invoices
+      const matchesAck = c.filings?.some(f => f.acknowledgement_number?.toLowerCase().includes(term)) || false;
+      const matchesInv = c.filings?.some(f => {
+        if (!f.invoices) return false;
+        if (Array.isArray(f.invoices)) {
+          return f.invoices.some((inv: any) => inv.invoice_number?.toLowerCase().includes(term));
+        }
+        return (f.invoices as any).invoice_number?.toLowerCase().includes(term);
+      }) || false;
 
-    return (
-      c.name.toLowerCase().includes(term) ||
-      c.pan.toLowerCase().includes(term) ||
-      c.mobile.includes(term) ||
-      matchesAck ||
-      matchesInv
-    );
-  });
+      return (
+        c.name.toLowerCase().includes(term) ||
+        c.pan.toLowerCase().includes(term) ||
+        c.mobile.includes(term) ||
+        matchesAck ||
+        matchesInv
+      );
+    });
+  }, [clients, search]);
 
 
 

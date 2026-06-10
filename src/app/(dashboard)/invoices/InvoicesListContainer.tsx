@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { usePrivacy } from '@/context/PrivacyContext';
 import { Search, Download, Eye, EyeOff, FileText, ArrowUpRight, MessageSquare } from 'lucide-react';
 import Link from 'next/link';
@@ -39,16 +39,18 @@ export default function InvoicesListContainer({ invoices, selectedAY, ayList }: 
   const [revealedIds, setRevealedIds] = useState<Record<string, boolean>>({});
 
   // Filter invoices
-  const filteredInvoices = invoices.filter(item => {
+  const filteredInvoices = useMemo(() => {
     const term = search.toLowerCase();
-    const matchesSearch = 
-      item.invoice_number.toLowerCase().includes(term) ||
-      item.filings.clients.name.toLowerCase().includes(term) ||
-      item.filings.clients.pan.toLowerCase().includes(term);
+    return invoices.filter(item => {
+      const matchesSearch = 
+        item.invoice_number.toLowerCase().includes(term) ||
+        item.filings.clients.name.toLowerCase().includes(term) ||
+        item.filings.clients.pan.toLowerCase().includes(term);
 
-    const matchesTab = activeTab === 'All' || item.payment_status === activeTab;
-    return matchesSearch && matchesTab;
-  });
+      const matchesTab = activeTab === 'All' || item.payment_status === activeTab;
+      return matchesSearch && matchesTab;
+    });
+  }, [invoices, search, activeTab]);
 
   // Mask string helper
   const maskText = (text: string, isMasked: boolean) => {

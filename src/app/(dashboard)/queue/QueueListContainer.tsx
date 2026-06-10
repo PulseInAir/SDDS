@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useState, useTransition, useMemo } from 'react';
 import { usePrivacy } from '@/context/PrivacyContext';
 import { decryptPasswordAction, triggerQueueRolloverAction, logWhatsAppActivityAction, getSystemSettingsAction } from '../clients/actions';
 import { 
@@ -134,16 +134,18 @@ export default function QueueListContainer({ initialQueue, selectedAY, ayList }:
   // Filters
   const tabs = ['All', 'Yet To File', 'Documents Pending', 'Ready to File', 'Filed', 'Under Processing', 'Processed', 'Rectification Required'];
 
-  const filteredQueue = queue.filter(item => {
+  const filteredQueue = useMemo(() => {
     const term = search.toLowerCase();
-    const matchesSearch = 
-      item.clients.name.toLowerCase().includes(term) ||
-      item.clients.pan.toLowerCase().includes(term) ||
-      item.clients.mobile.includes(term);
+    return queue.filter(item => {
+      const matchesSearch = 
+        item.clients.name.toLowerCase().includes(term) ||
+        item.clients.pan.toLowerCase().includes(term) ||
+        item.clients.mobile.includes(term);
 
-    if (activeTab === 'All') return matchesSearch;
-    return matchesSearch && item.filing_status === activeTab;
-  });
+      if (activeTab === 'All') return matchesSearch;
+      return matchesSearch && item.filing_status === activeTab;
+    });
+  }, [queue, search, activeTab]);
 
   return (
     <div className="space-y-6">
