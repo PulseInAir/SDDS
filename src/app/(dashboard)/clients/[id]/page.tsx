@@ -21,29 +21,40 @@ export default async function ClientDetailPage({ params, searchParams }: ClientD
   const ayList = getAssessmentYears();
   const supabase = await createClient();
 
-  // 1. Fetch Client Profile details
-  const { data: client, error: clientError } = await supabase
-    .from('clients')
-    .select('*')
-    .eq('id', clientId)
-    .single();
+  // Fetch client details, filings, and activity logs in parallel to minimize waterfalls
+  const [clientResult, filingsResult, activityLogsResult] = await Promise.all([
+    supabase
+      .from('clients')
+      .select('*')
+      .eq('id', clientId)
+      .single(),
+    supabase
+      .from('filings')
+      .select('*, filing_documents(*)')
+      .eq('client_id', clientId)
+      .order('assessment_year', { ascending: false }),
+    supabase
+      .from('activity_logs')
+      .select('*')
+      .eq('client_id', clientId)
+      .order('created_at', { ascending: false })
+  ]);
+
+  const { data: client, error: clientError } = clientResult;
+  const { data: filings } = filingsResult;
+  const { data: activityLogs } = activityLogsResult;
 
   if (clientError || !client) {
     console.error('Client not found:', clientError);
     redirect('/clients');
   }
 
-  // 2. Fetch Filings
-  const { data: filings } = await supabase
-    .from('filings')
-    .select('*, filing_documents(*)')
-    .eq('client_id', clientId)
-    .order('assessment_year', { ascending: false });
-
   const activeFilings = filings || [];
 
-  // 3. Fetch Invoices linked to filings
+  // Fetch Invoices and Payments in a parallel chain based on filings
   let invoicesList: any[] = [];
+  let paymentsList: any[] = [];
+
   if (activeFilings.length > 0) {
     const filingIds = activeFilings.map(f => f.id);
     const { data: invoices } = await supabase
@@ -51,25 +62,16 @@ export default async function ClientDetailPage({ params, searchParams }: ClientD
       .select('*')
       .in('filing_id', filingIds);
     invoicesList = invoices || [];
-  }
 
-  // 4. Fetch Payments linked to invoices
-  let paymentsList: any[] = [];
-  if (invoicesList.length > 0) {
-    const invoiceIds = invoicesList.map(i => i.id);
-    const { data: payments } = await supabase
-      .from('payments')
-      .select('*')
-      .in('invoice_id', invoiceIds);
-    paymentsList = payments || [];
+    if (invoicesList.length > 0) {
+      const invoiceIds = invoicesList.map(i => i.id);
+      const { data: payments } = await supabase
+        .from('payments')
+        .select('*')
+        .in('invoice_id', invoiceIds);
+      paymentsList = payments || [];
+    }
   }
-
-  // 5. Fetch Activity Logs
-  const { data: activityLogs } = await supabase
-    .from('activity_logs')
-    .select('*')
-    .eq('client_id', clientId)
-    .order('created_at', { ascending: false });
 
   return (
     <div className="space-y-6">

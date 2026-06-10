@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { usePrivacy } from '@/context/PrivacyContext';
 import { Search, Download, Eye, EyeOff, FileText, ArrowUpRight, MessageSquare } from 'lucide-react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { getSystemSettingsAction, logWhatsAppPaymentActivityAction } from '../clients/actions';
 
 interface InvoiceItem {
@@ -31,6 +32,7 @@ interface InvoicesListProps {
 }
 
 export default function InvoicesListContainer({ invoices, selectedAY, ayList }: InvoicesListProps) {
+  const router = useRouter();
   const { isPrivacyMode } = usePrivacy();
   const [search, setSearch] = useState('');
   const [activeTab, setActiveTab] = useState<string>('All');
@@ -146,8 +148,7 @@ export default function InvoicesListContainer({ invoices, selectedAY, ayList }: 
             <select
               id="inv-ay"
               defaultValue={selectedAY}
-              // @ts-ignore
-              onInput={(e) => { window.location.href = `/invoices?ay=${e.target.value}`; }}
+              onChange={(e) => { router.push(`/invoices?ay=${e.target.value}`); }}
               className="bg-slate-950 border border-slate-850 rounded-xl px-4 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500 cursor-pointer appearance-none pr-8 min-w-[120px]"
             >
               {ayList.map(ay => (

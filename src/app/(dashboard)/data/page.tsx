@@ -9,39 +9,41 @@ export default async function DataManagerPage() {
   const currentAY = getCurrentAssessmentYear();
   const supabase = await createClient();
 
-  // Fetch all clients for CSV export
-  const { data: clients } = await supabase
-    .from('clients')
-    .select('*')
-    .order('name', { ascending: true });
-
-  // Fetch all invoices with client details joined via filings for CSV export
-  const { data: invoices } = await supabase
-    .from('invoices')
-    .select(`
-      *,
-      filings (
-        assessment_year,
-        itr_type,
+  // Fetch all tables in parallel to optimize export loads
+  const [clientsResult, invoicesResult, filingsResult] = await Promise.all([
+    supabase
+      .from('clients')
+      .select('*')
+      .order('name', { ascending: true }),
+    supabase
+      .from('invoices')
+      .select(`
+        *,
+        filings (
+          assessment_year,
+          itr_type,
+          clients (
+            name,
+            pan
+          )
+        )
+      `)
+      .order('created_at', { ascending: false }),
+    supabase
+      .from('filings')
+      .select(`
+        *,
         clients (
           name,
           pan
         )
-      )
-    `)
-    .order('created_at', { ascending: false });
+      `)
+      .order('assessment_year', { ascending: false })
+  ]);
 
-  // Fetch all filings with client details joined for CSV export
-  const { data: filings } = await supabase
-    .from('filings')
-    .select(`
-      *,
-      clients (
-        name,
-        pan
-      )
-    `)
-    .order('assessment_year', { ascending: false });
+  const clients = clientsResult.data || [];
+  const invoices = invoicesResult.data || [];
+  const filings = filingsResult.data || [];
 
   return (
     <div className="space-y-8 max-w-5xl mx-auto">

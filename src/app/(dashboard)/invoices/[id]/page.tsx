@@ -13,24 +13,27 @@ export default async function InvoiceDetailPage({ params }: InvoiceDetailPagePro
   const invoiceId = resolvedParams.id;
   const supabase = await createClient();
 
-  // 1. Fetch Invoice Details (joining filing and client)
-  const { data: invoice, error } = await supabase
-    .from('invoices')
-    .select('*, filings!inner(*, clients!inner(*))')
-    .eq('id', invoiceId)
-    .single();
+  // Fetch invoice details and payments in parallel to avoid database sequential waterfall
+  const [invoiceResult, paymentsResult] = await Promise.all([
+    supabase
+      .from('invoices')
+      .select('*, filings!inner(*, clients!inner(*))')
+      .eq('id', invoiceId)
+      .single(),
+    supabase
+      .from('payments')
+      .select('*')
+      .eq('invoice_id', invoiceId)
+      .order('payment_date', { ascending: true })
+  ]);
+
+  const { data: invoice, error } = invoiceResult;
+  const { data: payments } = paymentsResult;
 
   if (error || !invoice) {
     console.error('Invoice not found:', error);
     redirect('/invoices');
   }
-
-  // 2. Fetch payments received for this invoice
-  const { data: payments } = await supabase
-    .from('payments')
-    .select('*')
-    .eq('invoice_id', invoiceId)
-    .order('payment_date', { ascending: true });
 
   return (
     <div className="py-4">

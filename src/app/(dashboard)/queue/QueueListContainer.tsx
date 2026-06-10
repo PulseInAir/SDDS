@@ -8,6 +8,7 @@ import {
   RefreshCw, ClipboardCheck, ArrowUpRight, Loader2, UserPlus, CheckCircle 
 } from 'lucide-react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 interface QueueItem {
   id: string;
@@ -32,6 +33,7 @@ interface QueueListContainerProps {
 }
 
 export default function QueueListContainer({ initialQueue, selectedAY, ayList }: QueueListContainerProps) {
+  const router = useRouter();
   const { isPrivacyMode } = usePrivacy();
   const maskText = (text: string, isMasked: boolean) => {
     return isMasked ? '••••••••••' : text;
@@ -155,8 +157,7 @@ export default function QueueListContainer({ initialQueue, selectedAY, ayList }:
             <select
               id="queue-ay"
               defaultValue={selectedAY}
-              // @ts-ignore
-              onInput={(e) => { window.location.href = `/queue?ay=${e.target.value}`; }}
+              onChange={(e) => { router.push(`/queue?ay=${e.target.value}`); }}
               className="bg-slate-950 border border-slate-850 rounded-xl px-4 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500 cursor-pointer appearance-none pr-8 min-w-[120px]"
             >
               {ayList.map(ay => (
