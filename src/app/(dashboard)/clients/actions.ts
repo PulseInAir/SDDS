@@ -889,6 +889,28 @@ function parseDateToISO(dateStr?: any): string | null {
   return null;
 }
 
+async function generateUniqueTempPAN(supabase: any): Promise<string> {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  const digits = '0123456789';
+  while (true) {
+    let temp = 'TEMP';
+    for (let i = 0; i < 4; i++) {
+      temp += digits.charAt(Math.floor(Math.random() * digits.length));
+    }
+    temp += chars.charAt(Math.floor(Math.random() * chars.length));
+    temp += chars.charAt(Math.floor(Math.random() * chars.length));
+    
+    // Check if it already exists
+    const { count } = await supabase
+      .from('clients')
+      .select('*', { count: 'exact', head: true })
+      .eq('pan', temp);
+    if (count === 0) {
+      return temp;
+    }
+  }
+}
+
 export async function importClientsCSVAction(rows: any[], assessmentYear: string) {
   const supabase = await createClient();
 
@@ -926,77 +948,52 @@ export async function importClientsCSVAction(rows: any[], assessmentYear: string
     const row = rows[idx];
     const rowNum = idx + 2; // Row number in CSV (1-based, plus header)
 
-    const name = findValue(row, ['name', 'clientname', 'client_name', 'client name']);
-    const panRaw = findValue(row, ['pan']);
-    const pan = panRaw ? String(panRaw).toUpperCase().trim() : '';
-    const mobileRaw = findValue(row, ['mobile', 'phone', 'mobilenumber', 'mobile_number', 'mobile number']);
-    const mobile = mobileRaw ? String(mobileRaw).trim() : '';
-    const dobRaw = findValue(row, ['dob', 'dateofbirth', 'date_of_birth', 'date of birth']);
-    const dobStr = dobRaw ? String(dobRaw).trim() : '';
-    const aadhaarRaw = findValue(row, ['aadhaar', 'aadhaarcard', 'aadhaar_card', 'aadhaarnumber', 'aadhaar_number', 'aadhaar number']);
-    const cleanAadhaar = aadhaarRaw ? String(aadhaarRaw).replace(/\s/g, '') : '';
-    const passwordRaw = findValue(row, ['password', 'itrpassword', 'itr_password', 'itr password', 'portalpassword', 'portal_password', 'portal password']);
-    const password = passwordRaw ? String(passwordRaw).trim() : '';
-
-    if (!pan) {
-      results.failCount++;
-      results.errors.push(`Row ${rowNum}: Missing PAN.`);
+    // Skip completely empty rows
+    const hasAnyContent = Object.values(row).some(val => val !== null && val !== undefined && String(val).trim() !== '');
+    if (!hasAnyContent) {
       continue;
     }
 
+    const nameRaw = findValue(row, ['name', 'clientname', 'client_name', 'client name']);
+    const name = nameRaw ? String(nameRaw).trim() : 'Unnamed Client';
+    
+    const panRaw = findValue(row, ['pan']);
+    let pan = panRaw ? String(panRaw).toUpperCase().trim() : '';
+    
     // PAN validation (exactly 10 chars: 5 letters, 4 digits, 1 letter)
     const panRegex = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/;
-    if (!panRegex.test(pan)) {
-      results.failCount++;
-      results.errors.push(`Row ${rowNum} (${pan}): Invalid PAN format. Must be 10 characters (e.g. ABCDE1234F: 5 letters, 4 numbers, 1 letter) in uppercase.`);
-      continue;
+    if (!pan || !panRegex.test(pan)) {
+      pan = await generateUniqueTempPAN(supabase);
     }
 
-    if (!name) {
-      results.failCount++;
-      results.errors.push(`Row ${rowNum} (${pan}): Missing client Name.`);
-      continue;
-    }
+    const mobileRaw = findValue(row, ['mobile', 'phone', 'mobilenumber', 'mobile_number', 'mobile number']);
+    const mobile = mobileRaw ? String(mobileRaw).trim() : '';
 
-    // Mobile validation (optional, but if provided must be exactly 10 digits)
-    const mobileRegex = /^[0-9]{10}$/;
-    if (mobile && !mobileRegex.test(mobile)) {
-      results.failCount++;
-      results.errors.push(`Row ${rowNum} (${pan}): Invalid Mobile number "${mobile}". Must be exactly 10 digits (no country code).`);
-      continue;
-    }
-
-    // DOB validation (DD-MM-YYYY)
+    const dobRaw = findValue(row, ['dob', 'dateofbirth', 'date_of_birth', 'date of birth']);
+    const dobStr = dobRaw ? String(dobRaw).trim() : '';
+    let dobISO = '1900-01-01';
+    
     const dobRegex = /^(0[1-9]|[12][0-9]|3[01])-(0[1-9]|1[0-2])-\d{4}$/;
-    if (!dobStr) {
-      results.failCount++;
-      results.errors.push(`Row ${rowNum} (${pan}): Missing Date of Birth.`);
-      continue;
-    }
-    if (!dobRegex.test(dobStr)) {
-      results.failCount++;
-      results.errors.push(`Row ${rowNum} (${pan}): Invalid Date of Birth "${dobStr}". Must be in DD-MM-YYYY format (e.g., 31-01-1990).`);
-      continue;
-    }
-    const [d, m, y] = dobStr.split('-');
-    const dobISO = `${y}-${m}-${d}`;
-
-    // Aadhaar validation (if provided, must be exactly 12 digits)
-    if (cleanAadhaar) {
-      const aadhaarRegex = /^[0-9]{12}$/;
-      if (!aadhaarRegex.test(cleanAadhaar)) {
-        results.failCount++;
-        results.errors.push(`Row ${rowNum} (${pan}): Invalid Aadhaar number "${cleanAadhaar}". Must be exactly 12 digits.`);
-        continue;
+    const dobRegexISO = /^\d{4}-\d{2}-\d{2}$/;
+    if (dobStr) {
+      if (dobRegex.test(dobStr)) {
+        const [d, m, y] = dobStr.split('-');
+        dobISO = `${y}-${m}-${d}`;
+      } else if (dobRegexISO.test(dobStr)) {
+        dobISO = dobStr;
+      } else {
+        const parsed = parseDateToISO(dobStr);
+        if (parsed) {
+          dobISO = parsed;
+        }
       }
     }
 
-    // Password validation (mandatory)
-    if (!password) {
-      results.failCount++;
-      results.errors.push(`Row ${rowNum} (${pan}): Missing ITR Portal Password.`);
-      continue;
-    }
+    const aadhaarRaw = findValue(row, ['aadhaar', 'aadhaarcard', 'aadhaar_card', 'aadhaarnumber', 'aadhaar_number', 'aadhaar number']);
+    const cleanAadhaar = aadhaarRaw ? String(aadhaarRaw).replace(/\s/g, '') : '';
+
+    const passwordRaw = findValue(row, ['password', 'itrpassword', 'itr_password', 'itr password', 'portalpassword', 'portal_password', 'portal password']);
+    const password = passwordRaw ? String(passwordRaw).trim() : generateDefaultPassword(pan);
 
     try {
       // 1. Find or create client

@@ -471,39 +471,39 @@ export default function DataManagerClient({
                 <tbody className="divide-y divide-slate-850 text-slate-400">
                   <tr className="text-slate-300">
                     <td className="p-3 font-mono font-bold text-white">Client Name</td>
-                    <td className="p-3 text-blue-400 font-bold">Yes</td>
+                    <td className="p-3 text-slate-500">No</td>
                     <td className="p-3">Rahul Sharma</td>
-                    <td className="p-3 text-slate-500">Legal name of client.</td>
+                    <td className="p-3 text-slate-500">Legal name of client. Defaults to 'Unnamed Client' if blank.</td>
                   </tr>
                   <tr className="text-slate-300">
                     <td className="p-3 font-mono font-bold text-white">PAN</td>
-                    <td className="p-3 text-blue-400 font-bold">Yes</td>
+                    <td className="p-3 text-slate-500">No</td>
                     <td className="p-3 font-mono">ABCDE1234F</td>
-                    <td className="p-3 text-slate-500">10-digit PAN (Upserts if matching).</td>
+                    <td className="p-3 text-slate-500">10-digit PAN. If blank/invalid, a unique temporary PAN (e.g. TEMP1234AB) is generated.</td>
                   </tr>
                   <tr className="text-slate-300">
                     <td className="p-3 font-mono font-bold text-white">Mobile</td>
-                    <td className="p-3">No</td>
+                    <td className="p-3 text-slate-500">No</td>
                     <td className="p-3">9876543210</td>
-                    <td className="p-3 text-slate-500">Active contact number (optional).</td>
+                    <td className="p-3 text-slate-500">Active contact number. Defaults to empty if blank.</td>
                   </tr>
                   <tr className="text-slate-300">
                     <td className="p-3 font-mono font-bold text-white">Date of Birth</td>
-                    <td className="p-3 text-blue-400 font-bold">Yes (New Clients)</td>
+                    <td className="p-3 text-slate-500">No</td>
                     <td className="p-3">31-01-1990</td>
-                    <td className="p-3 text-slate-500">Strictly in DD-MM-YYYY format (with hyphen separator).</td>
+                    <td className="p-3 text-slate-500">Date of birth in DD-MM-YYYY format. Defaults to '01-01-1900' if blank.</td>
                   </tr>
                   <tr className="text-slate-300">
                     <td className="p-3 font-mono font-bold text-white">ITR Portal Password</td>
-                    <td className="p-3 text-blue-400 font-bold">Yes</td>
+                    <td className="p-3 text-slate-500">No</td>
                     <td className="p-3 font-mono">abcde*1234F</td>
-                    <td className="p-3 text-slate-500">ITR Portal login password. Mandatory.</td>
+                    <td className="p-3 text-slate-500">ITR Portal login password. Defaults to a standard password formula based on PAN if blank.</td>
                   </tr>
                   <tr className="text-slate-300">
                     <td className="p-3 font-mono font-bold text-white">Filing Charge</td>
-                    <td className="p-3">No</td>
+                    <td className="p-3 text-slate-500">No</td>
                     <td className="p-3">1200</td>
-                    <td className="p-3 text-slate-500">ITR Filing Fee Charge.</td>
+                    <td className="p-3 text-slate-500">ITR Filing Fee Charge. Defaults to 0 if blank.</td>
                   </tr>
                 </tbody>
               </table>
