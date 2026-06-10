@@ -944,6 +944,29 @@ export async function importClientsCSVAction(rows: any[], assessmentYear: string
     return undefined;
   };
 
+  // 1. Fetch all existing PANs to generate unique TEMP PANs locally
+  const { data: allPansData } = await supabase.from('clients').select('pan');
+  const existingPans = new Set(allPansData?.map(c => c.pan.toUpperCase()) || []);
+
+  const generateUniqueTempPANLocal = (pansSet: Set<string>): string => {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    const digits = '0123456789';
+    while (true) {
+      let temp = 'TEMP';
+      for (let i = 0; i < 4; i++) {
+        temp += digits.charAt(Math.floor(Math.random() * digits.length));
+      }
+      temp += chars.charAt(Math.floor(Math.random() * chars.length));
+      temp += chars.charAt(Math.floor(Math.random() * chars.length));
+      if (!pansSet.has(temp)) {
+        pansSet.add(temp);
+        return temp;
+      }
+    }
+  };
+
+  // 2. Parse and normalize all CSV rows in memory
+  const parsedRows = [];
   for (let idx = 0; idx < rows.length; idx++) {
     const row = rows[idx];
     const rowNum = idx + 2; // Row number in CSV (1-based, plus header)
@@ -963,7 +986,7 @@ export async function importClientsCSVAction(rows: any[], assessmentYear: string
     // PAN validation (exactly 10 chars: 5 letters, 4 digits, 1 letter)
     const panRegex = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/;
     if (!pan || !panRegex.test(pan)) {
-      pan = await generateUniqueTempPAN(supabase);
+      pan = generateUniqueTempPANLocal(existingPans);
     }
 
     const mobileRaw = findValue(row, ['mobile', 'phone', 'mobilenumber', 'mobile_number', 'mobile number']);
@@ -995,239 +1018,451 @@ export async function importClientsCSVAction(rows: any[], assessmentYear: string
     const passwordRaw = findValue(row, ['password', 'itrpassword', 'itr_password', 'itr password', 'portalpassword', 'portal_password', 'portal password']);
     const password = passwordRaw ? String(passwordRaw).trim() : generateDefaultPassword(pan);
 
-    try {
-      // 1. Find or create client
-      let client = null;
-      const { data: existingClient } = await supabase
-        .from('clients')
-        .select('*')
-        .eq('pan', pan)
-        .maybeSingle();
+    const email = findValue(row, ['email', 'emailaddress', 'email_address', 'email address']);
+    const address = findValue(row, ['address']);
+    const family_group = findValue(row, ['familygroup', 'family_group', 'family group', 'group']);
 
-      if (existingClient) {
-        client = existingClient;
-        // Update details if provided
-        const updateData: any = {};
-        const email = findValue(row, ['email', 'emailaddress', 'email_address', 'email address']);
-        const address = findValue(row, ['address']);
-        const family_group = findValue(row, ['familygroup', 'family_group', 'family group', 'group']);
+    // Filing info
+    const itr_type = findValue(row, ['itrtype', 'itr_type', 'itr type', 'formtype', 'form_type', 'form type']) || 'ITR-1';
+    const filing_status = findValue(row, ['filingstatus', 'filing_status', 'filing status', 'status']) || 'Yet To File';
+    const filing_date = parseDateToISO(findValue(row, ['filingdate', 'filing_date', 'filing date']));
+    const acknowledgement_number = findValue(row, ['acknowledgementnumber', 'acknowledgement_number', 'acknowledgement number', 'ackno', 'ack_no', 'ack no', 'acknumber', 'ack_number', 'ack number']);
+    const refund_amount = Number(findValue(row, ['refundamount', 'refund_amount', 'refund amount', 'refund']) || 0);
+    const refund_status = findValue(row, ['refundstatus', 'refund_status', 'refund status']) || 'Yet to receive';
+    const intimation_status = findValue(row, ['intimationstatus', 'intimation_status', 'intimation status', 'intimation']) || 'Not Received';
 
-        if (email) updateData.email = String(email).trim();
-        if (cleanAadhaar) updateData.aadhaar = cleanAadhaar;
-        if (address) updateData.address = String(address).trim();
-        if (family_group) updateData.family_group = String(family_group).trim();
-        if (mobile && mobile !== client.mobile) updateData.mobile = mobile;
-        if (dobISO !== client.dob) updateData.dob = dobISO;
+    // Invoice info
+    const filing_charge = Number(findValue(row, ['filingcharge', 'filing_charge', 'filing charge', 'charge', 'fee', 'filingfee', 'filing_fee', 'filing fee']) || 0);
+    const refund_charge_pct = Number(findValue(row, ['refundchargepct', 'refund_charge_pct', 'refund charge pct', 'refundchargepercent', 'refund_charge_percent', 'refund charge percent', 'refundpct', 'refund_pct', 'refund pct']) || 0);
+    const discount = Number(findValue(row, ['discount']) || 0);
+    const amount_received = Number(findValue(row, ['amountreceived', 'amount_received', 'amount received', 'receivedamount', 'received_amount', 'received amount', 'paidamount', 'paid_amount', 'paid amount']) || 0);
+    const payment_mode = findValue(row, ['paymentmode', 'payment_mode', 'payment mode', 'mode']) || 'UPI';
+    const payment_date = parseDateToISO(findValue(row, ['paymentdate', 'payment_date', 'payment date'])) || new Date().toISOString().split('T')[0];
+    const payment_notes = findValue(row, ['notes', 'note']) || 'CSV Import';
 
-        if (Object.keys(updateData).length > 0) {
-          await supabase.from('clients').update(updateData).eq('id', client.id);
-        }
+    parsedRows.push({
+      rowNum,
+      name,
+      pan,
+      mobile,
+      dob: dobISO,
+      email: email ? String(email).trim() : null,
+      aadhaar: cleanAadhaar || null,
+      address: address ? String(address).trim() : null,
+      family_group: family_group ? String(family_group).trim() : null,
+      password,
+      itr_type,
+      filing_status,
+      filing_date,
+      acknowledgement_number,
+      refund_amount,
+      refund_status,
+      intimation_status,
+      filing_charge,
+      refund_charge_pct,
+      discount,
+      amount_received,
+      payment_mode,
+      payment_date,
+      payment_notes
+    });
+  }
 
-        // Update password if provided
-        const encrypted = encrypt(password);
-        await supabase.from('client_secrets').upsert({
-          client_id: client.id,
-          encrypted_password: encrypted
+  if (parsedRows.length === 0) {
+    return { error: 'No data rows found in the CSV after filtering.' };
+  }
+
+  // 3. Fetch existing clients for the PANs in the CSV in a single bulk query
+  const pansToFind = parsedRows.map(r => r.pan);
+  const { data: dbClients, error: dbClientsErr } = await supabase
+    .from('clients')
+    .select('*')
+    .in('pan', pansToFind);
+
+  if (dbClientsErr) {
+    return { error: `Failed to fetch existing clients: ${dbClientsErr.message}` };
+  }
+
+  const existingClientMap = new Map(dbClients?.map(c => [c.pan, c]) || []);
+
+  // Separate new vs update clients
+  const clientsToInsert = [];
+  const clientsToUpdate = [];
+
+  for (const pRow of parsedRows) {
+    const existing = existingClientMap.get(pRow.pan);
+    if (existing) {
+      const hasChanged =
+        pRow.name !== existing.name ||
+        pRow.mobile !== existing.mobile ||
+        pRow.dob !== existing.dob ||
+        (pRow.email !== null && pRow.email !== existing.email) ||
+        (pRow.aadhaar !== null && pRow.aadhaar !== existing.aadhaar) ||
+        (pRow.address !== null && pRow.address !== existing.address) ||
+        (pRow.family_group !== null && pRow.family_group !== existing.family_group);
+
+      if (hasChanged) {
+        clientsToUpdate.push({
+          id: existing.id,
+          name: pRow.name,
+          mobile: pRow.mobile,
+          dob: pRow.dob,
+          email: pRow.email || existing.email,
+          aadhaar: pRow.aadhaar || existing.aadhaar,
+          address: pRow.address || existing.address,
+          family_group: pRow.family_group || existing.family_group
         });
-      } else {
-        const email = findValue(row, ['email', 'emailaddress', 'email_address', 'email address']);
-        const address = findValue(row, ['address']);
-        const family_group = findValue(row, ['familygroup', 'family_group', 'family group', 'group']);
-
-        const { data: newClient, error: clientErr } = await supabase
-          .from('clients')
-          .insert({
-            name,
-            pan,
-            mobile,
-            dob: dobISO,
-            email: email ? String(email).trim() : null,
-            aadhaar: cleanAadhaar || null,
-            address: address ? String(address).trim() : null,
-            family_group: family_group ? String(family_group).trim() : null
-          })
-          .select()
-          .single();
-
-        if (clientErr || !newClient) {
-          results.failCount++;
-          results.errors.push(`Row ${rowNum} (${pan}): Client insertion failed - ${clientErr?.message}`);
-          continue;
-        }
-        client = newClient;
-
-        // Encrypt password
-        const encrypted = encrypt(password);
-        await supabase.from('client_secrets').insert({
-          client_id: client.id,
-          encrypted_password: encrypted
-        });
-
-        await logActivity(client.id, 'Client Added', `Client profile imported via CSV for PAN ${pan}.`);
       }
-
-      // 2. Find or create Filing
-      const itr_type = findValue(row, ['itrtype', 'itr_type', 'itr type', 'formtype', 'form_type', 'form type']) || 'ITR-1';
-      const filing_status = findValue(row, ['filingstatus', 'filing_status', 'filing status', 'status']) || 'Yet To File';
-      const filing_date = parseDateToISO(findValue(row, ['filingdate', 'filing_date', 'filing date']));
-      const acknowledgement_number = findValue(row, ['acknowledgementnumber', 'acknowledgement_number', 'acknowledgement number', 'ackno', 'ack_no', 'ack no', 'acknumber', 'ack_number', 'ack number']);
-      const refund_amount = Number(findValue(row, ['refundamount', 'refund_amount', 'refund amount', 'refund']) || 0);
-      const refund_status = findValue(row, ['refundstatus', 'refund_status', 'refund status']) || 'Yet to receive';
-      const intimation_status = findValue(row, ['intimationstatus', 'intimation_status', 'intimation status', 'intimation']) || 'Not Received';
-
-      let filing = null;
-      const { data: existingFiling } = await supabase
-        .from('filings')
-        .select('*')
-        .eq('client_id', client.id)
-        .eq('assessment_year', assessmentYear)
-        .maybeSingle();
-
-      if (existingFiling) {
-        filing = existingFiling;
-        await supabase
-          .from('filings')
-          .update({
-            itr_type,
-            filing_status,
-            filing_date,
-            acknowledgement_number: acknowledgement_number ? String(acknowledgement_number).trim() : null,
-            refund_amount,
-            refund_status,
-            intimation_status,
-            updated_at: new Date().toISOString()
-          })
-          .eq('id', filing.id);
-      } else {
-        const { data: newFiling, error: filingErr } = await supabase
-          .from('filings')
-          .insert({
-            client_id: client.id,
-            assessment_year: assessmentYear,
-            itr_type,
-            filing_status,
-            filing_date,
-            acknowledgement_number: acknowledgement_number ? String(acknowledgement_number).trim() : null,
-            refund_amount,
-            refund_status,
-            intimation_status
-          })
-          .select()
-          .single();
-
-        if (filingErr || !newFiling) {
-          results.failCount++;
-          results.errors.push(`Row ${rowNum} (${pan}): Filing enrollment failed - ${filingErr?.message}`);
-          continue;
-        }
-        filing = newFiling;
-        await logActivity(client.id, 'Filing Enrolled', `Filing enrolled under AY ${assessmentYear} via CSV import.`, filing.id);
-      }
-
-      // 3. Find or create Invoice
-      let invoice = null;
-      const { data: existingInvoice } = await supabase
-        .from('invoices')
-        .select('*')
-        .eq('filing_id', filing.id)
-        .maybeSingle();
-
-      const filing_charge = Number(findValue(row, ['filingcharge', 'filing_charge', 'filing charge', 'charge', 'fee', 'filingfee', 'filing_fee', 'filing fee']) || 0);
-      const refund_charge_pct = Number(findValue(row, ['refundchargepct', 'refund_charge_pct', 'refund charge pct', 'refundchargepercent', 'refund_charge_percent', 'refund charge percent', 'refundpct', 'refund_pct', 'refund pct']) || 0);
-      const discount = Number(findValue(row, ['discount']) || 0);
-
-      if (existingInvoice) {
-        invoice = existingInvoice;
-        await supabase
-          .from('invoices')
-          .update({
-            filing_charge,
-            refund_charge_pct,
-            discount,
-            updated_at: new Date().toISOString()
-          })
-          .eq('id', invoice.id);
-      } else {
-        const { data: lastInvoice } = await supabase
-          .from('invoices')
-          .select('serial_number')
-          .eq('assessment_year', assessmentYear)
-          .order('serial_number', { ascending: false })
-          .limit(1);
-
-        const nextSerial = (lastInvoice?.[0]?.serial_number || 0) + 1;
-        const serialStr = String(nextSerial).padStart(3, '0');
-        const invoiceNumber = `SDDS/ITR/${assessmentYear}/${serialStr}`;
-
-        const { data: newInvoice, error: invErr } = await supabase
-          .from('invoices')
-          .insert({
-            filing_id: filing.id,
-            invoice_number: invoiceNumber,
-            serial_number: nextSerial,
-            assessment_year: assessmentYear,
-            filing_charge,
-            refund_charge_pct,
-            discount,
-            settlement_amount: 0,
-            outstanding_amount: 0,
-            payment_status: 'Unpaid'
-          })
-          .select()
-          .single();
-
-        if (invErr || !newInvoice) {
-          results.failCount++;
-          results.errors.push(`Row ${rowNum} (${pan}): Invoice creation failed - ${invErr?.message}`);
-          continue;
-        }
-        invoice = newInvoice;
-      }
-
-      // Recalculate invoice billing math
-      await recalculateInvoice(invoice.id);
-
-      // 4. Handle Payment recording if provided
-      const amount_received = Number(findValue(row, ['amountreceived', 'amount_received', 'amount received', 'receivedamount', 'received_amount', 'received amount', 'paidamount', 'paid_amount', 'paid amount']) || 0);
-      if (amount_received > 0) {
-        // Only record if payments don't exist yet for this invoice (avoid duplicate imports)
-        const { data: existingPayments } = await supabase
-          .from('payments')
-          .select('id')
-          .eq('invoice_id', invoice.id);
-
-        if (!existingPayments || existingPayments.length === 0) {
-          const payment_mode = findValue(row, ['paymentmode', 'payment_mode', 'payment mode', 'mode']) || 'UPI';
-          const payment_date = parseDateToISO(findValue(row, ['paymentdate', 'payment_date', 'payment date'])) || new Date().toISOString().split('T')[0];
-          const notes = findValue(row, ['notes', 'note']) || 'CSV Import';
-
-          await supabase
-            .from('payments')
-            .insert({
-              invoice_id: invoice.id,
-              amount: amount_received,
-              payment_mode,
-              payment_date,
-              notes
-            });
-
-          // Recalculate invoice after payment
-          await recalculateInvoice(invoice.id);
-
-          await logActivity(
-            client.id,
-            'Payment Received',
-            `Received payment of ₹${amount_received} via ${payment_mode} recorded during import.`
-          );
-        }
-      }
-
-      results.successCount++;
-    } catch (err: any) {
-      results.failCount++;
-      results.errors.push(`Row ${rowNum} (${pan}): Unexpected error - ${err.message}`);
+    } else {
+      clientsToInsert.push({
+        name: pRow.name,
+        pan: pRow.pan,
+        mobile: pRow.mobile,
+        dob: pRow.dob,
+        email: pRow.email,
+        aadhaar: pRow.aadhaar,
+        address: pRow.address,
+        family_group: pRow.family_group
+      });
     }
   }
+
+  // Map to hold finalized client profiles by PAN
+  const clientMap = new Map(dbClients?.map(c => [c.pan, c]) || []);
+
+  // 4. Bulk Insert New Clients
+  if (clientsToInsert.length > 0) {
+    const { data: inserted, error: insertErr } = await supabase
+      .from('clients')
+      .insert(clientsToInsert)
+      .select();
+
+    if (insertErr) {
+      return { error: `Failed to insert new clients: ${insertErr.message}` };
+    }
+
+    if (inserted) {
+      for (const c of inserted) {
+        clientMap.set(c.pan, c);
+        await logActivity(c.id, 'Client Added', `Client profile imported via CSV for PAN ${c.pan}.`);
+      }
+    }
+  }
+
+  // 5. Parallelized update of existing clients
+  if (clientsToUpdate.length > 0) {
+    const updatePromises = clientsToUpdate.map(up =>
+      supabase.from('clients').update({
+        name: up.name,
+        mobile: up.mobile,
+        dob: up.dob,
+        email: up.email,
+        aadhaar: up.aadhaar,
+        address: up.address,
+        family_group: up.family_group
+      }).eq('id', up.id)
+    );
+    await Promise.all(updatePromises);
+  }
+
+  // 6. Bulk Upsert Client Secrets
+  const secretsToUpsert = parsedRows.map(pRow => {
+    const clientObj = clientMap.get(pRow.pan);
+    return {
+      client_id: clientObj.id,
+      encrypted_password: encrypt(pRow.password)
+    };
+  });
+
+  if (secretsToUpsert.length > 0) {
+    const { error: secretsErr } = await supabase
+      .from('client_secrets')
+      .upsert(secretsToUpsert);
+    if (secretsErr) {
+      console.error('Failed to upsert client secrets:', secretsErr.message);
+    }
+  }
+
+  // 7. Fetch existing filings for all clients for this assessment year in a single query
+  const clientIds = Array.from(clientMap.values()).map(c => c.id);
+  const { data: dbFilings, error: dbFilingsErr } = await supabase
+    .from('filings')
+    .select('*')
+    .in('client_id', clientIds)
+    .eq('assessment_year', assessmentYear);
+
+  if (dbFilingsErr) {
+    return { error: `Failed to fetch existing filings: ${dbFilingsErr.message}` };
+  }
+
+  const existingFilingMap = new Map(dbFilings?.map(f => [f.client_id, f]) || []);
+
+  const filingsToInsert = [];
+  const filingsToUpdate = [];
+
+  for (const pRow of parsedRows) {
+    const clientObj = clientMap.get(pRow.pan);
+    const existing = existingFilingMap.get(clientObj.id);
+    if (existing) {
+      filingsToUpdate.push({
+        id: existing.id,
+        itr_type: pRow.itr_type,
+        filing_status: pRow.filing_status,
+        filing_date: pRow.filing_date,
+        acknowledgement_number: pRow.acknowledgement_number,
+        refund_amount: pRow.refund_amount,
+        refund_status: pRow.refund_status,
+        intimation_status: pRow.intimation_status,
+        updated_at: new Date().toISOString()
+      });
+    } else {
+      filingsToInsert.push({
+        client_id: clientObj.id,
+        assessment_year: assessmentYear,
+        itr_type: pRow.itr_type,
+        filing_status: pRow.filing_status,
+        filing_date: pRow.filing_date,
+        acknowledgement_number: pRow.acknowledgement_number,
+        refund_amount: pRow.refund_amount,
+        refund_status: pRow.refund_status,
+        intimation_status: pRow.intimation_status
+      });
+    }
+  }
+
+  const finalFilingMap = new Map(dbFilings?.map(f => [f.client_id, f]) || []);
+
+  // 8. Bulk Insert filings
+  if (filingsToInsert.length > 0) {
+    const { data: inserted, error: insertErr } = await supabase
+      .from('filings')
+      .insert(filingsToInsert)
+      .select();
+
+    if (insertErr) {
+      return { error: `Failed to insert filings: ${insertErr.message}` };
+    }
+    if (inserted) {
+      for (const f of inserted) {
+        finalFilingMap.set(f.client_id, f);
+        await logActivity(f.client_id, 'Filing Enrolled', `Filing enrolled under AY ${assessmentYear} via CSV import.`, f.id);
+      }
+    }
+  }
+
+  // 9. Parallelized update of existing filings
+  if (filingsToUpdate.length > 0) {
+    const updatePromises = filingsToUpdate.map(up =>
+      supabase.from('filings').update({
+        itr_type: up.itr_type,
+        filing_status: up.filing_status,
+        filing_date: up.filing_date,
+        acknowledgement_number: up.acknowledgement_number,
+        refund_amount: up.refund_amount,
+        refund_status: up.refund_status,
+        intimation_status: up.intimation_status,
+        updated_at: up.updated_at
+      }).eq('id', up.id)
+    );
+    await Promise.all(updatePromises);
+  }
+
+  // 10. Fetch existing invoices for all filings in a single query
+  const filingIds = Array.from(finalFilingMap.values()).map(f => f.id);
+  const { data: dbInvoices, error: dbInvoicesErr } = await supabase
+    .from('invoices')
+    .select('*')
+    .in('filing_id', filingIds);
+
+  if (dbInvoicesErr) {
+    return { error: `Failed to fetch existing invoices: ${dbInvoicesErr.message}` };
+  }
+
+  const existingInvoiceMap = new Map(dbInvoices?.map(inv => [inv.filing_id, inv]) || []);
+
+  // Fetch max serial number for generating sequential serial numbers locally
+  const { data: lastInvoice } = await supabase
+    .from('invoices')
+    .select('serial_number')
+    .eq('assessment_year', assessmentYear)
+    .order('serial_number', { ascending: false })
+    .limit(1);
+
+  let nextSerial = (lastInvoice?.[0]?.serial_number || 0) + 1;
+
+  const invoicesToInsert = [];
+  const invoicesToUpdate = [];
+
+  for (const pRow of parsedRows) {
+    const clientObj = clientMap.get(pRow.pan);
+    const filingObj = finalFilingMap.get(clientObj.id);
+    const existing = existingInvoiceMap.get(filingObj.id);
+
+    // Compute invoice financial details in memory to avoid post-save waterfalls
+    const refundCharge = pRow.refund_amount * (pRow.refund_charge_pct / 100);
+    const invoiceAmount = pRow.filing_charge + refundCharge;
+    const settlementAmount = Math.max(0, invoiceAmount - pRow.discount);
+    const outstandingAmount = Math.max(0, settlementAmount - pRow.amount_received);
+
+    let paymentStatus = 'Unpaid';
+    if (outstandingAmount <= 0 && settlementAmount > 0) {
+      paymentStatus = 'Paid';
+    } else if (pRow.amount_received > 0) {
+      paymentStatus = 'Partial';
+    }
+
+    if (existing) {
+      const hasChanged =
+        existing.filing_charge !== pRow.filing_charge ||
+        existing.refund_charge_pct !== pRow.refund_charge_pct ||
+        existing.discount !== pRow.discount ||
+        existing.amount_received !== pRow.amount_received;
+
+      if (hasChanged) {
+        invoicesToUpdate.push({
+          id: existing.id,
+          filing_charge: pRow.filing_charge,
+          refund_charge_pct: pRow.refund_charge_pct,
+          refund_charge: refundCharge,
+          discount: pRow.discount,
+          invoice_amount: invoiceAmount,
+          settlement_amount: settlementAmount,
+          amount_received: pRow.amount_received,
+          outstanding_amount: outstandingAmount,
+          payment_status: paymentStatus,
+          updated_at: new Date().toISOString()
+        });
+      }
+    } else {
+      const serialStr = String(nextSerial).padStart(3, '0');
+      const invoiceNumber = `SDDS/ITR/${assessmentYear}/${serialStr}`;
+
+      invoicesToInsert.push({
+        filing_id: filingObj.id,
+        invoice_number: invoiceNumber,
+        serial_number: nextSerial,
+        assessment_year: assessmentYear,
+        filing_charge: pRow.filing_charge,
+        refund_charge_pct: pRow.refund_charge_pct,
+        refund_charge: refundCharge,
+        discount: pRow.discount,
+        invoice_amount: invoiceAmount,
+        settlement_amount: settlementAmount,
+        amount_received: pRow.amount_received,
+        outstanding_amount: outstandingAmount,
+        payment_status: paymentStatus
+      });
+      nextSerial++;
+    }
+  }
+
+  const finalInvoiceMap = new Map(dbInvoices?.map(inv => [inv.filing_id, inv]) || []);
+
+  // 11. Bulk Insert Invoices
+  if (invoicesToInsert.length > 0) {
+    const { data: inserted, error: insertErr } = await supabase
+      .from('invoices')
+      .insert(invoicesToInsert)
+      .select();
+
+    if (insertErr) {
+      return { error: `Failed to insert invoices: ${insertErr.message}` };
+    }
+    if (inserted) {
+      for (const inv of inserted) {
+        finalInvoiceMap.set(inv.filing_id, inv);
+      }
+    }
+  }
+
+  // 12. Parallelized update of existing invoices
+  if (invoicesToUpdate.length > 0) {
+    const updatePromises = invoicesToUpdate.map(up =>
+      supabase.from('invoices').update({
+        filing_charge: up.filing_charge,
+        refund_charge_pct: up.refund_charge_pct,
+        refund_charge: up.refund_charge,
+        discount: up.discount,
+        invoice_amount: up.invoice_amount,
+        settlement_amount: up.settlement_amount,
+        amount_received: up.amount_received,
+        outstanding_amount: up.outstanding_amount,
+        payment_status: up.payment_status,
+        updated_at: up.updated_at
+      }).eq('id', up.id)
+    );
+    await Promise.all(updatePromises);
+  }
+
+  // 13. Fetch and map existing payments to prevent duplicating payment history on re-import
+  const invoiceIds = Array.from(finalInvoiceMap.values()).map(inv => inv.id);
+  const { data: dbPayments, error: dbPaymentsErr } = await supabase
+    .from('payments')
+    .select('*')
+    .in('invoice_id', invoiceIds);
+
+  if (dbPaymentsErr) {
+    return { error: `Failed to fetch existing payments: ${dbPaymentsErr.message}` };
+  }
+
+  const invoicePaymentsMap = new Map<string, any[]>();
+  if (dbPayments) {
+    for (const p of dbPayments) {
+      if (!invoicePaymentsMap.has(p.invoice_id)) {
+        invoicePaymentsMap.set(p.invoice_id, []);
+      }
+      invoicePaymentsMap.get(p.invoice_id)!.push(p);
+    }
+  }
+
+  const paymentsToInsert = [];
+  const paymentLogs = [];
+
+  for (const pRow of parsedRows) {
+    if (pRow.amount_received > 0) {
+      const clientObj = clientMap.get(pRow.pan);
+      const filingObj = finalFilingMap.get(clientObj.id);
+      const invoiceObj = finalInvoiceMap.get(filingObj.id);
+
+      const existingInvoicePmts = invoicePaymentsMap.get(invoiceObj.id) || [];
+      if (existingInvoicePmts.length === 0) {
+        paymentsToInsert.push({
+          invoice_id: invoiceObj.id,
+          amount: pRow.amount_received,
+          payment_mode: pRow.payment_mode,
+          payment_date: pRow.payment_date,
+          notes: pRow.payment_notes
+        });
+        paymentLogs.push({
+          clientId: clientObj.id,
+          amount: pRow.amount_received,
+          mode: pRow.payment_mode
+        });
+      }
+    }
+  }
+
+  // 14. Bulk Insert payments and log activities
+  if (paymentsToInsert.length > 0) {
+    const { error: pmtErr } = await supabase
+      .from('payments')
+      .insert(paymentsToInsert);
+
+    if (pmtErr) {
+      console.error('Failed to insert payments:', pmtErr.message);
+    } else {
+      const logPromises = paymentLogs.map(log =>
+        logActivity(
+          log.clientId,
+          'Payment Received',
+          `Received payment of ₹${log.amount} via ${log.mode} recorded during import.`
+        )
+      );
+      await Promise.all(logPromises);
+    }
+  }
+
+  results.successCount = parsedRows.length;
 
   revalidatePath('/clients');
   revalidatePath('/queue');
