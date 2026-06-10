@@ -20,7 +20,8 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
     filingsResult,
     invoicesResult,
     recentLogsResult,
-    queueItemsResult
+    queueItemsResult,
+    revenueInvoicesResult
   ] = await Promise.all([
     supabase
       .from('clients')
@@ -43,7 +44,11 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
       .select('id, filing_status, client_id, clients(name, pan, mobile)')
       .eq('assessment_year', currentAY)
       .in('filing_status', ['Yet To File', 'Documents Pending', 'Ready to File'])
-      .limit(5)
+      .limit(5),
+    supabase
+      .from('revenue_invoices')
+      .select('balance_amount, total_amount')
+      .eq('assessment_year', currentAY)
   ]);
 
   const totalClients = totalClientsResult.count || 0;
@@ -51,6 +56,7 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
   const invoices = invoicesResult.data || [];
   const recentLogs = recentLogsResult.data || [];
   const queueItems = queueItemsResult.data || [];
+  const revenueInvoices = revenueInvoicesResult?.data || [];
 
   const totalFilingsForAY = filings.length;
 
@@ -84,8 +90,14 @@ export default async function DashboardPage({ searchParams }: DashboardProps) {
     (f.intimation_status === 'Not Received' || f.intimation_status === 'Under Processing')
   ).length;
 
-  const totalOutstanding = invoices.reduce((sum, inv) => sum + Number(inv.outstanding_amount || 0), 0);
-  const totalBilled = invoices.reduce((sum, inv) => sum + Number(inv.settlement_amount || 0), 0);
+  const oldOutstanding = invoices.reduce((sum, inv) => sum + Number(inv.outstanding_amount || 0), 0);
+  const oldBilled = invoices.reduce((sum, inv) => sum + Number(inv.settlement_amount || 0), 0);
+
+  const revenueOutstanding = revenueInvoices.reduce((sum, r) => sum + Number(r.balance_amount || 0), 0);
+  const revenueBilled = revenueInvoices.reduce((sum, r) => sum + Number(r.total_amount || 0), 0);
+
+  const totalOutstanding = oldOutstanding + revenueOutstanding;
+  const totalBilled = oldBilled + revenueBilled;
 
   return (
     <DashboardClient

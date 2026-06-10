@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation';
 import { createClient } from '@/utils/supabase/server';
 import Link from 'next/link';
-import { LayoutDashboard, Users, Clock, FileText, Settings, LogOut, Shield, Database } from 'lucide-react';
+import { LayoutDashboard, Users, Clock, FileText, Settings, LogOut, Shield, Database, IndianRupee } from 'lucide-react';
 import { logout } from '@/app/login/actions';
 import { PrivacyProvider } from '@/context/PrivacyContext';
 import Header from '@/components/Header';
@@ -58,6 +58,7 @@ export default async function DashboardLayout({
               <NavItem href="/clients" icon={<Users className="h-4 w-4" />} label="Clients" />
               <NavItem href="/queue" icon={<Clock className="h-4 w-4" />} label="Filing Queue" />
               <NavItem href="/invoices" icon={<FileText className="h-4 w-4" />} label="Invoices" />
+              <NavItem href="/revenue" icon={<IndianRupee className="h-4 w-4" />} label="Revenue / Collections" />
               <NavItem href="/data" icon={<Database className="h-4 w-4" />} label="Data Manager" />
               <NavItem href="/settings" icon={<Settings className="h-4 w-4" />} label="Settings" />
             </nav>
