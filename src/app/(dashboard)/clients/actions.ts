@@ -958,14 +958,9 @@ export async function importClientsCSVAction(rows: any[], assessmentYear: string
       continue;
     }
 
-    // Mobile validation (exactly 10 digits)
+    // Mobile validation (optional, but if provided must be exactly 10 digits)
     const mobileRegex = /^[0-9]{10}$/;
-    if (!mobile) {
-      results.failCount++;
-      results.errors.push(`Row ${rowNum} (${pan}): Missing Mobile number.`);
-      continue;
-    }
-    if (!mobileRegex.test(mobile)) {
+    if (mobile && !mobileRegex.test(mobile)) {
       results.failCount++;
       results.errors.push(`Row ${rowNum} (${pan}): Invalid Mobile number "${mobile}". Must be exactly 10 digits (no country code).`);
       continue;

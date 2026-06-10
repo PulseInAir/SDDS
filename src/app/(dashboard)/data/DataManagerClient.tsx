@@ -483,9 +483,9 @@ export default function DataManagerClient({
                   </tr>
                   <tr className="text-slate-300">
                     <td className="p-3 font-mono font-bold text-white">Mobile</td>
-                    <td className="p-3 text-amber-500 font-bold">New Clients Only</td>
+                    <td className="p-3">No</td>
                     <td className="p-3">9876543210</td>
-                    <td className="p-3 text-slate-500">Active contact number.</td>
+                    <td className="p-3 text-slate-500">Active contact number (optional).</td>
                   </tr>
                   <tr className="text-slate-300">
                     <td className="p-3 font-mono font-bold text-white">Date of Birth</td>
