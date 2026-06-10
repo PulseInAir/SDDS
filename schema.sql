@@ -119,3 +119,34 @@ CREATE TABLE IF NOT EXISTS activity_logs (
   description TEXT NOT NULL,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
+
+-- 8. Enable Row Level Security (RLS) on all tables
+ALTER TABLE clients ENABLE ROW LEVEL SECURITY;
+ALTER TABLE filings ENABLE ROW LEVEL SECURITY;
+ALTER TABLE filing_documents ENABLE ROW LEVEL SECURITY;
+ALTER TABLE invoices ENABLE ROW LEVEL SECURITY;
+ALTER TABLE payments ENABLE ROW LEVEL SECURITY;
+ALTER TABLE client_secrets ENABLE ROW LEVEL SECURITY;
+ALTER TABLE activity_logs ENABLE ROW LEVEL SECURITY;
+
+-- 9. Create policies to allow all operations for authenticated users (Admin role)
+CREATE POLICY "Allow all operations for authenticated users" ON clients
+  FOR ALL TO authenticated USING (true) WITH CHECK (true);
+
+CREATE POLICY "Allow all operations for authenticated users" ON filings
+  FOR ALL TO authenticated USING (true) WITH CHECK (true);
+
+CREATE POLICY "Allow all operations for authenticated users" ON filing_documents
+  FOR ALL TO authenticated USING (true) WITH CHECK (true);
+
+CREATE POLICY "Allow all operations for authenticated users" ON invoices
+  FOR ALL TO authenticated USING (true) WITH CHECK (true);
+
+CREATE POLICY "Allow all operations for authenticated users" ON payments
+  FOR ALL TO authenticated USING (true) WITH CHECK (true);
+
+CREATE POLICY "Allow all operations for authenticated users" ON client_secrets
+  FOR ALL TO authenticated USING (true) WITH CHECK (true);
+
+CREATE POLICY "Allow all operations for authenticated users" ON activity_logs
+  FOR ALL TO authenticated USING (true) WITH CHECK (true);
