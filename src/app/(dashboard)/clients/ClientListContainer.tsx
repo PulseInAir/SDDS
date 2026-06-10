@@ -2,11 +2,11 @@
 
 import { useState } from 'react';
 import { usePrivacy } from '@/context/PrivacyContext';
-import { decryptPasswordAction } from './actions';
+import { decryptPasswordAction, deleteClientsAction } from './actions';
 import Link from 'next/link';
 import { 
   Search, Eye, EyeOff, Copy, Phone, Mail, 
-  UserPlus, Calendar, ClipboardCheck, ArrowUpRight, Loader2
+  UserPlus, Calendar, ClipboardCheck, ArrowUpRight, Loader2, Trash2
 } from 'lucide-react';
 
 interface Client {
@@ -27,13 +27,87 @@ interface Client {
 
 export default function ClientListContainer({ initialClients }: { initialClients: Client[] }) {
   const { isPrivacyMode } = usePrivacy();
-  const [clients] = useState<Client[]>(initialClients);
+  const [clients, setClients] = useState<Client[]>(initialClients);
   const [search, setSearch] = useState('');
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   // Local masks for specific rows when privacy mode is ON
   const [revealedClients, setRevealedClients] = useState<Record<string, boolean>>({});
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [decryptingId, setDecryptingId] = useState<string | null>(null);
+
+  const handleToggleSelect = (clientId: string) => {
+    setSelectedIds(prev =>
+      prev.includes(clientId)
+        ? prev.filter(id => id !== clientId)
+        : [...prev, clientId]
+    );
+  };
+
+  const toggleSelectAll = () => {
+    const visibleIds = filteredClients.map(c => c.id);
+    const allVisibleSelected = visibleIds.every(id => selectedIds.includes(id));
+
+    if (allVisibleSelected) {
+      setSelectedIds(prev => prev.filter(id => !visibleIds.includes(id)));
+    } else {
+      setSelectedIds(prev => {
+        const newSelected = [...prev];
+        visibleIds.forEach(id => {
+          if (!newSelected.includes(id)) {
+            newSelected.push(id);
+          }
+        });
+        return newSelected;
+      });
+    }
+  };
+
+  const handleDeleteSingle = async (clientId: string, clientName: string) => {
+    if (!confirm(`Are you sure you want to permanently delete client "${clientName}"? This will delete all their filings, invoices, and credentials.`)) {
+      return;
+    }
+    setIsDeleting(true);
+    try {
+      const res = await deleteClientsAction([clientId]);
+      if (res.error) {
+        alert(res.error);
+      } else {
+        setClients(prev => prev.filter(c => c.id !== clientId));
+        setSelectedIds(prev => prev.filter(id => id !== clientId));
+      }
+    } catch (err: any) {
+      alert(err.message || 'An unexpected error occurred.');
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  const handleDeleteBulk = async () => {
+    const selectedClients = clients.filter(c => selectedIds.includes(c.id));
+    if (selectedClients.length === 0) return;
+
+    if (!confirm(`Are you sure you want to permanently delete the ${selectedClients.length} selected clients? This will delete all their filings, invoices, and credentials.`)) {
+      return;
+    }
+
+    setIsDeleting(true);
+    try {
+      const res = await deleteClientsAction(selectedIds);
+      if (res.error) {
+        alert(res.error);
+      } else {
+        const deletedIdsSet = new Set(selectedIds);
+        setClients(prev => prev.filter(c => !deletedIdsSet.has(c.id)));
+        setSelectedIds([]);
+      }
+    } catch (err: any) {
+      alert(err.message || 'An unexpected error occurred.');
+    } finally {
+      setIsDeleting(false);
+    }
+  };
 
   // Toggle local reveal for a specific client row
   const toggleRowReveal = (clientId: string) => {
@@ -131,11 +205,41 @@ export default function ClientListContainer({ initialClients }: { initialClients
         </Link>
       </div>
 
+      {/* Selection Action Bar */}
+      {selectedIds.length > 0 && (
+        <div className="flex items-center justify-between bg-red-950/25 border border-red-900/40 p-4 rounded-2xl animate-in slide-in-from-top-2 duration-200">
+          <span className="text-xs font-bold text-red-400">
+            {selectedIds.length} {selectedIds.length === 1 ? 'client' : 'clients'} selected for deletion
+          </span>
+          <button
+            type="button"
+            onClick={handleDeleteBulk}
+            disabled={isDeleting}
+            className="flex items-center space-x-1.5 px-4 py-2 bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 rounded-xl text-xs font-bold text-white shadow-lg shadow-red-500/10 cursor-pointer disabled:opacity-50 transition-all select-none"
+          >
+            {isDeleting ? (
+              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+            ) : (
+              <Trash2 className="h-3.5 w-3.5" />
+            )}
+            <span>Delete Selected</span>
+          </button>
+        </div>
+      )}
+
       {/* Client Table List */}
       <div className="bg-slate-900/20 border border-slate-800/80 rounded-2xl overflow-hidden">
         <table className="w-full border-collapse text-left text-sm">
           <thead>
             <tr className="border-b border-slate-800/80 bg-slate-900/30 text-slate-400 font-semibold select-none">
+              <th className="p-4 w-12 text-center">
+                <input
+                  type="checkbox"
+                  checked={filteredClients.length > 0 && filteredClients.every(c => selectedIds.includes(c.id))}
+                  onChange={toggleSelectAll}
+                  className="rounded border-slate-850 bg-slate-950 text-blue-600 focus:ring-blue-500/40 cursor-pointer w-4 h-4"
+                />
+              </th>
               <th className="p-4">Name</th>
               <th className="p-4">PAN Number</th>
               <th className="p-4">Date of Birth</th>
@@ -150,6 +254,14 @@ export default function ClientListContainer({ initialClients }: { initialClients
                 const isMasked = isPrivacyMode && !revealedClients[client.id];
                 return (
                   <tr key={client.id} className="hover:bg-slate-900/25 transition-colors group">
+                    <td className="p-4 text-center">
+                      <input
+                        type="checkbox"
+                        checked={selectedIds.includes(client.id)}
+                        onChange={() => handleToggleSelect(client.id)}
+                        className="rounded border-slate-850 bg-slate-950 text-blue-600 focus:ring-blue-500/40 cursor-pointer w-4 h-4"
+                      />
+                    </td>
                     <td className="p-4 font-bold text-white max-w-[200px] truncate">
                       {client.name}
                     </td>
@@ -214,6 +326,16 @@ export default function ClientListContainer({ initialClients }: { initialClients
                           )}
                         </button>
 
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteSingle(client.id, client.name)}
+                          disabled={isDeleting}
+                          title="Delete Client Profile"
+                          className="p-2 bg-slate-950 border border-slate-800 text-slate-500 hover:text-red-400 hover:border-red-900/50 rounded-xl transition-all cursor-pointer"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+
                         <Link
                           href={`/clients/${client.id}`}
                           className="p-2 bg-slate-950 border border-slate-800 text-slate-400 hover:text-white hover:border-slate-700 rounded-xl transition-all flex items-center space-x-1 text-xs font-semibold"
@@ -228,7 +350,7 @@ export default function ClientListContainer({ initialClients }: { initialClients
               })
             ) : (
               <tr>
-                <td colSpan={6} className="text-center py-12 text-slate-500 font-medium bg-slate-950/10">
+                <td colSpan={7} className="text-center py-12 text-slate-500 font-medium bg-slate-950/10">
                   No clients found matching the query.
                 </td>
               </tr>

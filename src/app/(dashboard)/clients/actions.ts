@@ -1422,5 +1422,59 @@ export async function getSystemSettingsAction(key: string) {
   return { success: true, value: data ? data.value : null };
 }
 
+export async function deleteClientsAction(clientIds: string[]) {
+  const supabase = await createClient();
 
+  // Make sure user is authenticated
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) {
+    return { error: 'Unauthorized. Please log in.' };
+  }
 
+  if (!clientIds || clientIds.length === 0) {
+    return { error: 'No clients specified for deletion.' };
+  }
+
+  try {
+    // 1. Fetch all documents for these clients in Supabase Storage to clean them up
+    const { data: docs } = await supabase
+      .from('filing_documents')
+      .select('bucket_name, storage_path')
+      .in('client_id', clientIds);
+
+    if (docs && docs.length > 0) {
+      const bucketGroups: Record<string, string[]> = {};
+      for (const doc of docs) {
+        if (!bucketGroups[doc.bucket_name]) {
+          bucketGroups[doc.bucket_name] = [];
+        }
+        bucketGroups[doc.bucket_name].push(doc.storage_path);
+      }
+      for (const [bucket, paths] of Object.entries(bucketGroups)) {
+        const { error: storageErr } = await supabase.storage.from(bucket).remove(paths);
+        if (storageErr) {
+          console.error(`Warning: Failed to delete storage files:`, storageErr.message);
+        }
+      }
+    }
+
+    // 2. Delete the clients from database (which cascades filings, invoices, secrets, activity logs, etc.)
+    const { error: deleteErr } = await supabase
+      .from('clients')
+      .delete()
+      .in('id', clientIds);
+
+    if (deleteErr) {
+      return { error: `Database deletion failed: ${deleteErr.message}` };
+    }
+
+    revalidatePath('/clients');
+    revalidatePath('/queue');
+    revalidatePath('/invoices');
+    revalidatePath('/');
+    return { success: true };
+  } catch (err: any) {
+    console.error('Delete clients action error:', err);
+    return { error: `Delete process failed: ${err.message}` };
+  }
+}

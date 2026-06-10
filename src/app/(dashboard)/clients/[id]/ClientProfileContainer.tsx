@@ -13,7 +13,8 @@ import {
   uploadDocumentAction,
   getSignedUrlAction,
   deleteDocumentAction,
-  createRevisedFilingAction
+  createRevisedFilingAction,
+  deleteClientsAction
 } from '../actions';
 import { 
   Eye, EyeOff, Copy, Phone, Mail, MapPin, Calendar, Users, 
@@ -21,6 +22,7 @@ import {
   FileText, Edit2, ClipboardCheck, MessageSquare, Plus, Loader2, ArrowUpRight, X, Trash2, Download
 } from 'lucide-react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 interface ClientProfileContainerProps {
   client: any;
@@ -43,6 +45,23 @@ export default function ClientProfileContainer({
 }: ClientProfileContainerProps) {
   const { isPrivacyMode } = usePrivacy();
   const [isPending, startTransition] = useTransition();
+  const router = useRouter();
+
+  const handleDeleteClient = async () => {
+    if (!confirm(`Are you sure you want to permanently delete this client profile? This will delete all filings, invoices, and credentials associated with ${client.name}. This action cannot be undone.`)) {
+      return;
+    }
+    try {
+      const res = await deleteClientsAction([client.id]);
+      if (res.error) {
+        alert(res.error);
+      } else {
+        router.push('/clients');
+      }
+    } catch (err: any) {
+      alert(err.message || 'An unexpected error occurred.');
+    }
+  };
 
   // Selected AY specific records
   const ayFilings = filings.filter(f => f.assessment_year === selectedAY)
@@ -456,6 +475,13 @@ export default function ClientProfileContainer({
             >
               <Edit2 className="h-3.5 w-3.5" />
               <span>Edit Profile</span>
+            </button>
+            <button
+              onClick={handleDeleteClient}
+              className="flex-1 md:flex-none flex items-center justify-center space-x-2 px-4 py-2 bg-red-950/20 border border-red-900/30 hover:border-red-500/50 hover:bg-red-900/10 rounded-xl text-xs font-semibold text-red-400 cursor-pointer transition-colors"
+            >
+              <Trash2 className="h-3.5 w-3.5 text-red-400" />
+              <span>Delete Client</span>
             </button>
           </div>
         </div>
