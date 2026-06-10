@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { ALL_STAGE_KEYS } from '@/utils/lifecycle';
 
 interface QueueItem {
   id: string;
@@ -132,7 +133,7 @@ export default function QueueListContainer({ initialQueue, selectedAY, ayList }:
   };
 
   // Filters
-  const tabs = ['All', 'Yet To File', 'Documents Pending', 'Ready to File', 'Filed', 'Under Processing', 'Processed', 'Rectification Required'];
+  const tabs = ['All', ...ALL_STAGE_KEYS];
 
   const filteredQueue = useMemo(() => {
     const term = search.toLowerCase();

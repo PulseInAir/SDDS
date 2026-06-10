@@ -28,6 +28,56 @@ function generateDefaultPassword(pan: string): string {
   return `${cleanPan.toLowerCase()}*1234`;
 }
 
+// ── Duplicate Detection ────────────────────────────────────────
+export async function checkDuplicateAction(pan: string, mobile: string, excludeClientId?: string) {
+  const supabase = await createClient();
+  const cleanPan = pan.toUpperCase().trim();
+  const cleanMobile = mobile.trim();
+
+  const duplicates: { id: string; name: string; pan: string; mobile: string; matchType: 'PAN' | 'Mobile' | 'Both' }[] = [];
+
+  // Check PAN duplicates
+  if (cleanPan) {
+    let query = supabase.from('clients').select('id, name, pan, mobile').eq('pan', cleanPan);
+    if (excludeClientId) query = query.neq('id', excludeClientId);
+    const { data: panMatches } = await query;
+    if (panMatches && panMatches.length > 0) {
+      for (const match of panMatches) {
+        duplicates.push({
+          id: match.id,
+          name: match.name,
+          pan: match.pan,
+          mobile: match.mobile,
+          matchType: cleanMobile && match.mobile === cleanMobile ? 'Both' : 'PAN',
+        });
+      }
+    }
+  }
+
+  // Check Mobile duplicates (only ones not already found via PAN)
+  if (cleanMobile) {
+    const foundIds = new Set(duplicates.map(d => d.id));
+    let query = supabase.from('clients').select('id, name, pan, mobile').eq('mobile', cleanMobile);
+    if (excludeClientId) query = query.neq('id', excludeClientId);
+    const { data: mobileMatches } = await query;
+    if (mobileMatches && mobileMatches.length > 0) {
+      for (const match of mobileMatches) {
+        if (!foundIds.has(match.id)) {
+          duplicates.push({
+            id: match.id,
+            name: match.name,
+            pan: match.pan,
+            mobile: match.mobile,
+            matchType: 'Mobile',
+          });
+        }
+      }
+    }
+  }
+
+  return { duplicates };
+}
+
 export async function createClientAction(formData: FormData) {
   const supabase = await createClient();
 
@@ -45,6 +95,13 @@ export async function createClientAction(formData: FormData) {
 
   if (!name || !pan || !mobile || !dob || !finalPassword) {
     return { error: 'Name, PAN, Mobile, DOB, and ITR Portal Password are required.' };
+  }
+
+  // Pre-flight duplicate check — PAN is a hard block
+  const { duplicates } = await checkDuplicateAction(pan, mobile);
+  const panDuplicate = duplicates.find(d => d.matchType === 'PAN' || d.matchType === 'Both');
+  if (panDuplicate) {
+    return { error: `Duplicate PAN detected: Client "${panDuplicate.name}" already exists with PAN ${panDuplicate.pan}. Each client must have a unique PAN.` };
   }
 
   // 1. PAN validation (exactly 10 chars: 5 letters, 4 digits, 1 letter)

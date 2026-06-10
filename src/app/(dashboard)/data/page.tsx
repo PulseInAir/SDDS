@@ -10,7 +10,7 @@ export default async function DataManagerPage() {
   const supabase = await createClient();
 
   // Fetch all tables in parallel to optimize export loads
-  const [clientsResult, invoicesResult, filingsResult] = await Promise.all([
+  const [clientsResult, invoicesResult, filingsResult, revenueResult] = await Promise.all([
     supabase
       .from('clients')
       .select('*')
@@ -38,12 +38,24 @@ export default async function DataManagerPage() {
           pan
         )
       `)
-      .order('assessment_year', { ascending: false })
+      .order('assessment_year', { ascending: false }),
+    supabase
+      .from('revenue_invoices')
+      .select(`
+        *,
+        clients (
+          name,
+          pan
+        ),
+        revenue_payments (*)
+      `)
+      .order('created_at', { ascending: false })
   ]);
 
   const clients = clientsResult.data || [];
   const invoices = invoicesResult.data || [];
   const filings = filingsResult.data || [];
+  const revenueData = revenueResult.data || [];
 
   return (
     <div className="space-y-8 max-w-5xl mx-auto">
@@ -60,6 +72,7 @@ export default async function DataManagerPage() {
         clientsData={clients || []}
         invoicesData={invoices || []}
         filingsData={filings || []}
+        revenueData={revenueData || []}
       />
     </div>
   );

@@ -1,12 +1,20 @@
 'use client';
 
 import { useState, useTransition } from 'react';
-import { createClientAction } from '../actions';
+import { createClientAction, checkDuplicateAction } from '../actions';
 import { useRouter } from 'next/navigation';
 import { 
-  UserPlus, X, Loader2, ArrowLeft, ShieldAlert, CheckCircle 
+  UserPlus, X, Loader2, ArrowLeft, ShieldAlert, CheckCircle, AlertTriangle 
 } from 'lucide-react';
 import Link from 'next/link';
+
+interface DuplicateInfo {
+  id: string;
+  name: string;
+  pan: string;
+  mobile: string;
+  matchType: 'PAN' | 'Mobile' | 'Both';
+}
 
 export default function NewClientClient() {
   const router = useRouter();
@@ -17,6 +25,13 @@ export default function NewClientClient() {
   const [panInput, setPanInput] = useState('');
   const [passwordInput, setPasswordInput] = useState('');
   const [isPasswordManual, setIsPasswordManual] = useState(false);
+  const [mobileInput, setMobileInput] = useState('');
+
+  // Duplicate detection
+  const [panDuplicates, setPanDuplicates] = useState<DuplicateInfo[]>([]);
+  const [mobileDuplicates, setMobileDuplicates] = useState<DuplicateInfo[]>([]);
+  const [checkingPan, setCheckingPan] = useState(false);
+  const [checkingMobile, setCheckingMobile] = useState(false);
 
   const handlePanChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value.toUpperCase().trim();
@@ -37,6 +52,46 @@ export default function NewClientClient() {
   const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setPasswordInput(e.target.value);
     setIsPasswordManual(true);
+  };
+
+  const handleMobileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setMobileInput(e.target.value);
+  };
+
+  // Check PAN duplicates on blur
+  const handlePanBlur = async () => {
+    const pan = panInput.toUpperCase().trim();
+    if (pan.length !== 10) {
+      setPanDuplicates([]);
+      return;
+    }
+    setCheckingPan(true);
+    try {
+      const { duplicates } = await checkDuplicateAction(pan, '');
+      setPanDuplicates(duplicates.filter(d => d.matchType === 'PAN' || d.matchType === 'Both'));
+    } catch {
+      setPanDuplicates([]);
+    } finally {
+      setCheckingPan(false);
+    }
+  };
+
+  // Check Mobile duplicates on blur
+  const handleMobileBlur = async () => {
+    const mobile = mobileInput.trim();
+    if (mobile.length !== 10) {
+      setMobileDuplicates([]);
+      return;
+    }
+    setCheckingMobile(true);
+    try {
+      const { duplicates } = await checkDuplicateAction('', mobile);
+      setMobileDuplicates(duplicates.filter(d => d.matchType === 'Mobile'));
+    } catch {
+      setMobileDuplicates([]);
+    } finally {
+      setCheckingMobile(false);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -172,9 +227,24 @@ export default function NewClientClient() {
               maxLength={10}
               value={panInput}
               onChange={handlePanChange}
+              onBlur={handlePanBlur}
               placeholder="e.g. ABCDE1234F"
-              className="w-full px-4 py-2.5 bg-slate-950 border border-slate-850 rounded-xl text-white font-mono uppercase tracking-wide text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className={`w-full px-4 py-2.5 bg-slate-950 border rounded-xl text-white font-mono uppercase tracking-wide text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 ${
+                panDuplicates.length > 0 ? 'border-red-500/60' : 'border-slate-850'
+              }`}
             />
+            {checkingPan && (
+              <div className="flex items-center space-x-1 mt-1.5 text-[10px] text-slate-500">
+                <Loader2 className="h-3 w-3 animate-spin" />
+                <span>Checking for duplicates...</span>
+              </div>
+            )}
+            {panDuplicates.map(dup => (
+              <div key={dup.id} className="flex items-center space-x-2 mt-1.5 p-2 bg-red-950/30 border border-red-900/40 rounded-lg text-[11px] text-red-400">
+                <ShieldAlert className="h-3.5 w-3.5 shrink-0" />
+                <span>Duplicate PAN: Client <strong>&quot;{dup.name}&quot;</strong> already exists with this PAN.</span>
+              </div>
+            ))}
           </div>
 
           <div>
@@ -199,9 +269,26 @@ export default function NewClientClient() {
               name="mobile"
               required
               maxLength={10}
+              value={mobileInput}
+              onChange={handleMobileChange}
+              onBlur={handleMobileBlur}
               placeholder="e.g. 9876543210"
-              className="w-full px-4 py-2.5 bg-slate-950 border border-slate-850 rounded-xl text-white text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className={`w-full px-4 py-2.5 bg-slate-950 border rounded-xl text-white text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 ${
+                mobileDuplicates.length > 0 ? 'border-amber-500/60' : 'border-slate-850'
+              }`}
             />
+            {checkingMobile && (
+              <div className="flex items-center space-x-1 mt-1.5 text-[10px] text-slate-500">
+                <Loader2 className="h-3 w-3 animate-spin" />
+                <span>Checking for duplicates...</span>
+              </div>
+            )}
+            {mobileDuplicates.map(dup => (
+              <div key={dup.id} className="flex items-center space-x-2 mt-1.5 p-2 bg-amber-950/30 border border-amber-900/40 rounded-lg text-[11px] text-amber-400">
+                <AlertTriangle className="h-3.5 w-3.5 shrink-0" />
+                <span>Same mobile: Client <strong>&quot;{dup.name}&quot;</strong> ({dup.pan}) shares this number.</span>
+              </div>
+            ))}
           </div>
 
           <div>

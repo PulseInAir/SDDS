@@ -19,10 +19,11 @@ import {
 import { 
   Eye, EyeOff, Copy, Phone, Mail, MapPin, Calendar, Users, 
   CheckCircle2, AlertCircle, IndianRupee, Clock, Send, Lock, 
-  FileText, Edit2, ClipboardCheck, MessageSquare, Plus, Loader2, ArrowUpRight, X, Trash2, Download
+  FileText, Edit2, ClipboardCheck, MessageSquare, Plus, Loader2, ArrowUpRight, X, Trash2, Download, CheckCircle
 } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import LifecycleTracker from '@/components/LifecycleTracker';
 
 interface ClientProfileContainerProps {
   client: any;
@@ -79,6 +80,32 @@ export default function ClientProfileContainer({
       }
     } catch (err: any) {
       alert(err.message || 'An unexpected error occurred.');
+    }
+  };
+
+  const handleLifecycleStageClick = (stageKey: string) => {
+    if (!currentFiling) return;
+    if (confirm(`Update filing status to "${stageKey}"?`)) {
+      const previousFilings = [...localFilings];
+      setLocalFilings(prev => prev.map(f => {
+        if (f.id === currentFiling.id) {
+          return { ...f, filing_status: stageKey };
+        }
+        return f;
+      }));
+
+      startTransition(async () => {
+        const res = await updateFilingStatusAction(client.id, currentFiling.id, {
+          filing_status: stageKey
+        });
+        if (res.error) {
+          alert(res.error);
+          setLocalFilings(previousFilings);
+        } else {
+          setSuccessMsg(`Status updated to ${stageKey}`);
+          setTimeout(() => setSuccessMsg(null), 3000);
+        }
+      });
     }
   };
 
@@ -1364,6 +1391,17 @@ export default function ClientProfileContainer({
             </div>
           </div>
 
+          {/* Lifecycle Tracker */}
+          {currentFiling && (
+            <div className="bg-slate-900/40 border border-slate-800/80 rounded-3xl p-6">
+              <LifecycleTracker 
+                currentStatus={currentFiling.filing_status} 
+                onStageClick={handleLifecycleStageClick}
+                disabled={isPending}
+              />
+            </div>
+          )}
+
           {/* Personal Card */}
           <div className="bg-slate-900/40 border border-slate-800/80 rounded-3xl p-6 space-y-4 text-xs font-semibold text-slate-400 uppercase tracking-wider select-none">
             <h2 className="text-sm font-bold text-white normal-case mb-2">Personal Details</h2>
@@ -1400,7 +1438,69 @@ export default function ClientProfileContainer({
         </div>
       </div>
 
-      {/* 2. Timeline Activity Feed at the Bottom (with Note Form) */}
+      {/* 3. Year-wise Filing History */}
+      {filings.length > 0 && (
+        <div className="bg-slate-900/40 border border-slate-800/80 rounded-3xl p-6 overflow-hidden">
+          <h2 className="text-lg font-bold text-white mb-6">Year-wise Filing History</h2>
+          <div className="overflow-x-auto">
+            <table className="w-full border-collapse text-left text-sm whitespace-nowrap">
+              <thead>
+                <tr className="border-b border-slate-800/80 bg-slate-900/30 text-slate-400 font-semibold select-none text-xs">
+                  <th className="p-4 rounded-tl-xl">AY</th>
+                  <th className="p-4">Return Type</th>
+                  <th className="p-4">Filed Date</th>
+                  <th className="p-4">Ack No.</th>
+                  <th className="p-4">Refund / Tax</th>
+                  <th className="p-4">Fee Charged</th>
+                  <th className="p-4">Payment</th>
+                  <th className="p-4 text-center">ITR-V</th>
+                  <th className="p-4 text-center">Intimation</th>
+                  <th className="p-4 rounded-tr-xl">Notes</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-800/50">
+                {filings.map(f => {
+                  const inv = invoices.find(i => i.filing_id === f.id);
+                  const hasItrV = f.filing_documents?.some((d: any) => d.document_type === 'itr-v');
+                  const hasIntimation = f.filing_documents?.some((d: any) => d.document_type === 'intimation-order');
+                  const latestLog = activityLogs.find(l => l.filing_id === f.id && l.action_type === 'Note Added');
+
+                  return (
+                    <tr key={f.id} className="hover:bg-slate-900/25 transition-colors group cursor-pointer" onClick={() => router.push(`/clients/${client.id}?ay=${f.assessment_year}`)}>
+                      <td className="p-4 font-bold text-white">AY {f.assessment_year}</td>
+                      <td className="p-4 text-slate-300">{f.return_type} {f.revision_number > 0 ? `(Rev ${f.revision_number})` : ''}</td>
+                      <td className="p-4 text-slate-400">{f.filing_date ? new Date(f.filing_date).toLocaleDateString('en-IN') : '-'}</td>
+                      <td className="p-4 text-slate-400 font-mono">{f.acknowledgement_number || '-'}</td>
+                      <td className="p-4 text-emerald-400 font-medium">₹{f.refund_amount ? Number(f.refund_amount).toLocaleString('en-IN') : '0'}</td>
+                      <td className="p-4 text-slate-300 font-medium">₹{inv ? Number(inv.invoice_amount).toLocaleString('en-IN') : '0'}</td>
+                      <td className="p-4">
+                        <span className={`px-2 py-0.5 text-[10px] uppercase font-bold rounded-full ${
+                          inv?.payment_status === 'Paid' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' :
+                          inv?.payment_status === 'Partial' ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20' :
+                          'bg-red-500/10 text-red-400 border border-red-500/20'
+                        }`}>
+                          {inv?.payment_status || 'Unpaid'}
+                        </span>
+                      </td>
+                      <td className="p-4 text-center">
+                        {hasItrV ? <CheckCircle className="h-4 w-4 text-emerald-400 mx-auto" /> : <X className="h-4 w-4 text-slate-600 mx-auto" />}
+                      </td>
+                      <td className="p-4 text-center">
+                        {hasIntimation ? <CheckCircle className="h-4 w-4 text-purple-400 mx-auto" /> : <X className="h-4 w-4 text-slate-600 mx-auto" />}
+                      </td>
+                      <td className="p-4 text-slate-400 max-w-[150px] truncate" title={latestLog?.description}>
+                        {latestLog?.description || '-'}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {/* 4. Timeline Activity Feed at the Bottom (with Note Form) */}
       <div className="bg-slate-900/40 border border-slate-800/80 rounded-3xl p-6">
         <h2 className="text-lg font-bold text-white mb-6">Activity Timeline & Notes</h2>
         
@@ -1616,19 +1716,11 @@ export default function ClientProfileContainer({
                 {successMsg && <div className="p-4 bg-emerald-950/30 border border-emerald-800/60 rounded-xl text-emerald-200 text-xs">{successMsg}</div>}
                 {errorMsg && <div className="p-4 bg-red-950/30 border border-red-800/60 rounded-xl text-red-200 text-xs">{errorMsg}</div>}
 
-                {/* Workflow Status */}
+                {/* Workflow Status & ITR Type */}
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Filing Workflow Status</label>
-                    <select name="filing_status" defaultValue={currentFiling.filing_status} className="w-full px-4 py-2 bg-slate-950 border border-slate-800 rounded-xl text-white text-sm">
-                      <option value="Yet To File">Yet To File</option>
-                      <option value="Documents Pending">Documents Pending</option>
-                      <option value="Ready to File">Ready to File</option>
-                      <option value="Filed">Filed</option>
-                      <option value="Under Processing">Under Processing</option>
-                      <option value="Processed">Processed</option>
-                      <option value="Rectification Required">Rectification Required</option>
-                    </select>
+                    <input type="text" readOnly value={currentFiling.filing_status} className="w-full px-4 py-2 bg-slate-900/50 border border-slate-800 rounded-xl text-slate-400 text-sm cursor-not-allowed" title="Update status using the Lifecycle Tracker on the right side." />
                   </div>
                   <div>
                     <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">ITR Form Type</label>

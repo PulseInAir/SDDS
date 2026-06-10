@@ -1,11 +1,11 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useState, useTransition, useEffect } from 'react';
 import Papa from 'papaparse';
 import { importClientsCSVAction, triggerQueueRolloverAction } from '../clients/actions';
 import {
   Upload, CheckCircle, AlertTriangle, FileText, Database, ShieldAlert,
-  HelpCircle, Play, Loader2, RefreshCw, Copy, Check, Download, Users, Briefcase
+  HelpCircle, Play, Loader2, RefreshCw, Copy, Check, Download, Users, Briefcase, Bell
 } from 'lucide-react';
 
 interface DataManagerClientProps {
@@ -14,6 +14,7 @@ interface DataManagerClientProps {
   clientsData: any[];
   invoicesData: any[];
   filingsData: any[];
+  revenueData: any[];
 }
 
 export default function DataManagerClient({
@@ -21,7 +22,8 @@ export default function DataManagerClient({
   currentAY,
   clientsData,
   invoicesData,
-  filingsData
+  filingsData,
+  revenueData
 }: DataManagerClientProps) {
   const [selectedAY, setSelectedAY] = useState(currentAY);
   const [csvFile, setCsvFile] = useState<File | null>(null);
@@ -39,6 +41,26 @@ export default function DataManagerClient({
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [isRolloverPending, startRolloverTransition] = useTransition();
   const [rolloverResult, setRolloverResult] = useState<string | null>(null);
+
+  // Backup Reminder
+  const [lastBackupDate, setLastBackupDate] = useState<string | null>(null);
+  
+  useEffect(() => {
+    const stored = localStorage.getItem('sdds_last_backup_date');
+    if (stored) setLastBackupDate(stored);
+  }, []);
+
+  const markBackupDone = () => {
+    const today = new Date().toISOString().split('T')[0];
+    localStorage.setItem('sdds_last_backup_date', today);
+    setLastBackupDate(today);
+  };
+
+  const getDaysSinceBackup = () => {
+    if (!lastBackupDate) return 999;
+    const diffTime = Math.abs(new Date().getTime() - new Date(lastBackupDate).getTime());
+    return Math.floor(diffTime / (1000 * 60 * 60 * 24));
+  };
 
   // Schema copying
   const [copiedText, setCopiedText] = useState(false);
@@ -239,6 +261,98 @@ export default function DataManagerClient({
     ]);
     const csvContent = convertToCSV(headers, rows);
     triggerDownload(csvContent, `filings_export_${new Date().toISOString().split('T')[0]}.csv`);
+  };
+
+  const exportRevenue = () => {
+    const headers = [
+      'Invoice ID', 'Invoice Number', 'Client Name', 'PAN', 'Assessment Year',
+      'Invoice Date', 'Due Date', 'Invoice Amount', 'Settlement Amount',
+      'Amount Received', 'Outstanding Amount', 'Payment Status', 'Created At'
+    ];
+    const rows = revenueData.map(r => [
+      r.id,
+      r.invoice_number,
+      r.clients?.name || 'Unknown',
+      r.clients?.pan || 'Unknown',
+      r.assessment_year,
+      r.invoice_date,
+      r.due_date,
+      r.invoice_amount,
+      r.settlement_amount,
+      r.amount_received,
+      r.outstanding_amount,
+      r.payment_status,
+      r.created_at
+    ]);
+    const csvContent = convertToCSV(headers, rows);
+    triggerDownload(csvContent, `revenue_export_${new Date().toISOString().split('T')[0]}.csv`);
+  };
+
+  const exportPendingDues = () => {
+    const pending = revenueData.filter(r => r.outstanding_amount > 0);
+    const headers = [
+      'Client Name', 'PAN', 'Mobile', 'Invoice Number', 'Assessment Year',
+      'Invoice Date', 'Due Date', 'Settlement Amount', 'Outstanding Amount'
+    ];
+    const rows = pending.map(r => [
+      r.clients?.name || 'Unknown',
+      r.clients?.pan || 'Unknown',
+      clientsData.find(c => c.id === r.client_id)?.mobile || '',
+      r.invoice_number,
+      r.assessment_year,
+      r.invoice_date,
+      r.due_date,
+      r.settlement_amount,
+      r.outstanding_amount
+    ]);
+    const csvContent = convertToCSV(headers, rows);
+    triggerDownload(csvContent, `pending_dues_export_${new Date().toISOString().split('T')[0]}.csv`);
+  };
+
+  const exportFiledReturns = () => {
+    const filed = filingsData.filter(f => ['Filed', 'Under Processing', 'Processed', 'Post-Filing Exception'].includes(f.filing_status));
+    const headers = [
+      'Client Name', 'PAN', 'Assessment Year', 'Filing Status', 'Return Type',
+      'Filing Date', 'Acknowledgement Number', 'ITR Form Type'
+    ];
+    const rows = filed.map(f => [
+      f.clients?.name || 'Unknown',
+      f.clients?.pan || 'Unknown',
+      f.assessment_year,
+      f.filing_status,
+      f.return_type || 'Original',
+      f.filing_date || '',
+      f.acknowledgement_number || '',
+      f.itr_type || 'ITR-1'
+    ]);
+    const csvContent = convertToCSV(headers, rows);
+    triggerDownload(csvContent, `filed_returns_export_${new Date().toISOString().split('T')[0]}.csv`);
+  };
+
+  const exportNotices = () => {
+    // Assuming 'Exception' group statuses represent notices
+    const notices = filingsData.filter(f => ['Defective Return', 'Rectification Required', 'Demand Notice', 'Post-Filing Exception'].includes(f.filing_status));
+    const headers = [
+      'Client Name', 'PAN', 'Mobile', 'Assessment Year', 'Filing Status', 'Return Type'
+    ];
+    const rows = notices.map(f => [
+      f.clients?.name || 'Unknown',
+      f.clients?.pan || 'Unknown',
+      clientsData.find(c => c.id === f.client_id)?.mobile || '',
+      f.assessment_year,
+      f.filing_status,
+      f.return_type || 'Original'
+    ]);
+    const csvContent = convertToCSV(headers, rows);
+    triggerDownload(csvContent, `notices_export_${new Date().toISOString().split('T')[0]}.csv`);
+  };
+
+  const exportFullBackup = () => {
+    exportClients();
+    setTimeout(exportFilings, 500);
+    setTimeout(exportInvoices, 1000);
+    setTimeout(exportRevenue, 1500);
+    markBackupDone();
   };
 
   return (
@@ -527,6 +641,32 @@ export default function DataManagerClient({
           </div>
 
           <div className="space-y-4">
+            {getDaysSinceBackup() > 30 && (
+              <div className="p-4 bg-amber-950/30 border border-amber-900/40 rounded-xl flex items-start space-x-3 text-amber-400 text-xs">
+                <Bell className="h-4 w-4 shrink-0 mt-0.5" />
+                <div>
+                  <p className="font-bold">Monthly Backup Recommended</p>
+                  <p className="text-amber-500/80 mt-0.5">It has been {getDaysSinceBackup()} days since your last full backup. Regular backups ensure you have a copy of all records offline.</p>
+                </div>
+              </div>
+            )}
+
+            {/* Export Full Backup */}
+            <div className="p-4 bg-slate-950/60 border border-slate-850 rounded-2xl flex items-center justify-between">
+              <div className="space-y-1">
+                <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest block">Full Offline Backup</span>
+                <span className="text-xs text-white font-bold block">Download all DB tables</span>
+                {lastBackupDate && <span className="text-[10px] text-slate-500 block">Last backup: {lastBackupDate}</span>}
+              </div>
+              <button
+                onClick={exportFullBackup}
+                className="flex items-center space-x-1 px-3 py-2 bg-blue-600 hover:bg-blue-500 text-xs font-semibold text-white rounded-xl cursor-pointer transition-all"
+              >
+                <Database className="h-3.5 w-3.5" />
+                <span>Backup Now</span>
+              </button>
+            </div>
+
             {/* Export Clients */}
             <div className="p-4 bg-slate-950/60 border border-slate-850 rounded-2xl flex items-center justify-between">
               <div className="space-y-1">
@@ -543,15 +683,15 @@ export default function DataManagerClient({
               </button>
             </div>
 
-            {/* Export Filings */}
+            {/* Export Revenue */}
             <div className="p-4 bg-slate-950/60 border border-slate-850 rounded-2xl flex items-center justify-between">
               <div className="space-y-1">
-                <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest block">Filings Directory</span>
-                <span className="text-xs text-white font-bold block">{filingsData.length} years enrolled</span>
+                <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest block">Revenue / Collections</span>
+                <span className="text-xs text-white font-bold block">{revenueData.length} invoices generated</span>
               </div>
               <button
-                onClick={exportFilings}
-                disabled={filingsData.length === 0}
+                onClick={exportRevenue}
+                disabled={revenueData.length === 0}
                 className="flex items-center space-x-1 px-3 py-2 bg-slate-850 hover:bg-slate-800 text-xs font-semibold text-slate-200 border border-slate-750 hover:border-slate-700 rounded-xl cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed transition-all"
               >
                 <Download className="h-3.5 w-3.5 text-indigo-400" />
@@ -559,21 +699,51 @@ export default function DataManagerClient({
               </button>
             </div>
 
-            {/* Export Invoices */}
+            {/* Export Pending Dues */}
             <div className="p-4 bg-slate-950/60 border border-slate-850 rounded-2xl flex items-center justify-between">
               <div className="space-y-1">
-                <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest block">Invoices & Billing</span>
-                <span className="text-xs text-white font-bold block">{invoicesData.length} records generated</span>
+                <span className="text-[10px] font-bold text-amber-500/80 uppercase tracking-widest block">Pending Dues</span>
+                <span className="text-xs text-white font-bold block">Clients with outstanding balance</span>
               </div>
               <button
-                onClick={exportInvoices}
-                disabled={invoicesData.length === 0}
-                className="flex items-center space-x-1 px-3 py-2 bg-slate-850 hover:bg-slate-800 text-xs font-semibold text-slate-200 border border-slate-750 hover:border-slate-700 rounded-xl cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                onClick={exportPendingDues}
+                className="flex items-center space-x-1 px-3 py-2 bg-slate-850 hover:bg-slate-800 text-xs font-semibold text-amber-200 border border-slate-750 hover:border-slate-700 rounded-xl cursor-pointer transition-all"
               >
-                <Download className="h-3.5 w-3.5 text-indigo-400" />
+                <Download className="h-3.5 w-3.5 text-amber-400" />
                 <span>Export CSV</span>
               </button>
             </div>
+
+            {/* Export Filed Returns */}
+            <div className="p-4 bg-slate-950/60 border border-slate-850 rounded-2xl flex items-center justify-between">
+              <div className="space-y-1">
+                <span className="text-[10px] font-bold text-emerald-500/80 uppercase tracking-widest block">Filed Returns</span>
+                <span className="text-xs text-white font-bold block">All successfully filed ITRs</span>
+              </div>
+              <button
+                onClick={exportFiledReturns}
+                className="flex items-center space-x-1 px-3 py-2 bg-slate-850 hover:bg-slate-800 text-xs font-semibold text-emerald-200 border border-slate-750 hover:border-slate-700 rounded-xl cursor-pointer transition-all"
+              >
+                <Download className="h-3.5 w-3.5 text-emerald-400" />
+                <span>Export CSV</span>
+              </button>
+            </div>
+
+            {/* Export Notices / Exceptions */}
+            <div className="p-4 bg-slate-950/60 border border-slate-850 rounded-2xl flex items-center justify-between">
+              <div className="space-y-1">
+                <span className="text-[10px] font-bold text-red-500/80 uppercase tracking-widest block">Notices & Exceptions</span>
+                <span className="text-xs text-white font-bold block">Clients requiring attention</span>
+              </div>
+              <button
+                onClick={exportNotices}
+                className="flex items-center space-x-1 px-3 py-2 bg-slate-850 hover:bg-slate-800 text-xs font-semibold text-red-200 border border-slate-750 hover:border-slate-700 rounded-xl cursor-pointer transition-all"
+              >
+                <Download className="h-3.5 w-3.5 text-red-400" />
+                <span>Export CSV</span>
+              </button>
+            </div>
+
           </div>
 
           <div className="p-4 bg-slate-950/40 border border-slate-800/80 rounded-2xl text-[11px] text-slate-400 leading-relaxed font-medium">
