@@ -3,11 +3,12 @@ import crypto from 'crypto';
 const ALGORITHM = 'aes-256-gcm';
 const IV_LENGTH = 12; // Standard IV length for GCM
 
-const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY || 'default_fallback_sdds_key_for_development';
+const RAW_KEY = process.env.PORTAL_PASSWORD_KEY || process.env.ENCRYPTION_KEY;
 
 // Derives a valid 32-byte key from the configured key using SHA-256
 function getEncryptionKey(): Buffer {
-  return crypto.createHash('sha256').update(ENCRYPTION_KEY).digest();
+  const keySource = RAW_KEY || 'default_fallback_sdds_key_for_development';
+  return crypto.createHash('sha256').update(keySource).digest();
 }
 
 /**
@@ -16,6 +17,10 @@ function getEncryptionKey(): Buffer {
  */
 export function encrypt(text: string): string {
   if (!text) return '';
+  
+  if (!process.env.PORTAL_PASSWORD_KEY && !process.env.ENCRYPTION_KEY) {
+    throw new Error('Encryption failed: PORTAL_PASSWORD_KEY or ENCRYPTION_KEY environment variable is missing.');
+  }
   
   const key = getEncryptionKey();
   const iv = crypto.randomBytes(IV_LENGTH);
@@ -35,6 +40,10 @@ export function encrypt(text: string): string {
  */
 export function decrypt(encryptedText: string): string {
   if (!encryptedText) return '';
+  
+  if (!process.env.PORTAL_PASSWORD_KEY && !process.env.ENCRYPTION_KEY) {
+    return 'Portal Password Decryption MISSING KEY: PORTAL_PASSWORD_KEY or ENCRYPTION_KEY environment variable is not configured.';
+  }
   
   try {
     const parts = encryptedText.split(':');

@@ -274,6 +274,9 @@ export async function decryptPasswordAction(clientId: string) {
   }
 
   const decrypted = decrypt(secretData.encrypted_password);
+  if (decrypted.startsWith('Portal Password Decryption MISSING KEY')) {
+    return { error: decrypted };
+  }
   return { password: decrypted };
 }
 

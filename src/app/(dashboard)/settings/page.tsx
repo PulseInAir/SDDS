@@ -13,7 +13,7 @@ export default async function SettingsPage() {
   const configStatus = {
     supabaseUrl: !!process.env.NEXT_PUBLIC_SUPABASE_URL,
     supabaseAnonKey: !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
-    encryptionKey: !!process.env.ENCRYPTION_KEY,
+    encryptionKey: !!(process.env.PORTAL_PASSWORD_KEY || process.env.ENCRYPTION_KEY),
   };
 
   // Fetch settings from the system_settings table
