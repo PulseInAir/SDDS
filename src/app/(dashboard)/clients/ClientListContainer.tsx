@@ -2,11 +2,12 @@
 
 import { useState } from 'react';
 import { usePrivacy } from '@/context/PrivacyContext';
-import { decryptPasswordAction, deleteClientsAction } from './actions';
+import { deleteClientsAction } from './actions';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { 
-  Search, Eye, EyeOff, Copy, Phone, Mail, 
-  UserPlus, Calendar, ClipboardCheck, ArrowUpRight, Loader2, Trash2
+  Search, Eye, EyeOff, Phone, Mail, 
+  UserPlus, Calendar, Loader2, Trash2
 } from 'lucide-react';
 
 interface Client {
@@ -31,6 +32,8 @@ export default function ClientListContainer({ initialClients }: { initialClients
   const [search, setSearch] = useState('');
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [showCheckboxes, setShowCheckboxes] = useState(false);
+  const router = useRouter();
 
   // Local masks for specific rows when privacy mode is ON
   const [revealedClients, setRevealedClients] = useState<Record<string, boolean>>({});
@@ -38,11 +41,19 @@ export default function ClientListContainer({ initialClients }: { initialClients
   const [decryptingId, setDecryptingId] = useState<string | null>(null);
 
   const handleToggleSelect = (clientId: string) => {
-    setSelectedIds(prev =>
-      prev.includes(clientId)
+    setSelectedIds(prev => {
+      const isSelected = prev.includes(clientId);
+      const nextSelected = isSelected
         ? prev.filter(id => id !== clientId)
-        : [...prev, clientId]
-    );
+        : [...prev, clientId];
+
+      if (nextSelected.length === 0) {
+        setShowCheckboxes(false);
+      } else {
+        setShowCheckboxes(true);
+      }
+      return nextSelected;
+    });
   };
 
   const toggleSelectAll = () => {
@@ -51,6 +62,7 @@ export default function ClientListContainer({ initialClients }: { initialClients
 
     if (allVisibleSelected) {
       setSelectedIds(prev => prev.filter(id => !visibleIds.includes(id)));
+      setShowCheckboxes(false);
     } else {
       setSelectedIds(prev => {
         const newSelected = [...prev];
@@ -61,6 +73,7 @@ export default function ClientListContainer({ initialClients }: { initialClients
         });
         return newSelected;
       });
+      setShowCheckboxes(true);
     }
   };
 
@@ -140,27 +153,7 @@ export default function ClientListContainer({ initialClients }: { initialClients
     );
   });
 
-  // Handle Clipboard Copy of PAN & Password
-  const handleCopyCredentials = async (client: Client) => {
-    setDecryptingId(client.id);
-    try {
-      const res = await decryptPasswordAction(client.id);
-      if (res.error) {
-        alert(res.error);
-        return;
-      }
-      
-      const textToCopy = `${client.pan.toUpperCase()}\t${res.password}`;
-      await navigator.clipboard.writeText(textToCopy);
-      
-      setCopiedId(client.id);
-      setTimeout(() => setCopiedId(null), 2000);
-    } catch (err) {
-      console.error('Copy credentials failed:', err);
-    } finally {
-      setDecryptingId(null);
-    }
-  };
+
 
   // Mask string helper
   const maskText = (text: string, isMasked: boolean) => {
@@ -250,17 +243,26 @@ export default function ClientListContainer({ initialClients }: { initialClients
           </thead>
           <tbody className="divide-y divide-slate-880">
             {filteredClients.length > 0 ? (
-              filteredClients.map((client) => {
+              filteredClients.map((client, index) => {
                 const isMasked = isPrivacyMode && !revealedClients[client.id];
                 return (
-                  <tr key={client.id} className="hover:bg-slate-900/25 transition-colors group">
-                    <td className="p-4 text-center">
-                      <input
-                        type="checkbox"
-                        checked={selectedIds.includes(client.id)}
-                        onChange={() => handleToggleSelect(client.id)}
-                        className="rounded border-slate-850 bg-slate-950 text-blue-600 focus:ring-blue-500/40 cursor-pointer w-4 h-4"
-                      />
+                  <tr 
+                    key={client.id} 
+                    onClick={() => router.push(`/clients/${client.id}`)}
+                    className="hover:bg-slate-900/25 transition-colors group cursor-pointer"
+                  >
+                    <td className="p-4 text-center font-bold text-slate-500 select-none">
+                      {showCheckboxes ? (
+                        <input
+                          type="checkbox"
+                          checked={selectedIds.includes(client.id)}
+                          onChange={() => handleToggleSelect(client.id)}
+                          onClick={(e) => e.stopPropagation()}
+                          className="rounded border-slate-850 bg-slate-950 text-blue-600 focus:ring-blue-500/40 cursor-pointer w-4 h-4"
+                        />
+                      ) : (
+                        <span>{index + 1}</span>
+                      )}
                     </td>
                     <td className="p-4 font-bold text-white max-w-[200px] truncate">
                       {client.name}
@@ -271,7 +273,10 @@ export default function ClientListContainer({ initialClients }: { initialClients
                         {isPrivacyMode && (
                           <button
                             type="button"
-                            onClick={() => toggleRowReveal(client.id)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              toggleRowReveal(client.id);
+                            }}
                             className="p-1 hover:bg-slate-800 rounded text-slate-500 hover:text-slate-350 transition-colors cursor-pointer"
                           >
                             {revealedClients[client.id] ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
@@ -304,45 +309,20 @@ export default function ClientListContainer({ initialClients }: { initialClients
                     <td className="p-4 text-slate-400">
                       {client.family_group || '-'}
                     </td>
-                    <td className="p-4 text-right">
+                    <td className="p-4 text-right" onClick={(e) => e.stopPropagation()}>
                       <div className="flex items-center justify-end space-x-2">
                         <button
                           type="button"
-                          onClick={() => handleCopyCredentials(client)}
-                          disabled={decryptingId === client.id}
-                          title="Copy Portal Login Credentials (PAN + Password)"
-                          className={`p-2 rounded-xl border transition-all cursor-pointer ${
-                            copiedId === client.id
-                              ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400'
-                              : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-white hover:border-slate-700'
-                          }`}
-                        >
-                          {decryptingId === client.id ? (
-                            <Loader2 className="h-4 w-4 animate-spin text-blue-400" />
-                          ) : copiedId === client.id ? (
-                            <ClipboardCheck className="h-4 w-4" />
-                          ) : (
-                            <Copy className="h-4 w-4" />
-                          )}
-                        </button>
-
-                        <button
-                          type="button"
-                          onClick={() => handleDeleteSingle(client.id, client.name)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDeleteSingle(client.id, client.name);
+                          }}
                           disabled={isDeleting}
                           title="Delete Client Profile"
                           className="p-2 bg-slate-950 border border-slate-800 text-slate-500 hover:text-red-400 hover:border-red-900/50 rounded-xl transition-all cursor-pointer"
                         >
                           <Trash2 className="h-4 w-4" />
                         </button>
-
-                        <Link
-                          href={`/clients/${client.id}`}
-                          className="p-2 bg-slate-950 border border-slate-800 text-slate-400 hover:text-white hover:border-slate-700 rounded-xl transition-all flex items-center space-x-1 text-xs font-semibold"
-                        >
-                          <span>Open Profile</span>
-                          <ArrowUpRight className="h-3.5 w-3.5 shrink-0" />
-                        </Link>
                       </div>
                     </td>
                   </tr>
