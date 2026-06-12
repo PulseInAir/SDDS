@@ -61,14 +61,32 @@ export function Sidebar() {
     <nav ref={navRef} className="sdds-sidebar relative flex flex-col h-full py-6">
       {/* Cut-out indicator */}
       <div
-        className="absolute left-3 right-3 bg-white rounded-xl shadow-lg transition-all duration-300 ease-out"
+        className="absolute right-0 bg-white transition-all duration-300 ease-out"
         style={{
+          left: '12px',
           top: style.top,
           height: style.height,
           opacity: style.opacity,
+          borderTopLeftRadius: '24px',
+          borderBottomLeftRadius: '24px',
           zIndex: 0
         }}
-      />
+      >
+        <div 
+          className="absolute right-0 w-[24px] h-[24px] pointer-events-none" 
+          style={{ 
+            top: '-24px',
+            background: 'radial-gradient(circle at top left, transparent 24px, #ffffff 24px)' 
+          }} 
+        />
+        <div 
+          className="absolute right-0 w-[24px] h-[24px] pointer-events-none" 
+          style={{ 
+            bottom: '-24px',
+            background: 'radial-gradient(circle at bottom left, transparent 24px, #ffffff 24px)' 
+          }} 
+        />
+      </div>
 
       {/* Header */}
       <div className="flex items-center gap-3 mb-8 px-4 relative" style={{ zIndex: 1 }}>
@@ -79,7 +97,7 @@ export function Sidebar() {
       </div>
 
       {/* Menu */}
-      <div className="flex-1 flex flex-col gap-2 px-3 relative" style={{ zIndex: 1 }}>
+      <div className="flex-1 flex flex-col gap-2 pl-3 pr-0 relative" style={{ zIndex: 1 }}>
         {navItems.map((item, index) => {
           const Icon = item.icon;
           const isActive = pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href));
@@ -88,7 +106,7 @@ export function Sidebar() {
               key={item.name}
               href={item.href}
               ref={(el) => { linkRefs.current[index] = el; }}
-              className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-colors duration-200 ${isActive ? 'text-blue-700 font-semibold' : 'text-blue-100 hover:text-white'
+              className={`flex items-center gap-3 px-4 py-3 rounded-l-2xl transition-colors duration-200 ${isActive ? 'text-blue-700 font-semibold' : 'text-blue-100 hover:text-white'
                 }`}
             >
               <Icon className="w-5 h-5" />

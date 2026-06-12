@@ -27,17 +27,23 @@ export default function Header() {
   const { isPrivacyMode, togglePrivacyMode } = usePrivacy();
 
   return (
-    <header className="py-5 px-8 flex flex-col space-y-5 z-20 relative select-none">
-      {/* Top Row: Badges */}
-      <div className="flex items-center justify-between">
-        {/* Quick Status */}
-        <div className="flex items-center space-x-2 text-xs font-semibold text-slate-500 bg-white border border-slate-200 px-4 h-8 rounded-full shadow-sm">
-          <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-          <span>SDDS Operating Environment Active</span>
-        </div>
+    <header className="py-5 px-8 flex items-start justify-between z-20 relative select-none">
+      {/* Left: Title & Subtitle */}
+      <div className="flex flex-col mt-1">
+        <h1 className="text-[28px] leading-none font-extrabold text-[#1e3a8a] tracking-tight mb-1">Dashboard</h1>
+        <p className="text-[13px] font-medium text-slate-500">Overview of clients, filings, and collections.</p>
+      </div>
 
-        {/* Actions */}
-        <div className="flex items-center space-x-4">
+      {/* Right: Controls Stack */}
+      <div className="flex flex-col items-end space-y-4">
+        {/* Top Row: Badges */}
+        <div className="flex items-center space-x-3">
+          {/* Quick Status */}
+          <div className="flex items-center space-x-2 text-[11px] font-semibold text-slate-500 bg-white border border-slate-200 px-4 h-8 rounded-full shadow-sm">
+            <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+            <span>SDDS Operating Environment Active</span>
+          </div>
+
           {/* Privacy Toggle Button */}
           <button
             type="button"
@@ -67,18 +73,10 @@ export default function Header() {
             <span>SSL Secure Connection</span>
           </div>
         </div>
-      </div>
 
-      {/* Bottom Row: Search, Controls */}
-      <div className="flex items-center justify-between">
-        {/* Left: Title & Subtitle */}
-        <div className="flex-1">
-          <h1 className="text-[28px] leading-none font-extrabold text-[#1e3a8a] tracking-tight mb-1">Dashboard</h1>
-          <p className="text-[13px] font-medium text-slate-500">Overview of clients, filings, and collections.</p>
-        </div>
-
-        {/* Center: Search & Avatar */}
-        <div className="flex-1 flex justify-center items-center space-x-4">
+        {/* Bottom Row: Search & Actions */}
+        <div className="flex items-center space-x-4">
+          {/* Search */}
           <div className="relative">
             <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
             <input
@@ -87,17 +85,20 @@ export default function Header() {
               className="bg-slate-50 border border-slate-200 rounded-full pl-10 pr-4 h-10 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500/40 w-72 shadow-sm transition-all focus:bg-white"
             />
           </div>
-          <div className="h-10 w-10 rounded-full bg-slate-50 border border-slate-200 flex items-center justify-center overflow-hidden shadow-sm">
-            <User className="h-5 w-5 text-slate-500" />
-          </div>
-        </div>
 
-        {/* Right: Controls */}
-        <div className="flex-1 flex justify-end items-center space-x-3">
-          <Suspense fallback={<div className="text-slate-400 text-xs">Loading...</div>}>
-            <HeaderControls />
-          </Suspense>
+          {/* Avatar */}
+          <div className="h-10 w-10 rounded-full overflow-hidden border border-slate-200 shadow-sm">
+            <img src="https://i.pravatar.cc/150?u=a042581f4e29026024d" alt="User Avatar" className="h-full w-full object-cover" />
+          </div>
+
+          {/* AY Select */}
+          <div className="flex items-center space-x-3">
+            <Suspense fallback={<div className="text-slate-400 text-xs">Loading...</div>}>
+              <HeaderControls />
+            </Suspense>
+          </div>
           
+          {/* Add Client */}
           <Link
             href="/clients/new"
             className="flex items-center justify-center space-x-2 px-6 h-10 rounded-full text-sm font-semibold text-white bg-blue-600 hover:bg-blue-500 transition-colors shadow-lg shadow-blue-600/20"
