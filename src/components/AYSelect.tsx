@@ -11,19 +11,69 @@ export default function AYSelect({ currentAY, ayOptions }: AYSelectProps) {
   const router = useRouter();
 
   return (
-    <select
-      id="ay-select"
-      value={currentAY}
-      onChange={(e) => {
-        router.push(`/?ay=${e.target.value}`);
-      }}
-      className="bg-slate-900 border border-slate-800 rounded-xl px-4 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500 cursor-pointer appearance-none pr-8 min-w-[120px]"
-    >
-      {ayOptions.map((ay) => (
-        <option key={ay} value={ay}>
-          {ay}
-        </option>
-      ))}
-    </select>
+    <div className="relative inline-flex items-center">
+      <select
+        id="ay-select"
+        value={currentAY}
+        onChange={(e) => {
+          router.push(`/?ay=${e.target.value}`);
+        }}
+        style={{
+          appearance: 'none',
+          WebkitAppearance: 'none',
+          MozAppearance: 'none',
+          background: '#ffffff',
+          border: '1.5px solid #e0e4ec',
+          borderRadius: '9999px',
+          padding: '8px 36px 8px 18px',
+          fontSize: '15px',
+          fontWeight: 700,
+          color: '#1e293b',
+          cursor: 'pointer',
+          outline: 'none',
+          minWidth: '120px',
+          lineHeight: '1.4',
+          boxShadow: '0 1px 4px rgba(0,0,0,0.06)',
+          transition: 'border-color 0.2s ease, box-shadow 0.2s ease',
+        }}
+        onFocus={(e) => {
+          e.currentTarget.style.borderColor = '#3b82f6';
+          e.currentTarget.style.boxShadow = '0 0 0 3px rgba(59,130,246,0.15)';
+        }}
+        onBlur={(e) => {
+          e.currentTarget.style.borderColor = '#e0e4ec';
+          e.currentTarget.style.boxShadow = '0 1px 4px rgba(0,0,0,0.06)';
+        }}
+      >
+        {ayOptions.map((ay) => (
+          <option key={ay} value={ay}>
+            {ay}
+          </option>
+        ))}
+      </select>
+      {/* Custom dropdown chevron */}
+      <svg
+        width="12"
+        height="8"
+        viewBox="0 0 12 8"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        style={{
+          position: 'absolute',
+          right: '14px',
+          top: '50%',
+          transform: 'translateY(-50%)',
+          pointerEvents: 'none',
+        }}
+      >
+        <path
+          d="M1 1.5L6 6.5L11 1.5"
+          stroke="#2563eb"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>
+    </div>
   );
 }
