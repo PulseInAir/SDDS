@@ -6,13 +6,28 @@ import { logout } from '@/app/login/actions';
 import { PrivacyProvider } from '@/context/PrivacyContext';
 import Header from '@/components/Header';
 
+import { headers } from 'next/headers';
+
 interface NavItemProps {
   href: string;
   icon: React.ReactNode;
   label: string;
+  active?: boolean;
 }
 
-function NavItem({ href, icon, label }: NavItemProps) {
+function NavItem({ href, icon, label, active }: NavItemProps) {
+  if (active) {
+    return (
+      <Link
+        href={href}
+        className="sdds-nav-cutout flex items-center space-x-3 px-4 py-3 -mr-6 pr-10 font-bold text-sm group"
+      >
+        <span className="text-blue-900 transition-colors">{icon}</span>
+        <span className="text-blue-900">{label}</span>
+      </Link>
+    );
+  }
+
   return (
     <Link
       href={href}
@@ -36,6 +51,9 @@ export default async function DashboardLayout({
     redirect('/login');
   }
 
+  const headersList = await headers();
+  const pathname = headersList.get('x-invoke-path') || headersList.get('x-pathname') || '/';
+
   return (
     <PrivacyProvider>
       <div className="sdds-app-bg font-sans">
@@ -55,13 +73,13 @@ export default async function DashboardLayout({
 
               {/* Navigation Links */}
               <nav className="space-y-1">
-                <NavItem href="/" icon={<LayoutDashboard className="h-4 w-4" />} label="Dashboard" />
-                <NavItem href="/clients" icon={<Users className="h-4 w-4" />} label="Clients" />
-                <NavItem href="/queue" icon={<Clock className="h-4 w-4" />} label="Filing Queue" />
-                <NavItem href="/invoices" icon={<FileText className="h-4 w-4" />} label="Invoices" />
-                <NavItem href="/revenue" icon={<IndianRupee className="h-4 w-4" />} label="Revenue / Collections" />
-                <NavItem href="/data" icon={<Database className="h-4 w-4" />} label="Data Manager" />
-                <NavItem href="/settings" icon={<Settings className="h-4 w-4" />} label="Settings" />
+                <NavItem href="/" icon={<LayoutDashboard className="h-4 w-4" />} label="Dashboard" active={pathname === '/'} />
+                <NavItem href="/clients" icon={<Users className="h-4 w-4" />} label="Clients" active={pathname.startsWith('/clients')} />
+                <NavItem href="/queue" icon={<Clock className="h-4 w-4" />} label="Filing Queue" active={pathname.startsWith('/queue')} />
+                <NavItem href="/invoices" icon={<FileText className="h-4 w-4" />} label="Invoices" active={pathname.startsWith('/invoices')} />
+                <NavItem href="/revenue" icon={<IndianRupee className="h-4 w-4" />} label="Revenue / Collections" active={pathname.startsWith('/revenue')} />
+                <NavItem href="/data" icon={<Database className="h-4 w-4" />} label="Data Manager" active={pathname.startsWith('/data')} />
+                <NavItem href="/settings" icon={<Settings className="h-4 w-4" />} label="Settings" active={pathname.startsWith('/settings')} />
               </nav>
             </div>
 
