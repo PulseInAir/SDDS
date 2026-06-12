@@ -20,9 +20,7 @@ export const metadata: Metadata = {
 
 export default async function RootLayout({
   children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+}: Readonly<{ children: React.ReactNode }>) {
   let theme = "dark";
   try {
     const supabase = await createClient();
@@ -39,12 +37,10 @@ export default async function RootLayout({
   }
 
   return (
-    <html
-      lang="en"
-      data-theme={theme}
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
-    >
-      <body className="min-h-full flex flex-col">{children}</body>
+    <html lang="en" data-theme={theme}>
+      <body className={geistSans.className}>
+        {children}
+      </body>
     </html>
   );
 }
