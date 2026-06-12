@@ -36,11 +36,12 @@ export default function DashboardClient({
   ayOptions
 }: DashboardClientProps) {
   return (
-    <div className="grid grid-cols-1 xl:grid-cols-[1fr_400px] gap-6 xl:gap-8">
+    <div className="grid grid-cols-1 xl:grid-cols-[1fr_400px] gap-6 xl:gap-8 w-full min-w-0">
       {/* ── Main two-column layout: Left dashboard area │ Right column ── */}
 
+
         {/* ── LEFT COLUMN ── */}
-        <div className="flex flex-col gap-6 xl:gap-8">
+        <div className="flex flex-col gap-6 xl:gap-8 min-w-0">
 
           {/* Top row: OverviewCard + StackedStatCards side by side */}
           <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-6 xl:gap-8">
@@ -65,13 +66,12 @@ export default function DashboardClient({
         </div>
 
         {/* ── RIGHT COLUMN ── */}
-        <div className="flex flex-col gap-6 xl:gap-8">
+        <div className="flex flex-col gap-6 xl:gap-8 min-w-0">
           <RecentActivityPanel recentLogs={recentLogs} />
           <QueueSnapshotPanel queueItems={queueItems} />
         </div>
 
-        </div>
-      </div>
+    </div>
   );
 }
 

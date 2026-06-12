@@ -20,7 +20,7 @@ function NavItem({ href, icon, label, active }: NavItemProps) {
     return (
       <Link
         href={href}
-        className="sdds-nav-cutout flex items-center space-x-3 px-4 h-14 -mr-6 pr-10 font-bold text-sm group"
+        className="sdds-nav-cutout flex items-center space-x-3 px-4 h-14 xl:-mr-6 xl:pr-10 max-xl:mr-0 max-xl:pr-4 max-xl:rounded-r-full max-xl:before:hidden max-xl:after:hidden font-bold text-sm group"
       >
         <span className="text-blue-900 transition-colors">{icon}</span>
         <span className="text-blue-900">{label}</span>
@@ -56,10 +56,10 @@ export default async function DashboardLayout({
 
   return (
     <PrivacyProvider>
-      <div className="sdds-app-bg font-sans">
-        <div className="sdds-app-frame">
+      <div className="sdds-app-bg font-sans !items-start xl:!items-center !p-4 xl:!p-8">
+        <div className="sdds-app-frame flex-col xl:flex-row !h-auto xl:!h-[941px] w-full">
           {/* Sidebar */}
-          <aside className="w-[260px] bg-gradient-to-b from-blue-600 to-blue-900 rounded-l-[32px] p-6 pb-8 flex flex-col justify-between shrink-0 select-none h-full">
+          <aside className="w-full xl:w-[260px] bg-gradient-to-b from-blue-600 to-blue-900 xl:rounded-l-[32px] max-xl:rounded-t-[32px] p-6 pb-8 flex flex-col justify-between shrink-0 select-none h-auto xl:h-full gap-8 xl:gap-0 z-20">
             <div>
               {/* Logo */}
               <div className="flex items-center mb-10 px-4 mt-8">
@@ -108,10 +108,10 @@ export default async function DashboardLayout({
           </aside>
 
           {/* Main Content Area */}
-          <main className="flex-1 overflow-y-auto relative flex flex-col">
+          <main className="flex-1 overflow-y-auto relative flex flex-col min-w-0 max-xl:h-auto">
             {/* Header */}
             <Header />
-            <div className="flex-1 p-8 relative z-10">
+            <div className="flex-1 p-4 xl:p-8 relative z-10 min-w-0">
               {children}
             </div>
           </main>
