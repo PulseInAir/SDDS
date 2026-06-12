@@ -164,12 +164,15 @@ export default function SummaryCards({
 
             <span style={styles.subtext}>{card.subtext}</span>
 
-            {/* Progress track */}
-            <div style={styles.progressTrack}>
-              <div style={styles.progressFill} />
-            </div>
+            <span style={styles.subtext}>{card.subtext}</span>
 
-            <span style={styles.progressLabel}>0%</span>
+            {/* Progress track */}
+            <div style={styles.progressRow}>
+              <div style={styles.progressTrack}>
+                <div style={styles.progressFill} />
+              </div>
+              <span style={styles.progressLabel}>0%</span>
+            </div>
           </div>
         </div>
       ))}
@@ -189,7 +192,7 @@ const styles: Record<string, React.CSSProperties> = {
   row: {
     display: "grid",
     gridTemplateColumns: "repeat(3, 1fr)",
-    gap: 16,
+    gap: 24,
     width: "100%",
     boxSizing: "border-box",
   },
@@ -213,14 +216,14 @@ const styles: Record<string, React.CSSProperties> = {
     alignItems: "center",
     justifyContent: "center",
     zIndex: 2,
-    boxShadow: "0 6px 20px rgba(37,99,235,0.35)",
+    boxShadow: "0 8px 24px rgba(37,99,235,0.4)",
   },
 
   /* Blue gradient card body */
   card: {
-    background: "linear-gradient(135deg, #1e3a8a 0%, #1d4ed8 50%, #2563eb 100%)",
+    background: "linear-gradient(135deg, #1e3a8a 0%, #172554 100%)",
     borderRadius: 24,
-    padding: "16px 20px 14px",
+    padding: "16px 24px 20px",
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
@@ -228,7 +231,7 @@ const styles: Record<string, React.CSSProperties> = {
     position: "relative",
     overflow: "hidden",
     boxSizing: "border-box",
-    boxShadow: "0 8px 32px rgba(30,58,138,0.3)",
+    boxShadow: "0 12px 32px rgba(30,58,138,0.2)",
   },
 
   /* Space reserved so text doesn't go behind the icon */
@@ -267,31 +270,36 @@ const styles: Record<string, React.CSSProperties> = {
     marginBottom: 14,
   },
 
+  /* Progress Row */
+  progressRow: {
+    display: "flex",
+    alignItems: "center",
+    gap: 12,
+    width: "100%",
+  },
+
   /* Progress bar track */
   progressTrack: {
-    width: "100%",
-    height: 5,
-    borderRadius: 3,
-    background: "rgba(255,255,255,0.15)",
+    flex: 1,
+    height: 4,
+    borderRadius: 2,
+    background: "rgba(255,255,255,0.2)",
     overflow: "hidden",
-    marginBottom: 6,
   },
 
   /* Progress bar fill (green dot start, represents 0%) */
   progressFill: {
-    width: "2%",
+    width: "0%",
     minWidth: 8,
     height: "100%",
-    borderRadius: 3,
+    borderRadius: 2,
     background: "#22c55e",
   },
 
   /* Percentage label */
   progressLabel: {
     fontSize: 12,
-    fontWeight: 600,
-    color: "rgba(255,255,255,0.8)",
-    textAlign: "right",
-    width: "100%",
+    fontWeight: 700,
+    color: "rgba(255,255,255,0.9)",
   },
 };

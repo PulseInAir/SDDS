@@ -187,9 +187,9 @@ const styles: Record<string, React.CSSProperties> = {
   /* Panel wrapper – clean white / light background */
   panel: {
     background: "#ffffff",
-    borderRadius: 20,
-    padding: "24px 20px 16px",
-    boxShadow: "0 4px 24px rgba(0,0,0,0.06)",
+    borderRadius: 24,
+    padding: "24px 24px 20px",
+    boxShadow: "0 8px 32px rgba(0,0,0,0.04)",
     display: "flex",
     flexDirection: "column",
     height: "100%",
@@ -242,8 +242,8 @@ const styles: Record<string, React.CSSProperties> = {
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
-    gap: 12,
-    padding: "12px 0",
+    gap: 16,
+    padding: "16px 0",
     borderBottom: "1px solid #f1f5f9",
   },
 
@@ -257,7 +257,7 @@ const styles: Record<string, React.CSSProperties> = {
 
   /* Client name */
   clientName: {
-    fontSize: 13,
+    fontSize: 14,
     fontWeight: 700,
     color: "#0f172a",
     lineHeight: 1.3,
@@ -268,11 +268,11 @@ const styles: Record<string, React.CSSProperties> = {
 
   /* PAN / sub-text */
   pan: {
-    fontSize: 11,
+    fontSize: 12,
     fontWeight: 500,
-    color: "#94a3b8",
+    color: "#64748b",
     marginTop: 2,
-    letterSpacing: "0.04em",
+    letterSpacing: "0.02em",
   },
 
   /* Right column: chip + action */
@@ -285,10 +285,10 @@ const styles: Record<string, React.CSSProperties> = {
 
   /* Status chip / badge */
   chip: {
-    fontSize: 11,
-    fontWeight: 700,
-    padding: "4px 10px",
-    borderRadius: 6,
+    fontSize: 12,
+    fontWeight: 600,
+    padding: "4px 12px",
+    borderRadius: 9999,
     whiteSpace: "nowrap" as const,
     lineHeight: 1.3,
     letterSpacing: "0.01em",

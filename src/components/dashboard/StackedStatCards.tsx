@@ -19,7 +19,7 @@ interface StackedStatCardsProps {
 }
 
 /** ₹ icon inside a translucent circle */
-function RupeeIcon({ bg }: { bg: string }) {
+function RupeeIcon({ bg, color = "white" }: { bg: string; color?: string }) {
   return (
     <div
       style={{
@@ -31,13 +31,14 @@ function RupeeIcon({ bg }: { bg: string }) {
         alignItems: "center",
         justifyContent: "center",
         flexShrink: 0,
+        color,
       }}
     >
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
         <path
           d="M7 4H17M7 8H17M12 4V8M9.5 8C9.5 11 12 14 15 16L9 20"
-          stroke="white"
-          strokeWidth="2"
+          stroke="currentColor"
+          strokeWidth="2.5"
           strokeLinecap="round"
           strokeLinejoin="round"
         />
@@ -77,7 +78,7 @@ export default function StackedStatCards({
       {/* ── Refunds Pending (Blue) ── */}
       <div style={styles.blueCard}>
         <div style={styles.cardContent}>
-          <RupeeIcon bg="rgba(255,255,255,0.18)" />
+          <RupeeIcon bg="rgba(255,255,255,0.2)" color="#fff" />
           <div style={styles.textBlock}>
             <span style={styles.cardLabel}>Refunds Pending</span>
             <span style={styles.cardValue}>{refundsPending}</span>
@@ -88,7 +89,7 @@ export default function StackedStatCards({
       {/* ── Outstanding Bal. (Pink / Coral) ── */}
       <div style={styles.pinkCard}>
         <div style={styles.cardContent}>
-          <RupeeIcon bg="rgba(255,255,255,0.22)" />
+          <RupeeIcon bg="rgba(255,255,255,0.25)" color="#fff" />
           <div style={styles.textBlock}>
             <span style={styles.cardLabel}>Outstanding Bal.</span>
             <span style={styles.cardValue}>
@@ -117,7 +118,7 @@ const styles: Record<string, React.CSSProperties> = {
   stack: {
     display: "flex",
     flexDirection: "column",
-    gap: 16,
+    gap: 24,
     height: "100%",
     boxSizing: "border-box",
   },
@@ -125,9 +126,9 @@ const styles: Record<string, React.CSSProperties> = {
   /* ── Blue card (Refunds Pending) ── */
   blueCard: {
     flex: 1,
-    background: "linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)",
+    background: "linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)",
     borderRadius: 24,
-    padding: "28px 24px",
+    padding: "32px 28px",
     display: "flex",
     flexDirection: "column",
     justifyContent: "center",
@@ -135,7 +136,7 @@ const styles: Record<string, React.CSSProperties> = {
     position: "relative",
     overflow: "hidden",
     boxSizing: "border-box",
-    boxShadow: "0 8px 32px rgba(37,99,235,0.25)",
+    boxShadow: "0 12px 32px rgba(37,99,235,0.25)",
   },
 
   /* ── Pink card (Outstanding Bal.) ── */
@@ -143,7 +144,7 @@ const styles: Record<string, React.CSSProperties> = {
     flex: 1,
     background: "linear-gradient(135deg, #f472b6 0%, #fb7185 50%, #f43f5e 100%)",
     borderRadius: 24,
-    padding: "28px 24px 20px",
+    padding: "32px 28px 24px",
     display: "flex",
     flexDirection: "column",
     justifyContent: "space-between",
@@ -151,7 +152,7 @@ const styles: Record<string, React.CSSProperties> = {
     position: "relative",
     overflow: "hidden",
     boxSizing: "border-box",
-    boxShadow: "0 8px 32px rgba(244,114,182,0.3)",
+    boxShadow: "0 12px 32px rgba(244,114,182,0.3)",
   },
 
   /* Shared row layout inside each card */
@@ -179,7 +180,7 @@ const styles: Record<string, React.CSSProperties> = {
 
   /* Big numeric value */
   cardValue: {
-    fontSize: 32,
+    fontSize: 36,
     fontWeight: 700,
     lineHeight: 1.15,
     color: "#fff",

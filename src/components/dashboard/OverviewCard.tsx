@@ -114,8 +114,8 @@ export default function OverviewCard({
           <path
             d={linePath}
             fill="none"
-            stroke="rgba(248,200,200,0.85)"
-            strokeWidth="2.5"
+            stroke="#f43f5e"
+            strokeWidth="3"
             strokeLinecap="round"
             strokeLinejoin="round"
           />
@@ -131,7 +131,7 @@ export default function OverviewCard({
           />
 
           {/* Highlight dot */}
-          <circle cx={highlightX} cy="42" r="7" fill="white" stroke="rgba(248,160,160,0.9)" strokeWidth="3" />
+          <circle cx={highlightX} cy="42" r="7" fill="white" stroke="#f43f5e" strokeWidth="3" />
         </svg>
 
         {/* Floating tooltip badge */}
@@ -185,9 +185,9 @@ export default function OverviewCard({
 const styles: Record<string, React.CSSProperties> = {
   /* Card shell */
   card: {
-    background: "linear-gradient(145deg, #1e3a8a 0%, #172554 100%)",
+    background: "linear-gradient(135deg, #1e3a8a 0%, #172554 100%)",
     borderRadius: 24,
-    padding: "24px 28px 20px",
+    padding: "32px 32px 28px",
     display: "flex",
     flexDirection: "column",
     gap: 0,
@@ -196,6 +196,7 @@ const styles: Record<string, React.CSSProperties> = {
     overflow: "hidden",
     height: "100%",
     boxSizing: "border-box",
+    boxShadow: "0 12px 40px rgba(30,58,138,0.25)",
   },
 
   /* Header */
@@ -216,12 +217,12 @@ const styles: Record<string, React.CSSProperties> = {
     display: "flex",
     alignItems: "center",
     gap: 6,
-    background: "rgba(255,255,255,0.12)",
+    background: "rgba(255,255,255,0.08)",
     borderRadius: 9999,
-    padding: "6px 16px",
+    padding: "6px 14px",
     cursor: "pointer",
     backdropFilter: "blur(4px)",
-    border: "1px solid rgba(255,255,255,0.15)",
+    border: "1px solid rgba(255,255,255,0.2)",
     transition: "background 0.2s ease",
   },
   monthlyText: {
@@ -249,16 +250,16 @@ const styles: Record<string, React.CSSProperties> = {
     top: "12%",
     left: "38%",
     transform: "translateX(-50%)",
-    background: "rgba(15,23,42,0.88)",
-    borderRadius: 10,
-    padding: "8px 14px",
+    background: "rgba(15,23,42,0.95)",
+    borderRadius: 12,
+    padding: "10px 16px",
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
-    gap: 1,
-    boxShadow: "0 6px 20px rgba(0,0,0,0.35)",
+    gap: 2,
+    boxShadow: "0 8px 24px rgba(0,0,0,0.4)",
     backdropFilter: "blur(8px)",
-    border: "1px solid rgba(255,255,255,0.08)",
+    border: "1px solid rgba(255,255,255,0.1)",
     pointerEvents: "none",
     zIndex: 2,
   },
@@ -289,11 +290,11 @@ const styles: Record<string, React.CSSProperties> = {
     width: "10%",
   },
   monthLabelHighlight: {
-    background: "rgba(255,255,255,0.18)",
+    background: "#fff",
     borderRadius: 9999,
-    padding: "3px 10px",
-    color: "#fff",
-    fontWeight: 600,
+    padding: "4px 12px",
+    color: "#1e3a8a",
+    fontWeight: 700,
   },
 
   /* Bottom metrics */
@@ -319,7 +320,7 @@ const styles: Record<string, React.CSSProperties> = {
     letterSpacing: "0.02em",
   },
   metricValue: {
-    fontSize: 28,
+    fontSize: 36,
     fontWeight: 700,
     lineHeight: 1.1,
     color: "#fff",

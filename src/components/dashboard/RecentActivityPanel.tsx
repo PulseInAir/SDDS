@@ -32,23 +32,23 @@ interface RecentActivityPanelProps {
 
 /* ── Inline SVG Icons ─────────────────────────── */
 
-/** Circular person/activity icon for each timeline row */
+/** Document icon for each timeline row */
 function ActivityIcon() {
   return (
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-      <circle
-        cx="12"
-        cy="8"
-        r="4"
+      <path
+        d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"
         stroke="#3b82f6"
         strokeWidth="2"
         strokeLinecap="round"
+        strokeLinejoin="round"
       />
       <path
-        d="M5 20c0-3.87 3.13-7 7-7s7 3.13 7 7"
+        d="M14 2v6h6M16 13H8M16 17H8M10 9H8"
         stroke="#3b82f6"
         strokeWidth="2"
         strokeLinecap="round"
+        strokeLinejoin="round"
       />
     </svg>
   );
@@ -181,9 +181,9 @@ const styles: Record<string, React.CSSProperties> = {
   /* Panel wrapper – clean white / light background */
   panel: {
     background: "#ffffff",
-    borderRadius: 20,
-    padding: "24px 20px 16px",
-    boxShadow: "0 4px 24px rgba(0,0,0,0.06)",
+    borderRadius: 24,
+    padding: "24px 24px 20px",
+    boxShadow: "0 8px 32px rgba(0,0,0,0.04)",
     display: "flex",
     flexDirection: "column",
     height: "100%",
@@ -228,8 +228,8 @@ const styles: Record<string, React.CSSProperties> = {
   row: {
     display: "flex",
     alignItems: "flex-start",
-    gap: 12,
-    minHeight: 68,
+    gap: 16,
+    minHeight: 72,
   },
 
   /* Left column: icon + line */
@@ -261,7 +261,7 @@ const styles: Record<string, React.CSSProperties> = {
     width: 2,
     flex: 1,
     minHeight: 20,
-    background: "#e2e8f0",
+    background: "#f1f5f9",
     borderRadius: 1,
   },
 
@@ -277,7 +277,7 @@ const styles: Record<string, React.CSSProperties> = {
 
   /* Client name */
   clientName: {
-    fontSize: 13,
+    fontSize: 14,
     fontWeight: 700,
     color: "#0f172a",
     lineHeight: 1.3,
@@ -288,9 +288,9 @@ const styles: Record<string, React.CSSProperties> = {
 
   /* Description */
   description: {
-    fontSize: 12,
+    fontSize: 13,
     fontWeight: 500,
-    color: "#64748b",
+    color: "#475569",
     lineHeight: 1.4,
     marginTop: 2,
     overflow: "hidden",
@@ -321,8 +321,6 @@ const styles: Record<string, React.CSSProperties> = {
     width: 32,
     height: 32,
     borderRadius: 8,
-    background: "#f8fafc",
-    border: "1px solid #e2e8f0",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
