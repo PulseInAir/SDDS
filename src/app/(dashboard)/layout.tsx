@@ -21,7 +21,7 @@ export default async function DashboardLayout({
         <div className="sdds-app-frame">
           <div className="sdds-inner-frame">
             <Sidebar />
-            <main className="flex-1 overflow-y-auto">
+            <main className="flex-1 overflow-y-auto p-8">
               {children}
             </main>
           </div>
