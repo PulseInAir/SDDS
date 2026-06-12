@@ -52,15 +52,15 @@ export default function DashboardClient({
   };
 
   return (
-    <div className="space-y-6">
+    <div className="mt-4 xl:mt-8">
       {/* ── Main two-column layout: Left dashboard area │ Right column ── */}
-      <div className="grid grid-cols-1 xl:grid-cols-[1fr_340px] gap-6">
+      <div className="grid grid-cols-1 xl:grid-cols-[1fr_400px] gap-6 xl:gap-8">
 
         {/* ── LEFT COLUMN ── */}
-        <div className="flex flex-col gap-6">
+        <div className="flex flex-col gap-6 xl:gap-8">
 
           {/* Top row: OverviewCard + StackedStatCards side by side */}
-          <div className="grid grid-cols-1 lg:grid-cols-[1fr_240px] gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-6 xl:gap-8">
             <OverviewCard
               completedFilings={completedFilings}
               yetToFileFilings={yetToFileFilings}
@@ -82,7 +82,7 @@ export default function DashboardClient({
         </div>
 
         {/* ── RIGHT COLUMN ── */}
-        <div className="flex flex-col gap-6">
+        <div className="flex flex-col gap-6 xl:gap-8">
           <RecentActivityPanel recentLogs={recentLogs} />
           <QueueSnapshotPanel queueItems={queueItems} />
         </div>
