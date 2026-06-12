@@ -111,8 +111,6 @@ export default async function DashboardLayout({
           <main className="flex-1 overflow-y-auto relative flex flex-col">
             {/* Header */}
             <Header />
-            {/* Background glow decoration */}
-            <div className="absolute top-0 right-0 w-96 h-96 bg-blue-600/5 rounded-full blur-[100px] pointer-events-none" />
             <div className="flex-1 p-8 relative z-10">
               {children}
             </div>

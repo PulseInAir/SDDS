@@ -15,7 +15,7 @@ function HeaderControls() {
 
   return (
     <>
-      <label htmlFor="ay-select" className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+      <label htmlFor="ay-select" className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
         Assessment Year:
       </label>
       <AYSelect currentAY={currentAY} ayOptions={ayOptions} />
@@ -27,11 +27,11 @@ export default function Header() {
   const { isPrivacyMode, togglePrivacyMode } = usePrivacy();
 
   return (
-    <header className="py-5 border-b border-slate-800/50 bg-slate-900/20 backdrop-blur-md px-8 flex flex-col space-y-5 z-20 relative select-none">
+    <header className="py-5 px-8 flex flex-col space-y-5 z-20 relative select-none">
       {/* Top Row: Badges */}
       <div className="flex items-center justify-between">
         {/* Quick Status */}
-        <div className="flex items-center space-x-2 text-xs font-semibold text-slate-400">
+        <div className="flex items-center space-x-2 text-xs font-semibold text-slate-500">
           <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
           <span>SDDS Operating Environment Active</span>
         </div>
@@ -44,8 +44,8 @@ export default function Header() {
             onClick={togglePrivacyMode}
             className={`flex items-center justify-center space-x-2 px-4 h-8 rounded-full border text-[11px] font-semibold cursor-pointer transition-all hover:scale-[1.02] active:scale-[0.98] ${
               isPrivacyMode
-                ? 'bg-blue-500/10 border-blue-500/30 text-blue-400 hover:bg-blue-500/20 shadow-md shadow-blue-500/10'
-                : 'bg-slate-800 border-slate-700 text-slate-300 hover:bg-slate-700 shadow-sm'
+                ? 'bg-blue-50 border-blue-200 text-blue-600 hover:bg-blue-100 shadow-sm'
+                : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50 shadow-sm'
             }`}
           >
             {isPrivacyMode ? (
@@ -62,8 +62,8 @@ export default function Header() {
           </button>
 
           {/* Security Badge */}
-          <div className="flex items-center justify-center space-x-1.5 px-4 h-8 bg-slate-900 border border-slate-800 rounded-full text-[11px] font-medium text-slate-400 shadow-sm">
-            <ShieldCheck className="h-3.5 w-3.5 text-emerald-400" />
+          <div className="flex items-center justify-center space-x-1.5 px-4 h-8 bg-white border border-slate-200 rounded-full text-[11px] font-medium text-slate-600 shadow-sm">
+            <ShieldCheck className="h-3.5 w-3.5 text-emerald-500" />
             <span>SSL Secure Connection</span>
           </div>
         </div>
@@ -81,11 +81,11 @@ export default function Header() {
             <input
               type="text"
               placeholder="Search..."
-              className="bg-slate-900/80 border border-slate-700/60 rounded-full pl-10 pr-4 h-10 text-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-500/40 w-72 shadow-inner transition-all focus:bg-slate-900"
+              className="bg-slate-50 border border-slate-200 rounded-full pl-10 pr-4 h-10 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500/40 w-72 shadow-sm transition-all focus:bg-white"
             />
           </div>
-          <div className="h-10 w-10 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center overflow-hidden shadow-sm">
-            <User className="h-5 w-5 text-slate-400" />
+          <div className="h-10 w-10 rounded-full bg-slate-50 border border-slate-200 flex items-center justify-center overflow-hidden shadow-sm">
+            <User className="h-5 w-5 text-slate-500" />
           </div>
         </div>
 

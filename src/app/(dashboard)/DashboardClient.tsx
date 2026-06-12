@@ -1,7 +1,5 @@
 'use client';
 
-import { useState } from 'react';
-import { usePrivacy } from '@/context/PrivacyContext';
 import OverviewCard from '@/components/dashboard/OverviewCard';
 import StackedStatCards from '@/components/dashboard/StackedStatCards';
 import SummaryCards from '@/components/dashboard/SummaryCards';
@@ -37,24 +35,9 @@ export default function DashboardClient({
   currentAY,
   ayOptions
 }: DashboardClientProps) {
-  const { isPrivacyMode } = usePrivacy();
-
-  // Eyeball reveals states
-  const [revealRevenue, setRevealRevenue] = useState(false);
-  const [revealedRowIds, setRevealedRowIds] = useState<Record<string, boolean>>({});
-
-  const maskText = (text: string, isMasked: boolean) => {
-    return isMasked ? '••••••••••' : text;
-  };
-
-  const maskValue = (value: string | number, isMasked: boolean) => {
-    return isMasked ? '••••' : String(value);
-  };
-
   return (
-    <div className="mt-4 xl:mt-8">
+    <div className="grid grid-cols-1 xl:grid-cols-[1fr_400px] gap-6 xl:gap-8">
       {/* ── Main two-column layout: Left dashboard area │ Right column ── */}
-      <div className="grid grid-cols-1 xl:grid-cols-[1fr_400px] gap-6 xl:gap-8">
 
         {/* ── LEFT COLUMN ── */}
         <div className="flex flex-col gap-6 xl:gap-8">
@@ -87,8 +70,8 @@ export default function DashboardClient({
           <QueueSnapshotPanel queueItems={queueItems} />
         </div>
 
+        </div>
       </div>
-    </div>
   );
 }
 
