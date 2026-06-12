@@ -3,8 +3,8 @@
 import OverviewCard from '@/components/dashboard/OverviewCard';
 import StackedStatCards from '@/components/dashboard/StackedStatCards';
 import SummaryCards from '@/components/dashboard/SummaryCards';
-import RecentActivityPanel from '@/components/dashboard/RecentActivityPanel';
-import QueueSnapshotPanel from '@/components/dashboard/QueueSnapshotPanel';
+import RecentActivityPanel, { RecentActivity } from '@/components/dashboard/RecentActivityPanel';
+import QueueSnapshotPanel, { QueueItem } from '@/components/dashboard/QueueSnapshotPanel';
 
 interface DashboardClientProps {
   totalClients: number;
@@ -15,14 +15,13 @@ interface DashboardClientProps {
   intimationsPending: number;
   totalOutstanding: number;
   totalBilled: number;
-  queueItems: any[];
-  recentLogs: any[];
+  queueItems: QueueItem[];
+  recentLogs: RecentActivity[];
   currentAY: string;
   ayOptions: string[];
 }
 
 export default function DashboardClient({
-  totalClients,
   completedFilings,
   yetToFileFilings,
   pendingFilings,
@@ -32,8 +31,6 @@ export default function DashboardClient({
   totalBilled,
   queueItems,
   recentLogs,
-  currentAY,
-  ayOptions
 }: DashboardClientProps) {
   return (
     <div className="grid grid-cols-1 xl:grid-cols-[1fr_400px] gap-6 xl:gap-8 w-full min-w-0">

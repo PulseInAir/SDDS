@@ -21,14 +21,11 @@ import React from "react";
    }
    ────────────────────────────────────────────── */
 
-interface QueueItem {
+export interface QueueItem {
   id: string | number;
   client_id: string | number;
-  clients: {
-    name: string;
-    pan: string;
-    mobile: string;
-  };
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  clients: any;
   filing_status: string;
 }
 

@@ -17,11 +17,10 @@ import React from "react";
    }
    ────────────────────────────────────────────── */
 
-interface RecentActivity {
+export interface RecentActivity {
   id: string | number;
-  clients: {
-    name: string;
-  };
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  clients: any;
   description: string;
   created_at: string;
 }
