@@ -20,7 +20,7 @@ function NavItem({ href, icon, label, active }: NavItemProps) {
     return (
       <Link
         href={href}
-        className="sdds-nav-cutout flex items-center space-x-3 px-4 h-14 xl:-mr-6 xl:pr-10 max-xl:mr-0 max-xl:pr-4 max-xl:rounded-r-full max-xl:before:hidden max-xl:after:hidden font-bold text-sm group"
+        className="sdds-nav-cutout flex items-center space-x-3 pl-4 pr-10 h-14 font-bold text-sm group max-xl:rounded-r-full max-xl:before:hidden max-xl:after:hidden"
       >
         <span className="text-blue-900 transition-colors">{icon}</span>
         <span className="text-blue-900">{label}</span>
@@ -31,7 +31,7 @@ function NavItem({ href, icon, label, active }: NavItemProps) {
   return (
     <Link
       href={href}
-      className="flex items-center space-x-3 px-4 h-14 rounded-xl bg-transparent text-white hover:bg-white/10 transition-all font-medium text-sm group"
+      className="flex items-center space-x-3 pl-4 pr-4 h-14 rounded-xl bg-transparent text-white hover:bg-white/10 transition-all font-medium text-sm group mr-6"
     >
       <span className="text-white shrink-0 flex items-center justify-center">{icon}</span>
       <span className="text-white">{label}</span>
@@ -58,18 +58,19 @@ export default async function DashboardLayout({
     <PrivacyProvider>
       <div className="sdds-app-bg font-sans !items-start xl:!items-center !p-4 xl:!p-8">
         <div className="sdds-app-frame flex-col xl:flex-row !h-auto xl:!h-[941px] w-full">
-          {/* Sidebar */}
-          <aside className="w-full xl:w-[260px] bg-gradient-to-b from-blue-600 to-blue-900 xl:rounded-l-[32px] max-xl:rounded-t-[32px] p-6 pb-8 flex flex-col justify-between shrink-0 select-none h-auto xl:h-full gap-8 xl:gap-0 z-20">
-            <div>
-              {/* Logo */}
-              <div className="flex items-center mb-10 px-4 mt-8">
-                <Link href="/" className="flex items-center gap-3">
-                  <div className="h-10 w-10 bg-white rounded-[14px] flex items-center justify-center shrink-0 shadow-sm">
-                    <span className="text-blue-800 font-extrabold text-lg tracking-tight">SD</span>
-                  </div>
-                  <span className="font-bold text-xl text-white tracking-tight">SDDS Portal</span>
-                </Link>
-              </div>
+          <div className="sdds-inner-frame flex-col xl:flex-row relative">
+            {/* Sidebar */}
+            <aside className="w-full xl:w-[280px] bg-[#1d4ed8] max-xl:rounded-t-[32px] pt-8 pb-8 pl-6 pr-0 flex flex-col justify-between shrink-0 select-none h-auto xl:h-full gap-8 xl:gap-0 z-20 relative">
+              <div>
+                {/* Logo */}
+                <div className="flex items-center mb-10 px-4 mt-2">
+                  <Link href="/" className="flex items-center gap-3">
+                    <div className="h-10 w-10 bg-white rounded-[14px] flex items-center justify-center shrink-0 shadow-sm">
+                      <span className="text-blue-800 font-extrabold text-lg tracking-tight">SD</span>
+                    </div>
+                    <span className="font-bold text-xl text-white tracking-tight">SDDS Portal</span>
+                  </Link>
+                </div>
 
               {/* Navigation Links */}
               <nav className="space-y-1">
@@ -84,7 +85,7 @@ export default async function DashboardLayout({
             </div>
 
             {/* Footer info & Logout */}
-            <div className="mt-8 bg-blue-800/40 border border-white/5 rounded-2xl p-5 flex flex-col gap-6">
+            <div className="mt-8 mr-6 bg-blue-900/40 border border-white/10 rounded-2xl p-5 flex flex-col gap-6">
               <div className="flex items-center space-x-3">
                 <div className="h-10 w-10 rounded-full bg-blue-500/20 flex items-center justify-center shrink-0 text-blue-100">
                   <Shield className="h-5 w-5" />
@@ -115,6 +116,7 @@ export default async function DashboardLayout({
               {children}
             </div>
           </main>
+          </div>
         </div>
       </div>
     </PrivacyProvider>

@@ -31,7 +31,7 @@ export default function Header() {
       {/* Top Row: Badges */}
       <div className="flex items-center justify-between">
         {/* Quick Status */}
-        <div className="flex items-center space-x-2 text-xs font-semibold text-slate-500">
+        <div className="flex items-center space-x-2 text-xs font-semibold text-slate-500 bg-white border border-slate-200 px-4 h-8 rounded-full shadow-sm">
           <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
           <span>SDDS Operating Environment Active</span>
         </div>
@@ -71,8 +71,11 @@ export default function Header() {
 
       {/* Bottom Row: Search, Controls */}
       <div className="flex items-center justify-between">
-        {/* Left spacer for alignment */}
-        <div className="flex-1"></div>
+        {/* Left: Title & Subtitle */}
+        <div className="flex-1">
+          <h1 className="text-[28px] leading-none font-extrabold text-[#1e3a8a] tracking-tight mb-1">Dashboard</h1>
+          <p className="text-[13px] font-medium text-slate-500">Overview of clients, filings, and collections.</p>
+        </div>
 
         {/* Center: Search & Avatar */}
         <div className="flex-1 flex justify-center items-center space-x-4">

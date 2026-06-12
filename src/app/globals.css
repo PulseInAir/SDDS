@@ -51,7 +51,7 @@ input:focus, select:focus, textarea:focus {
 
 /* SDDS Dashboard Target Styles */
 :root {
-  --sdds-bg-gradient: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%);
+  --sdds-bg-gradient: linear-gradient(135deg, #d8b4fe 0%, #818cf8 100%);
   --sdds-primary-blue: #1e3a8a;
   --sdds-accent-blue: #3b82f6;
   --sdds-accent-pink: linear-gradient(135deg, #f43f5e 0%, #fb7185 100%);
@@ -70,18 +70,28 @@ input:focus, select:focus, textarea:focus {
 }
 
 .sdds-app-frame {
-  background: var(--sdds-white);
-  border-radius: 32px;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-  overflow: hidden;
-  display: flex;
+  background: #eef2ff;
+  border-radius: 40px;
+  padding: 1.25rem;
+  box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.3);
   width: 100%;
   max-width: 1672px;
   height: 941px;
+  display: flex;
+}
+
+.sdds-inner-frame {
+  background: var(--sdds-white);
+  border-radius: 32px;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  overflow: hidden;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
 }
 
 .sdds-sidebar {
-  background-color: var(--sdds-primary-blue);
+  background-color: #1d4ed8;
   color: var(--sdds-white);
   width: 280px;
   flex-shrink: 0;
@@ -141,7 +151,6 @@ input:focus, select:focus, textarea:focus {
   color: var(--sdds-primary-blue) !important;
   border-top-left-radius: 9999px;
   border-bottom-left-radius: 9999px;
-  margin-left: 1rem;
 }
 
 .sdds-nav-cutout::before,
@@ -152,6 +161,7 @@ input:focus, select:focus, textarea:focus {
   width: 24px;
   height: 24px;
   background-color: transparent;
+  pointer-events: none;
 }
 
 .sdds-nav-cutout::before {
