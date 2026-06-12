@@ -44,12 +44,12 @@ export default async function DashboardLayout({
           <aside className="w-[280px] bg-gradient-to-b from-blue-600 to-blue-900 rounded-l-[32px] p-6 flex flex-col justify-between shrink-0 select-none h-full">
             <div>
               {/* Logo */}
-              <div className="flex items-center mb-8 px-2">
-                <Link href="/" className="flex items-center space-x-3">
-                  <div className="h-9 w-9 rounded-lg bg-white/20 flex items-center justify-center shadow-lg ring-1 ring-white/30 shrink-0">
-                    <span className="text-white font-black text-sm tracking-tighter">SD</span>
+              <div className="flex items-center mb-10 px-4 mt-2">
+                <Link href="/" className="flex items-center gap-3">
+                  <div className="h-10 w-10 bg-white rounded-[14px] flex items-center justify-center shrink-0 shadow-sm">
+                    <span className="text-blue-800 font-extrabold text-lg tracking-tight">SD</span>
                   </div>
-                  <span className="font-bold text-lg text-white tracking-tight leading-none">SDDS Portal</span>
+                  <span className="font-bold text-xl text-white tracking-tight">SDDS Portal</span>
                 </Link>
               </div>
 
