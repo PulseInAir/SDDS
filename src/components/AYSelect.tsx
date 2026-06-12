@@ -25,15 +25,16 @@ export default function AYSelect({ currentAY, ayOptions }: AYSelectProps) {
           background: '#ffffff',
           border: '1.5px solid #e0e4ec',
           borderRadius: '9999px',
-          padding: '8px 36px 8px 18px',
-          fontSize: '15px',
+          padding: '0 36px 0 20px',
+          height: '40px',
+          fontSize: '14px',
           fontWeight: 700,
           color: '#1e293b',
           cursor: 'pointer',
           outline: 'none',
-          minWidth: '120px',
-          lineHeight: '1.4',
-          boxShadow: '0 1px 4px rgba(0,0,0,0.06)',
+          minWidth: '140px',
+          lineHeight: '37px', // accounting for border
+          boxShadow: '0 2px 6px rgba(0,0,0,0.05)',
           transition: 'border-color 0.2s ease, box-shadow 0.2s ease',
         }}
         onFocus={(e) => {
@@ -42,7 +43,7 @@ export default function AYSelect({ currentAY, ayOptions }: AYSelectProps) {
         }}
         onBlur={(e) => {
           e.currentTarget.style.borderColor = '#e0e4ec';
-          e.currentTarget.style.boxShadow = '0 1px 4px rgba(0,0,0,0.06)';
+          e.currentTarget.style.boxShadow = '0 2px 6px rgba(0,0,0,0.05)';
         }}
       >
         {ayOptions.map((ay) => (
