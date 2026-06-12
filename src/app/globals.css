@@ -172,3 +172,120 @@ html[data-theme='light'] .bg-red-600 *,
 html[data-theme='light'] .bg-red-950\/20 * {
   color: #ffffff !important;
 }
+
+/* SDDS Dashboard Target Styles */
+:root {
+  --sdds-bg-gradient: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%);
+  --sdds-primary-blue: #1e3a8a;
+  --sdds-accent-blue: #3b82f6;
+  --sdds-accent-pink: linear-gradient(135deg, #f43f5e 0%, #fb7185 100%);
+  --sdds-status-amber: #f59e0b;
+  --sdds-status-green: #10b981;
+  --sdds-white: #ffffff;
+}
+
+.sdds-app-bg {
+  background: var(--sdds-bg-gradient);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+}
+
+.sdds-app-frame {
+  background: var(--sdds-white);
+  border-radius: 32px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  overflow: hidden;
+  display: flex;
+  width: 100%;
+  max-width: 1672px;
+  height: 941px;
+}
+
+.sdds-sidebar {
+  background-color: var(--sdds-primary-blue);
+  color: var(--sdds-white);
+  width: 280px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.sdds-glass-panel {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.sdds-blue-card {
+  background: linear-gradient(145deg, #1e3a8a 0%, #172554 100%);
+  color: var(--sdds-white);
+  border-radius: 24px;
+}
+
+.sdds-pink-card {
+  background: var(--sdds-accent-pink);
+  color: var(--sdds-white);
+  border-radius: 24px;
+}
+
+.sdds-soft-shadow {
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
+}
+
+.sdds-pill {
+  border-radius: 9999px;
+}
+
+.sdds-icon-tile {
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sdds-progress-track {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 9999px;
+  height: 8px;
+  overflow: hidden;
+}
+
+.sdds-progress-fill {
+  background: var(--sdds-white);
+  height: 100%;
+  border-radius: 9999px;
+}
+
+.sdds-nav-cutout {
+  position: relative;
+  background-color: var(--sdds-white);
+  color: var(--sdds-primary-blue) !important;
+  border-top-left-radius: 9999px;
+  border-bottom-left-radius: 9999px;
+  margin-left: 1rem;
+}
+
+.sdds-nav-cutout::before,
+.sdds-nav-cutout::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  width: 20px;
+  height: 20px;
+  background-color: transparent;
+}
+
+.sdds-nav-cutout::before {
+  top: -20px;
+  border-bottom-right-radius: 20px;
+  box-shadow: 10px 10px 0 10px var(--sdds-white);
+}
+
+.sdds-nav-cutout::after {
+  bottom: -20px;
+  border-top-right-radius: 20px;
+  box-shadow: 10px -10px 0 10px var(--sdds-white);
+}
