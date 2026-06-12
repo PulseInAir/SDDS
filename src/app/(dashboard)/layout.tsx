@@ -16,9 +16,9 @@ function NavItem({ href, icon, label }: NavItemProps) {
   return (
     <Link
       href={href}
-      className="flex items-center space-x-3 px-4 py-3 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800/60 transition-all font-medium text-sm group"
+      className="flex items-center space-x-3 px-4 py-3 rounded-xl text-white hover:bg-white/10 transition-all font-medium text-sm group"
     >
-      <span className="text-slate-500 group-hover:text-blue-400 transition-colors">{icon}</span>
+      <span className="text-white/80 group-hover:text-white transition-colors">{icon}</span>
       <span>{label}</span>
     </Link>
   );
@@ -41,12 +41,12 @@ export default async function DashboardLayout({
       <div className="sdds-app-bg font-sans">
         <div className="sdds-app-frame">
           {/* Sidebar */}
-          <aside className="w-64 bg-slate-900/60 border-r border-slate-800/80 flex flex-col justify-between shrink-0 select-none">
+          <aside className="w-[280px] bg-gradient-to-b from-blue-600 to-blue-900 rounded-l-[32px] p-6 flex flex-col justify-between shrink-0 select-none h-full">
             <div>
               {/* Logo */}
-              <div className="h-16 flex items-center px-6 border-b border-slate-800/50">
+              <div className="flex items-center mb-8 px-2">
                 <Link href="/" className="flex items-center space-x-3">
-                  <div className="h-9 w-9 rounded-lg bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/20 ring-1 ring-white/10 shrink-0">
+                  <div className="h-9 w-9 rounded-lg bg-white/20 flex items-center justify-center shadow-lg ring-1 ring-white/30 shrink-0">
                     <span className="text-white font-black text-sm tracking-tighter">SD</span>
                   </div>
                   <span className="font-bold text-lg text-white tracking-tight leading-none">SDDS Portal</span>
@@ -54,7 +54,7 @@ export default async function DashboardLayout({
               </div>
 
               {/* Navigation Links */}
-              <nav className="p-4 space-y-1">
+              <nav className="space-y-1">
                 <NavItem href="/" icon={<LayoutDashboard className="h-4 w-4" />} label="Dashboard" />
                 <NavItem href="/clients" icon={<Users className="h-4 w-4" />} label="Clients" />
                 <NavItem href="/queue" icon={<Clock className="h-4 w-4" />} label="Filing Queue" />
@@ -66,21 +66,21 @@ export default async function DashboardLayout({
             </div>
 
             {/* Footer info & Logout */}
-            <div className="p-4 border-t border-slate-800/50 space-y-4">
+            <div className="mt-8 space-y-4">
               <div className="flex items-center space-x-3 px-2">
-                <div className="h-8 w-8 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center shrink-0 text-slate-400">
+                <div className="h-8 w-8 rounded-full bg-white/10 border border-white/20 flex items-center justify-center shrink-0 text-white">
                   <Shield className="h-4 w-4" />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="text-xs font-semibold text-slate-300 truncate">Admin User</p>
-                  <p className="text-[10px] text-slate-500 truncate">{user.email}</p>
+                  <p className="text-xs font-semibold text-white truncate">Admin User</p>
+                  <p className="text-[10px] text-white/70 truncate">{user.email}</p>
                 </div>
               </div>
 
               <form action={logout}>
                 <button
                   type="submit"
-                  className="w-full flex items-center space-x-3 px-4 py-2.5 rounded-xl text-red-400 hover:text-red-300 hover:bg-red-950/20 transition-all font-medium text-sm cursor-pointer border-none bg-transparent text-left"
+                  className="w-full flex items-center space-x-3 px-4 py-2.5 rounded-xl text-white hover:bg-white/10 transition-all font-medium text-sm cursor-pointer border-none bg-transparent text-left"
                 >
                   <LogOut className="h-4 w-4" />
                   <span>Sign Out</span>
