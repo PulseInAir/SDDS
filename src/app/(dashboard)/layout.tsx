@@ -84,21 +84,21 @@ export default async function DashboardLayout({
             </div>
 
             {/* Footer info & Logout */}
-            <div className="mt-8 space-y-4">
-              <div className="flex items-center space-x-3 px-2">
-                <div className="h-8 w-8 rounded-full bg-white/10 border border-white/20 flex items-center justify-center shrink-0 text-white">
-                  <Shield className="h-4 w-4" />
+            <div className="mt-8 bg-blue-800/40 border border-white/5 rounded-2xl p-4 flex flex-col gap-4">
+              <div className="flex items-center space-x-3">
+                <div className="h-10 w-10 rounded-full bg-blue-500/20 flex items-center justify-center shrink-0 text-blue-100">
+                  <Shield className="h-5 w-5" />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="text-xs font-semibold text-white truncate">Admin User</p>
-                  <p className="text-[10px] text-white/70 truncate">{user.email}</p>
+                  <p className="text-sm font-bold text-white truncate">Admin User</p>
+                  <p className="text-xs text-blue-200/70 truncate">{user.email}</p>
                 </div>
               </div>
 
               <form action={logout}>
                 <button
                   type="submit"
-                  className="w-full flex items-center space-x-3 px-4 py-2.5 rounded-xl text-white hover:bg-white/10 transition-all font-medium text-sm cursor-pointer border-none bg-transparent text-left"
+                  className="w-full flex items-center justify-center space-x-2 px-4 py-2.5 rounded-xl text-rose-400 hover:text-rose-300 bg-rose-500/10 hover:bg-rose-500/20 transition-all font-bold text-sm cursor-pointer border-none"
                 >
                   <LogOut className="h-4 w-4" />
                   <span>Sign Out</span>
