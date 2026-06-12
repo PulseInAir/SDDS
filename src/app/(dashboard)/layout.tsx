@@ -15,14 +15,14 @@ interface NavItemProps {
   active?: boolean;
 }
 
-function NavItem({ href, icon, label, active }: NavItemProps) {
+function SidebarNavItem({ href, icon, label, active }: NavItemProps) {
   if (active) {
     return (
       <Link
         href={href}
-        className="sdds-nav-cutout flex items-center space-x-3 pl-4 pr-10 h-14 font-bold text-sm group max-xl:rounded-r-full max-xl:before:hidden max-xl:after:hidden"
+        className="flex items-center space-x-3 px-[24px] h-[60px] bg-white rounded-[24px] font-bold text-sm text-blue-900 shadow-[0_4px_20px_rgba(255,255,255,0.15)] ml-6 mr-3 transition-all"
       >
-        <span className="text-blue-900 transition-colors">{icon}</span>
+        <span className="text-blue-900">{icon}</span>
         <span className="text-blue-900">{label}</span>
       </Link>
     );
@@ -31,10 +31,10 @@ function NavItem({ href, icon, label, active }: NavItemProps) {
   return (
     <Link
       href={href}
-      className="flex items-center space-x-3 pl-4 pr-4 h-14 rounded-xl bg-transparent text-white hover:bg-white/10 transition-all font-medium text-sm group mr-6"
+      className="flex items-center space-x-3 px-[24px] h-[60px] rounded-[24px] bg-transparent text-white/80 hover:text-white hover:bg-white/10 transition-all font-medium text-sm ml-6 mr-3"
     >
-      <span className="text-white shrink-0 flex items-center justify-center">{icon}</span>
-      <span className="text-white">{label}</span>
+      <span className="text-white/80 shrink-0 flex items-center justify-center">{icon}</span>
+      <span className="text-white/80">{label}</span>
     </Link>
   );
 }
@@ -60,10 +60,10 @@ export default async function DashboardLayout({
         <div className="sdds-app-frame flex-col xl:flex-row !h-auto xl:!h-[941px] w-full">
           <div className="sdds-inner-frame flex-col xl:flex-row relative">
             {/* Sidebar */}
-            <aside className="w-full xl:w-[280px] bg-[#1d4ed8] max-xl:rounded-t-[32px] pt-8 pb-8 pl-6 pr-0 flex flex-col justify-between shrink-0 select-none h-auto xl:h-full gap-8 xl:gap-0 z-20 relative">
+            <aside className="w-full xl:w-[280px] bg-[#1d4ed8] max-xl:rounded-t-[32px] pt-8 pb-8 flex flex-col justify-between shrink-0 select-none h-auto xl:h-full gap-8 xl:gap-0 z-20 relative">
               <div>
                 {/* Logo */}
-                <div className="flex items-center mb-10 px-4 mt-2">
+                <div className="flex items-center mb-10 px-10 mt-2">
                   <Link href="/" className="flex items-center gap-3">
                     <div className="h-10 w-10 bg-white rounded-[14px] flex items-center justify-center shrink-0 shadow-sm">
                       <span className="text-blue-800 font-extrabold text-lg tracking-tight">SD</span>
@@ -73,19 +73,19 @@ export default async function DashboardLayout({
                 </div>
 
               {/* Navigation Links */}
-              <nav className="space-y-1">
-                <NavItem href="/" icon={<LayoutDashboard className="h-4 w-4" />} label="Dashboard" active={pathname === '/'} />
-                <NavItem href="/clients" icon={<Users className="h-4 w-4" />} label="Clients" active={pathname.startsWith('/clients')} />
-                <NavItem href="/queue" icon={<Clock className="h-4 w-4" />} label="Filing Queue" active={pathname.startsWith('/queue')} />
-                <NavItem href="/invoices" icon={<FileText className="h-4 w-4" />} label="Invoices" active={pathname.startsWith('/invoices')} />
-                <NavItem href="/revenue" icon={<IndianRupee className="h-4 w-4" />} label="Revenue / Collections" active={pathname.startsWith('/revenue')} />
-                <NavItem href="/data" icon={<Database className="h-4 w-4" />} label="Data Manager" active={pathname.startsWith('/data')} />
-                <NavItem href="/settings" icon={<Settings className="h-4 w-4" />} label="Settings" active={pathname.startsWith('/settings')} />
+              <nav className="space-y-3">
+                <SidebarNavItem href="/" icon={<LayoutDashboard className="h-4 w-4" />} label="Dashboard" active={pathname === '/' || pathname.startsWith('/dashboard')} />
+                <SidebarNavItem href="/clients" icon={<Users className="h-4 w-4" />} label="Clients" active={pathname.startsWith('/clients')} />
+                <SidebarNavItem href="/queue" icon={<Clock className="h-4 w-4" />} label="Filing Queue" active={pathname.startsWith('/queue') || pathname.startsWith('/filing-queue')} />
+                <SidebarNavItem href="/invoices" icon={<FileText className="h-4 w-4" />} label="Invoices" active={pathname.startsWith('/invoices')} />
+                <SidebarNavItem href="/revenue" icon={<IndianRupee className="h-4 w-4" />} label="Revenue / Collections" active={pathname.startsWith('/revenue') || pathname.startsWith('/collections')} />
+                <SidebarNavItem href="/data" icon={<Database className="h-4 w-4" />} label="Data Manager" active={pathname.startsWith('/data') || pathname.startsWith('/data-manager')} />
+                <SidebarNavItem href="/settings" icon={<Settings className="h-4 w-4" />} label="Settings" active={pathname.startsWith('/settings')} />
               </nav>
             </div>
 
             {/* Footer info & Logout */}
-            <div className="mt-8 mr-6 bg-blue-900/40 border border-white/10 rounded-2xl p-5 flex flex-col gap-6">
+            <div className="mt-8 mx-6 bg-blue-900/40 border border-white/10 rounded-2xl p-5 flex flex-col gap-6">
               <div className="flex items-center space-x-3">
                 <div className="h-10 w-10 rounded-full bg-blue-500/20 flex items-center justify-center shrink-0 text-blue-100">
                   <Shield className="h-5 w-5" />
