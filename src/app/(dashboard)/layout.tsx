@@ -31,10 +31,10 @@ function NavItem({ href, icon, label, active }: NavItemProps) {
   return (
     <Link
       href={href}
-      className="flex items-center space-x-3 px-4 py-3 rounded-xl text-white hover:bg-white/10 transition-all font-medium text-sm group"
+      className="flex items-center space-x-3 px-4 py-3 rounded-xl bg-transparent text-white hover:bg-white/10 transition-all font-medium text-sm group"
     >
-      <span className="text-white/80 group-hover:text-white transition-colors">{icon}</span>
-      <span>{label}</span>
+      <span className="text-white shrink-0 flex items-center justify-center">{icon}</span>
+      <span className="text-white">{label}</span>
     </Link>
   );
 }
