@@ -141,7 +141,7 @@ export default function InvoicesListContainer({ invoices, selectedAY, ayList }: 
   return (
     <div className="space-y-6">
       {/* Controls: AY selector & CSV Export */}
-      <div className="flex flex-col sm:flex-row gap-4 justify-between items-center bg-slate-900/40 p-4 border border-slate-800/80 rounded-2xl select-none">
+      <div className="flex flex-col sm:flex-row gap-4 justify-between items-center sdds-blue-card p-4 border border-blue-800/40 rounded-2xl select-none">
         <div className="flex items-center space-x-3 w-full sm:w-auto">
           <label htmlFor="inv-ay" className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
             Filing Year:
@@ -210,7 +210,7 @@ export default function InvoicesListContainer({ invoices, selectedAY, ayList }: 
       </div>
 
       {/* Invoices List Table */}
-      <div className="bg-slate-900/20 border border-slate-800/80 rounded-2xl overflow-hidden">
+      <div className="sdds-blue-card border border-blue-800/40 rounded-2xl overflow-hidden">
         <table className="w-full border-collapse text-left text-sm">
           <thead>
             <tr className="border-b border-slate-800/80 bg-slate-900/30 text-slate-400 font-semibold select-none">

@@ -361,7 +361,7 @@ export default function DataManagerClient({
       <div className="lg:col-span-2 space-y-6">
         
         {/* Bulk Client Importer Box */}
-        <div className="bg-slate-900/40 border border-slate-800/80 rounded-3xl p-6 relative overflow-hidden">
+        <div className="sdds-blue-card border border-blue-800/40 rounded-3xl p-6 relative overflow-hidden">
           <div className="absolute top-0 right-0 w-48 h-48 bg-blue-500/5 rounded-full blur-2xl pointer-events-none" />
           
           <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-4">
@@ -506,7 +506,7 @@ export default function DataManagerClient({
         </div>
 
         {/* Client Filing Rollover Card */}
-        <div className="bg-slate-900/40 border border-slate-800/80 rounded-3xl p-6 relative">
+        <div className="sdds-blue-card border border-blue-800/40 rounded-3xl p-6 relative">
           <div>
             <h2 className="text-lg font-bold text-white flex items-center gap-2">
               <RefreshCw className="h-5 w-5 text-emerald-400" />
@@ -543,7 +543,7 @@ export default function DataManagerClient({
         </div>
 
         {/* CSV Format Schema Guide */}
-        <div className="bg-slate-900/40 border border-slate-800/80 rounded-3xl p-6">
+        <div className="sdds-blue-card border border-blue-800/40 rounded-3xl p-6">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
             <div>
               <h2 className="text-lg font-bold text-white flex items-center gap-2">
@@ -631,7 +631,7 @@ export default function DataManagerClient({
       <div className="space-y-6">
         
         {/* Export Data Box */}
-        <div className="bg-slate-900/40 border border-slate-800/80 rounded-3xl p-6 space-y-6">
+        <div className="sdds-blue-card border border-blue-800/40 rounded-3xl p-6 space-y-6">
           <div>
             <h2 className="text-lg font-bold text-white flex items-center gap-2">
               <Download className="h-5 w-5 text-indigo-400" />

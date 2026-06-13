@@ -174,7 +174,7 @@ export default function SettingsClient({
       <div className="lg:col-span-2 space-y-6">
         
         {/* Firm Profile Settings Card */}
-        <div className="bg-slate-900/40 border border-slate-800/80 rounded-3xl p-6 relative overflow-hidden">
+        <div className="sdds-blue-card border border-blue-800/40 rounded-3xl p-6 relative overflow-hidden">
           <div className="absolute top-0 right-0 w-48 h-48 bg-blue-500/5 rounded-full blur-2xl pointer-events-none" />
           
           <div className="flex justify-between items-center mb-6">
@@ -269,7 +269,7 @@ export default function SettingsClient({
         </div>
 
         {/* WhatsApp Reminder Templates Card */}
-        <div className="bg-slate-900/40 border border-slate-800/80 rounded-3xl p-6 relative">
+        <div className="sdds-blue-card border border-blue-800/40 rounded-3xl p-6 relative">
           <div className="flex justify-between items-center mb-6">
             <div>
               <h2 className="text-lg font-bold text-white flex items-center gap-2">
@@ -369,7 +369,7 @@ export default function SettingsClient({
         </div>
 
         {/* Filing Fee Presets Card */}
-        <div className="bg-slate-900/40 border border-slate-800/80 rounded-3xl p-6 relative">
+        <div className="sdds-blue-card border border-blue-800/40 rounded-3xl p-6 relative">
           <div className="flex justify-between items-center mb-6">
             <div>
               <h2 className="text-lg font-bold text-white flex items-center gap-2">
@@ -428,7 +428,7 @@ export default function SettingsClient({
       <div className="space-y-6 select-none">
         
         {/* App Theme Selection Card */}
-        <div className="bg-slate-900/40 border border-slate-800/80 rounded-3xl p-6 space-y-4">
+        <div className="sdds-blue-card border border-blue-800/40 rounded-3xl p-6 space-y-4">
           <div>
             <h2 className="text-lg font-bold text-white flex items-center gap-2">
               <span>App Visual Theme</span>
@@ -484,7 +484,7 @@ export default function SettingsClient({
         </div>
         
         {/* Credentials/Drive health check card */}
-        <div className="bg-slate-900/40 border border-slate-800/80 rounded-3xl p-6 space-y-6">
+        <div className="sdds-blue-card border border-blue-800/40 rounded-3xl p-6 space-y-6">
           <div>
             <h2 className="text-lg font-bold text-white flex items-center gap-2">
               <RefreshCw className="h-4.5 w-4.5 text-emerald-400" />
@@ -538,7 +538,7 @@ export default function SettingsClient({
         </div>
 
         {/* Default Password Backfill Utility */}
-        <div className="bg-slate-900/40 border border-slate-800/80 rounded-3xl p-6 space-y-3">
+        <div className="sdds-blue-card border border-blue-800/40 rounded-3xl p-6 space-y-3">
           <span className="font-bold text-white text-xs block">Default Password Backfill</span>
           <p className="text-[11px] text-slate-400 leading-relaxed font-medium">
             Generate and encrypt default ITR Portal Passwords (e.g. <code>abcde*1234F</code>) for any existing clients who do not have a password set.

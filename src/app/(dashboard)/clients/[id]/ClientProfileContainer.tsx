@@ -809,7 +809,7 @@ export default function ClientProfileContainer({
   return (
     <div className="space-y-8 animate-in fade-in duration-300">
       {/* 1. Client Header Profile (Obfuscated fields + eye icons) */}
-      <div className="bg-slate-900/40 border border-slate-800/80 rounded-3xl p-6 relative overflow-hidden group select-none">
+      <div className="sdds-blue-card border border-blue-800/40 rounded-3xl p-6 relative overflow-hidden group select-none">
         <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/5 rounded-full blur-[80px]" />
         
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center space-y-6 md:space-y-0 relative z-10">
@@ -956,7 +956,7 @@ export default function ClientProfileContainer({
         <div className="lg:col-span-2 space-y-6">
           
           {/* ITR Case Filing Status block */}
-          <div className="bg-slate-900/40 border border-slate-800/80 rounded-3xl p-6">
+          <div className="sdds-blue-card border border-blue-800/40 rounded-3xl p-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 pb-6 border-b border-slate-800/40">
               <div>
                 <h2 className="text-2xl font-bold text-white">ITR Case Status (AY {selectedAY})</h2>
@@ -1072,7 +1072,7 @@ export default function ClientProfileContainer({
           </div>
 
           {/* Client Documents block (Supabase Storage) */}
-          <div className="bg-slate-900/40 border border-slate-800/80 rounded-3xl p-6">
+          <div className="sdds-blue-card border border-blue-800/40 rounded-3xl p-6">
             <div className="flex justify-between items-center mb-6">
               <div>
                 <h2 className="text-lg font-bold text-white">Client Documents (AY {selectedAY})</h2>
@@ -1239,7 +1239,7 @@ export default function ClientProfileContainer({
           </div>
 
           {/* Billing & Invoice History block */}
-          <div className="bg-slate-900/40 border border-slate-800/80 rounded-3xl p-6">
+          <div className="sdds-blue-card border border-blue-800/40 rounded-3xl p-6">
             <div className="flex justify-between items-center mb-6">
               <div>
                 <h2 className="text-lg font-bold text-white">Billing & Payments (AY {selectedAY})</h2>
@@ -1354,7 +1354,7 @@ export default function ClientProfileContainer({
         <div className="space-y-6">
           
           {/* AY Switcher */}
-          <div className="bg-slate-900/40 border border-slate-800/80 rounded-3xl p-6">
+          <div className="sdds-blue-card border border-blue-800/40 rounded-3xl p-6">
             <h2 className="text-lg font-bold text-white mb-4">Select Assessment Year</h2>
             <div className="space-y-2">
               {ayList.map((ay) => {
@@ -1393,7 +1393,7 @@ export default function ClientProfileContainer({
 
           {/* Lifecycle Tracker */}
           {currentFiling && (
-            <div className="bg-slate-900/40 border border-slate-800/80 rounded-3xl p-6">
+            <div className="sdds-blue-card border border-blue-800/40 rounded-3xl p-6">
               <LifecycleTracker 
                 currentStatus={currentFiling.filing_status} 
                 onStageClick={handleLifecycleStageClick}
@@ -1403,7 +1403,7 @@ export default function ClientProfileContainer({
           )}
 
           {/* Personal Card */}
-          <div className="bg-slate-900/40 border border-slate-800/80 rounded-3xl p-6 space-y-4 text-xs font-semibold text-slate-400 uppercase tracking-wider select-none">
+          <div className="sdds-blue-card border border-blue-800/40 rounded-3xl p-6 space-y-4 text-xs font-semibold text-slate-400 uppercase tracking-wider select-none">
             <h2 className="text-sm font-bold text-white normal-case mb-2">Personal Details</h2>
             
             <div>
@@ -1440,7 +1440,7 @@ export default function ClientProfileContainer({
 
       {/* 3. Year-wise Filing History */}
       {filings.length > 0 && (
-        <div className="bg-slate-900/40 border border-slate-800/80 rounded-3xl p-6 overflow-hidden">
+        <div className="sdds-blue-card border border-blue-800/40 rounded-3xl p-6 overflow-hidden">
           <h2 className="text-lg font-bold text-white mb-6">Year-wise Filing History</h2>
           <div className="overflow-x-auto">
             <table className="w-full border-collapse text-left text-sm whitespace-nowrap">
@@ -1501,7 +1501,7 @@ export default function ClientProfileContainer({
       )}
 
       {/* 4. Timeline Activity Feed at the Bottom (with Note Form) */}
-      <div className="bg-slate-900/40 border border-slate-800/80 rounded-3xl p-6">
+      <div className="sdds-blue-card border border-blue-800/40 rounded-3xl p-6">
         <h2 className="text-lg font-bold text-white mb-6">Activity Timeline & Notes</h2>
         
         {/* Add note text editor */}

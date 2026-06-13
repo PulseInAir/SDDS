@@ -216,7 +216,7 @@ export default function ClientListContainer({ initialClients }: { initialClients
       )}
 
       {/* Client Table List */}
-      <div className="bg-slate-900/20 border border-slate-800/80 rounded-2xl overflow-hidden">
+      <div className="sdds-blue-card border border-blue-800/40 rounded-2xl overflow-hidden">
         <table className="w-full border-collapse text-left text-base">
           <thead>
             <tr className="border-b border-slate-800/80 bg-slate-900/30 text-slate-400 font-semibold select-none">

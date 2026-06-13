@@ -652,7 +652,7 @@ export default function RevenueClient({ clients, invoices, payments, filings }: 
           {/* Main Dashboard Financial Cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
             {/* Total Billed */}
-            <div className="bg-slate-900/40 border border-slate-800/80 rounded-2xl p-5 relative overflow-hidden group">
+            <div className="sdds-blue-card border border-blue-800/40 rounded-2xl p-5 relative overflow-hidden group">
               <div className="absolute top-0 right-0 w-20 h-20 bg-blue-500/5 rounded-full blur-xl" />
               <div className="flex items-center justify-between text-slate-400">
                 <span className="text-xs font-semibold uppercase tracking-wider">Total Billed</span>
@@ -663,7 +663,7 @@ export default function RevenueClient({ clients, invoices, payments, filings }: 
             </div>
 
             {/* Total Received */}
-            <div className="bg-slate-900/40 border border-slate-800/80 rounded-2xl p-5 relative overflow-hidden group">
+            <div className="sdds-blue-card border border-blue-800/40 rounded-2xl p-5 relative overflow-hidden group">
               <div className="absolute top-0 right-0 w-20 h-20 bg-emerald-500/5 rounded-full blur-xl" />
               <div className="flex items-center justify-between text-slate-400">
                 <span className="text-xs font-semibold uppercase tracking-wider">Total Received</span>
@@ -674,7 +674,7 @@ export default function RevenueClient({ clients, invoices, payments, filings }: 
             </div>
 
             {/* Pending Amount */}
-            <div className="bg-slate-900/40 border border-slate-800/80 rounded-2xl p-5 relative overflow-hidden group">
+            <div className="sdds-blue-card border border-blue-800/40 rounded-2xl p-5 relative overflow-hidden group">
               <div className="absolute top-0 right-0 w-20 h-20 bg-amber-500/5 rounded-full blur-xl" />
               <div className="flex items-center justify-between text-slate-400">
                 <span className="text-xs font-semibold uppercase tracking-wider">Pending Dues</span>
@@ -685,7 +685,7 @@ export default function RevenueClient({ clients, invoices, payments, filings }: 
             </div>
 
             {/* Overdue Amount */}
-            <div className="bg-slate-900/40 border border-slate-800/80 rounded-2xl p-5 relative overflow-hidden group">
+            <div className="sdds-blue-card border border-blue-800/40 rounded-2xl p-5 relative overflow-hidden group">
               <div className="absolute top-0 right-0 w-20 h-20 bg-red-500/5 rounded-full blur-xl" />
               <div className="flex items-center justify-between text-slate-400">
                 <span className="text-xs font-semibold uppercase tracking-wider">Overdue Dues</span>
@@ -696,7 +696,7 @@ export default function RevenueClient({ clients, invoices, payments, filings }: 
             </div>
 
             {/* Collection Rate */}
-            <div className="bg-slate-900/40 border border-slate-800/80 rounded-2xl p-5 relative overflow-hidden group">
+            <div className="sdds-blue-card border border-blue-800/40 rounded-2xl p-5 relative overflow-hidden group">
               <div className="absolute top-0 right-0 w-20 h-20 bg-indigo-500/5 rounded-full blur-xl" />
               <div className="flex items-center justify-between text-slate-400">
                 <span className="text-xs font-semibold uppercase tracking-wider">Collection Rate</span>
@@ -707,7 +707,7 @@ export default function RevenueClient({ clients, invoices, payments, filings }: 
             </div>
 
             {/* Current Month Revenue */}
-            <div className="bg-slate-900/40 border border-slate-800/80 rounded-2xl p-5 relative overflow-hidden group">
+            <div className="sdds-blue-card border border-blue-800/40 rounded-2xl p-5 relative overflow-hidden group">
               <div className="absolute top-0 right-0 w-20 h-20 bg-purple-500/5 rounded-full blur-xl" />
               <div className="flex items-center justify-between text-slate-400">
                 <span className="text-xs font-semibold uppercase tracking-wider">Month Revenue</span>
@@ -718,7 +718,7 @@ export default function RevenueClient({ clients, invoices, payments, filings }: 
             </div>
 
             {/* Current Financial Year Revenue */}
-            <div className="bg-slate-900/40 border border-slate-800/80 rounded-2xl p-5 relative overflow-hidden group">
+            <div className="sdds-blue-card border border-blue-800/40 rounded-2xl p-5 relative overflow-hidden group">
               <div className="absolute top-0 right-0 w-20 h-20 bg-teal-500/5 rounded-full blur-xl" />
               <div className="flex items-center justify-between text-slate-400">
                 <span className="text-xs font-semibold uppercase tracking-wider">FY Revenue</span>
@@ -729,7 +729,7 @@ export default function RevenueClient({ clients, invoices, payments, filings }: 
             </div>
 
             {/* Average Fee Per Return */}
-            <div className="bg-slate-900/40 border border-slate-800/80 rounded-2xl p-5 relative overflow-hidden group">
+            <div className="sdds-blue-card border border-blue-800/40 rounded-2xl p-5 relative overflow-hidden group">
               <div className="absolute top-0 right-0 w-20 h-20 bg-pink-500/5 rounded-full blur-xl" />
               <div className="flex items-center justify-between text-slate-400">
                 <span className="text-xs font-semibold uppercase tracking-wider">Avg Fee / Return</span>
@@ -740,7 +740,7 @@ export default function RevenueClient({ clients, invoices, payments, filings }: 
             </div>
 
             {/* Top Pending Client */}
-            <div className="bg-slate-900/40 border border-slate-800/80 rounded-2xl p-5 relative overflow-hidden group col-span-1 md:col-span-2">
+            <div className="sdds-blue-card border border-blue-800/40 rounded-2xl p-5 relative overflow-hidden group col-span-1 md:col-span-2">
               <div className="absolute top-0 right-0 w-20 h-20 bg-orange-500/5 rounded-full blur-xl" />
               <div className="flex items-center justify-between text-slate-400">
                 <span className="text-xs font-semibold uppercase tracking-wider">Top Pending Client</span>
@@ -752,7 +752,7 @@ export default function RevenueClient({ clients, invoices, payments, filings }: 
           </div>
 
           {/* Filtering Section */}
-          <div className="bg-slate-900/30 border border-slate-800/80 rounded-2xl p-5 space-y-4">
+          <div className="sdds-blue-card border border-blue-800/40 rounded-2xl p-5 space-y-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-2 text-slate-300 font-semibold text-sm">
                 <Filter className="h-4 w-4" />
@@ -899,7 +899,7 @@ export default function RevenueClient({ clients, invoices, payments, filings }: 
           </div>
 
           {/* Invoices List / Table */}
-          <div className="bg-slate-900/40 border border-slate-800/80 rounded-2xl overflow-hidden">
+          <div className="sdds-blue-card border border-blue-800/40 rounded-2xl overflow-hidden">
             <div className="px-6 py-5 border-b border-slate-800/80 flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0">
               <div>
                 <h3 className="font-bold text-white text-base">Billing & Invoices</h3>
@@ -1065,7 +1065,7 @@ export default function RevenueClient({ clients, invoices, payments, filings }: 
       {activeTab === 'analytics' && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Monthly Billing & Collections Trend */}
-          <div className="bg-slate-900/40 border border-slate-800/80 rounded-2xl p-6">
+          <div className="sdds-blue-card border border-blue-800/40 rounded-2xl p-6">
             <h3 className="font-bold text-white text-sm uppercase tracking-wider mb-2 flex items-center space-x-2">
               <BarChart3 className="h-4 w-4 text-blue-400" />
               <span>Monthly Dues & Receipts</span>
@@ -1127,7 +1127,7 @@ export default function RevenueClient({ clients, invoices, payments, filings }: 
           </div>
 
           {/* Paid vs Unpaid Invoices Summary */}
-          <div className="bg-slate-900/40 border border-slate-800/80 rounded-2xl p-6">
+          <div className="sdds-blue-card border border-blue-800/40 rounded-2xl p-6">
             <h3 className="font-bold text-white text-sm uppercase tracking-wider mb-2 flex items-center space-x-2">
               <CheckCircle className="h-4 w-4 text-emerald-400" />
               <span>Paid vs Unpaid Summary</span>
@@ -1189,7 +1189,7 @@ export default function RevenueClient({ clients, invoices, payments, filings }: 
           </div>
 
           {/* Service breakdown chart */}
-          <div className="bg-slate-900/40 border border-slate-800/80 rounded-2xl p-6">
+          <div className="sdds-blue-card border border-blue-800/40 rounded-2xl p-6">
             <h3 className="font-bold text-white text-sm uppercase tracking-wider mb-2 flex items-center space-x-2">
               <Tag className="h-4 w-4 text-blue-400" />
               <span>Service-wise Revenue</span>
@@ -1222,7 +1222,7 @@ export default function RevenueClient({ clients, invoices, payments, filings }: 
           </div>
 
           {/* Return Type breakdown chart */}
-          <div className="bg-slate-900/40 border border-slate-800/80 rounded-2xl p-6">
+          <div className="sdds-blue-card border border-blue-800/40 rounded-2xl p-6">
             <h3 className="font-bold text-white text-sm uppercase tracking-wider mb-2 flex items-center space-x-2">
               <FileText className="h-4 w-4 text-teal-400" />
               <span>Return Type Revenue</span>
@@ -1255,7 +1255,7 @@ export default function RevenueClient({ clients, invoices, payments, filings }: 
           </div>
 
           {/* Top 10 Clients by Revenue / Pending Dues */}
-          <div className="bg-slate-900/40 border border-slate-800/80 rounded-2xl p-6 col-span-1 lg:col-span-2">
+          <div className="sdds-blue-card border border-blue-800/40 rounded-2xl p-6 col-span-1 lg:col-span-2">
             <h3 className="font-bold text-white text-sm uppercase tracking-wider mb-4 flex items-center space-x-2">
               <User className="h-4 w-4 text-orange-400" />
               <span>Top Clients by Collections & Outstanding</span>
@@ -1294,7 +1294,7 @@ export default function RevenueClient({ clients, invoices, payments, filings }: 
       {activeTab === 'kpis' && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {/* Total Clients */}
-          <div className="bg-slate-900/40 border border-slate-800/80 rounded-2xl p-5 relative overflow-hidden group">
+          <div className="sdds-blue-card border border-blue-800/40 rounded-2xl p-5 relative overflow-hidden group">
             <span className="text-xs text-slate-400 font-semibold uppercase tracking-wider">Total Clients Enrolled</span>
             <p className="text-2xl font-black text-white mt-2">{clients.length}</p>
             <div className="mt-3 text-[10px] text-slate-500">Total client database volume</div>
@@ -1315,7 +1315,7 @@ export default function RevenueClient({ clients, invoices, payments, filings }: 
           </div>
 
           {/* Clients Billed */}
-          <div className="bg-slate-900/40 border border-slate-800/80 rounded-2xl p-5 relative overflow-hidden group">
+          <div className="sdds-blue-card border border-blue-800/40 rounded-2xl p-5 relative overflow-hidden group">
             <span className="text-xs text-slate-400 font-semibold uppercase tracking-wider">Clients Billed</span>
             <p className="text-2xl font-black text-white mt-2">{clientsBilledCount}</p>
             <div className="mt-3 text-[10px] text-slate-500">Unique client accounts billed</div>
@@ -1336,14 +1336,14 @@ export default function RevenueClient({ clients, invoices, payments, filings }: 
           </div>
 
           {/* Average Fee Per Client */}
-          <div className="bg-slate-900/40 border border-slate-800/80 rounded-2xl p-5 relative overflow-hidden group">
+          <div className="sdds-blue-card border border-blue-800/40 rounded-2xl p-5 relative overflow-hidden group">
             <span className="text-xs text-slate-400 font-semibold uppercase tracking-wider">Avg Fee Per Client</span>
             <p className="text-2xl font-black text-white mt-2">{fmtAmt(avgFeePerClient)}</p>
             <div className="mt-3 text-[10px] text-slate-500">Total Billed / Unique Billed Clients</div>
           </div>
 
           {/* Average Fee Per Return */}
-          <div className="bg-slate-900/40 border border-slate-800/80 rounded-2xl p-5 relative overflow-hidden group">
+          <div className="sdds-blue-card border border-blue-800/40 rounded-2xl p-5 relative overflow-hidden group">
             <span className="text-xs text-slate-400 font-semibold uppercase tracking-wider">Avg Fee Per Return</span>
             <p className="text-2xl font-black text-white mt-2">{fmtAmt(avgFeePerReturn)}</p>
             <div className="mt-3 text-[10px] text-slate-500">Total Billed / Total Invoices</div>
