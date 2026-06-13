@@ -88,6 +88,7 @@ export default function Header() {
             <Plus className="h-4 w-4" />
             <span>Add Client</span>
           </Link>
+        </div>
       </div>
     </header>
   );
