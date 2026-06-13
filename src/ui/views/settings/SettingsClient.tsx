@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useTransition } from 'react';
-import { backfillDefaultPasswordsAction, saveSystemSettingsAction } from '../clients/actions';
+import { backfillDefaultPasswordsAction, saveSystemSettingsAction } from '@/app/(dashboard)/clients/actions';
 import {
   CheckCircle, AlertTriangle, ShieldAlert,
   Loader2, RefreshCw, Save, Info, Briefcase, DollarSign, MessageSquare

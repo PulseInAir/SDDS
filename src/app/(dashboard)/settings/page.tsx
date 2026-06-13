@@ -1,6 +1,6 @@
 import { getAssessmentYears, getCurrentAssessmentYear } from '@/utils/ay';
 import { createClient } from '@/utils/supabase/server';
-import SettingsClient from './SettingsClient';
+import SettingsClient from '@/ui/views/settings/SettingsClient';
 
 export const revalidate = 0; // Dynamic rendering
 

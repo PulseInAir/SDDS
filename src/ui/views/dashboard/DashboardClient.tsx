@@ -1,10 +1,10 @@
 'use client';
 
-import OverviewCard from '@/components/dashboard/OverviewCard';
-import StackedStatCards from '@/components/dashboard/StackedStatCards';
-import SummaryCards from '@/components/dashboard/SummaryCards';
-import RecentActivityPanel, { RecentActivity } from '@/components/dashboard/RecentActivityPanel';
-import QueueSnapshotPanel, { QueueItem } from '@/components/dashboard/QueueSnapshotPanel';
+import OverviewCard from '@/ui/components/dashboard/OverviewCard';
+import StackedStatCards from '@/ui/components/dashboard/StackedStatCards';
+import SummaryCards from '@/ui/components/dashboard/SummaryCards';
+import RecentActivityPanel, { RecentActivity } from '@/ui/components/dashboard/RecentActivityPanel';
+import QueueSnapshotPanel, { QueueItem } from '@/ui/components/dashboard/QueueSnapshotPanel';
 
 interface DashboardClientProps {
   totalClients: number;

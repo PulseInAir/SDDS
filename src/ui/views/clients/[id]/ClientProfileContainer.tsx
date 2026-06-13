@@ -15,7 +15,7 @@ import {
   deleteDocumentAction,
   createRevisedFilingAction,
   deleteClientsAction
-} from '../actions';
+} from '@/app/(dashboard)/clients/actions';
 import { 
   Eye, EyeOff, Copy, Phone, Mail, MapPin, Calendar, Users, 
   CheckCircle2, AlertCircle, IndianRupee, Clock, Send, Lock, 
@@ -23,7 +23,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import LifecycleTracker from '@/components/LifecycleTracker';
+import LifecycleTracker from '@/ui/components/LifecycleTracker';
 
 interface ClientProfileContainerProps {
   client: any;

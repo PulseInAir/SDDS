@@ -6,7 +6,7 @@ import { Eye, EyeOff, ShieldCheck, Search, Plus, User } from 'lucide-react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { getCurrentAssessmentYear, getAssessmentYears } from '@/utils/ay';
-import AYSelect from '@/components/AYSelect';
+import AYSelect from '@/ui/components/AYSelect';
 
 function HeaderControls() {
   const searchParams = useSearchParams();

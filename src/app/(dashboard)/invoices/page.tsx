@@ -1,6 +1,6 @@
 import { createClient } from '@/utils/supabase/server';
 import { getCurrentAssessmentYear, getAssessmentYears } from '@/utils/ay';
-import InvoicesListContainer from './InvoicesListContainer';
+import InvoicesListContainer from '@/ui/views/invoices/InvoicesListContainer';
 
 export const revalidate = 0; // Dynamic server rendering
 

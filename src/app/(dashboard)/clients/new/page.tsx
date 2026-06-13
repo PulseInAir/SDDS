@@ -1,4 +1,4 @@
-import NewClientClient from './NewClientClient';
+import NewClientClient from '@/ui/views/clients/new/NewClientClient';
 
 export const revalidate = 0; // Dynamic server component
 

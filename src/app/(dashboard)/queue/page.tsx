@@ -1,6 +1,6 @@
 import { createClient } from '@/utils/supabase/server';
 import { getCurrentAssessmentYear, getAssessmentYears } from '@/utils/ay';
-import QueueListContainer from './QueueListContainer';
+import QueueListContainer from '@/ui/views/queue/QueueListContainer';
 
 export const revalidate = 0; // Dynamic server rendering
 

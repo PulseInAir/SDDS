@@ -2,7 +2,7 @@
 
 import { useState, useTransition, useMemo } from 'react';
 import { usePrivacy } from '@/context/PrivacyContext';
-import { decryptPasswordAction, triggerQueueRolloverAction, logWhatsAppActivityAction, getSystemSettingsAction } from '../clients/actions';
+import { decryptPasswordAction, triggerQueueRolloverAction, logWhatsAppActivityAction, getSystemSettingsAction } from '@/app/(dashboard)/clients/actions';
 import { 
   Search, Eye, EyeOff, Copy, Phone, MessageSquare, 
   RefreshCw, ClipboardCheck, ArrowUpRight, Loader2, UserPlus, CheckCircle 

@@ -1,6 +1,6 @@
 import { createClient } from '@/utils/supabase/server';
 import { getCurrentAssessmentYear, getAssessmentYears } from '@/utils/ay';
-import DashboardClient from './DashboardClient';
+import DashboardClient from '@/ui/views/dashboard/DashboardClient';
 
 export const revalidate = 0; // Dynamic rendering
 

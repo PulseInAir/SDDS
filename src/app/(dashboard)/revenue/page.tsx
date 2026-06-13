@@ -1,5 +1,5 @@
 import { createClient } from '@/utils/supabase/server';
-import RevenueClient from './RevenueClient';
+import RevenueClient from '@/ui/views/revenue/RevenueClient';
 
 export const revalidate = 0; // Dynamic server rendering
 

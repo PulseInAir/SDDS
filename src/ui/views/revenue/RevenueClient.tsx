@@ -14,7 +14,7 @@ import {
   recordRevenuePaymentAction,
   waiveRevenueInvoiceAction,
   deleteRevenueInvoiceAction
-} from './actions';
+} from '@/app/(dashboard)/revenue/actions';
 
 interface Client {
   id: string;

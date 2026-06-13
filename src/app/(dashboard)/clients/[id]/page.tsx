@@ -1,6 +1,6 @@
 import { createClient } from '@/utils/supabase/server';
 import { getCurrentAssessmentYear, getAssessmentYears } from '@/utils/ay';
-import ClientProfileContainer from './ClientProfileContainer';
+import ClientProfileContainer from '@/ui/views/clients/[id]/ClientProfileContainer';
 import { notFound, redirect } from 'next/navigation';
 import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';

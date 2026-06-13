@@ -1,8 +1,8 @@
 import { redirect } from 'next/navigation';
 import { createClient } from '@/utils/supabase/server';
 import { PrivacyProvider } from '@/context/PrivacyContext';
-import { Sidebar } from "@/components/Sidebar";
-import Header from "@/components/Header"; // Import the Header
+import { Sidebar } from "@/ui/components/Sidebar";
+import Header from "@/ui/components/Header"; // Import the Header
 
 export default async function DashboardLayout({
   children,

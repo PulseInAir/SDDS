@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useTransition } from 'react';
-import { createClientAction, checkDuplicateAction } from '../actions';
+import { createClientAction, checkDuplicateAction } from '@/app/(dashboard)/clients/actions';
 import { useRouter } from 'next/navigation';
 import { 
   UserPlus, X, Loader2, ArrowLeft, ShieldAlert, CheckCircle, AlertTriangle 

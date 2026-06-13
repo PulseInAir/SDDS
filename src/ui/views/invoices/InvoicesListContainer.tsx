@@ -5,7 +5,7 @@ import { usePrivacy } from '@/context/PrivacyContext';
 import { Search, Download, Eye, EyeOff, FileText, ArrowUpRight, MessageSquare } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { getSystemSettingsAction, logWhatsAppPaymentActivityAction } from '../clients/actions';
+import { getSystemSettingsAction, logWhatsAppPaymentActivityAction } from '@/app/(dashboard)/clients/actions';
 
 interface InvoiceItem {
   id: string;

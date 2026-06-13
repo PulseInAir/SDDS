@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Outfit, Geist_Mono } from "next/font/google";
-import "./globals.css";
+import "@/ui/styles/globals.css";
 import { createClient } from "@/utils/supabase/server";
 
 const outfit = Outfit({

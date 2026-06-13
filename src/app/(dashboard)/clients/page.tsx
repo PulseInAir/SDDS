@@ -1,5 +1,5 @@
 import { createClient } from '@/utils/supabase/server';
-import ClientListContainer from './ClientListContainer';
+import ClientListContainer from '@/ui/views/clients/ClientListContainer';
 
 export const revalidate = 0; // Disable caching to fetch updated data
 

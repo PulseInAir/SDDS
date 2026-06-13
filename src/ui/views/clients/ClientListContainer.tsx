@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from 'react';
 import { usePrivacy } from '@/context/PrivacyContext';
-import { deleteClientsAction } from './actions';
+import { deleteClientsAction } from '@/app/(dashboard)/clients/actions';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { 

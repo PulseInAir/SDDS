@@ -2,7 +2,7 @@
 
 import { useState, useTransition, useEffect } from 'react';
 import Papa from 'papaparse';
-import { importClientsCSVAction, triggerQueueRolloverAction } from '../clients/actions';
+import { importClientsCSVAction, triggerQueueRolloverAction } from '@/app/(dashboard)/clients/actions';
 import {
   Upload, CheckCircle, AlertTriangle, FileText, Database, ShieldAlert,
   HelpCircle, Play, Loader2, RefreshCw, Copy, Check, Download, Users, Briefcase, Bell

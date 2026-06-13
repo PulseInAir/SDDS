@@ -1,6 +1,6 @@
 import { getAssessmentYears, getCurrentAssessmentYear } from '@/utils/ay';
 import { createClient } from '@/utils/supabase/server';
-import DataManagerClient from './DataManagerClient';
+import DataManagerClient from '@/ui/views/data/DataManagerClient';
 
 export const revalidate = 0; // Dynamic rendering
 
