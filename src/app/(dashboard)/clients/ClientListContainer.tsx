@@ -306,12 +306,12 @@ export default function ClientListContainer({ initialClients }: { initialClients
                     </td>
                     <td className="p-4 text-right" onClick={(e) => e.stopPropagation()}>
                       <div className="flex items-center justify-end space-x-2 relative group/dropdown">
-                        <button
-                          type="button"
+                        <Link
+                          href={`/clients/${client.id}`}
                           className="p-2 text-slate-500 group-hover:text-blue-100 hover:bg-slate-800 group-hover:hover:bg-blue-700 rounded-xl transition-all cursor-pointer"
                         >
                           <Settings className="h-4 w-4" />
-                        </button>
+                        </Link>
 
                         {/* Dropdown Menu */}
                         <div className="absolute right-0 top-full mt-1 w-40 bg-slate-900 border border-slate-800 rounded-xl shadow-xl opacity-0 invisible group-hover/dropdown:opacity-100 group-hover/dropdown:visible transition-all duration-200 z-50 py-1 flex flex-col">
