@@ -817,9 +817,9 @@ export default function ClientProfileContainer({
             <span className="px-2.5 py-1 bg-slate-800 border border-slate-700 text-xs font-semibold text-slate-300 rounded-full">
               Client Profile
             </span>
-            <h1 className="text-3xl font-black text-white mt-2 tracking-tight">{client.name}</h1>
+            <h1 className="text-4xl font-black text-white mt-2 tracking-tight">{client.name}</h1>
             
-            <div className="flex flex-wrap items-center gap-x-6 gap-y-2 mt-4 text-sm text-slate-400">
+            <div className="flex flex-wrap items-center gap-x-6 gap-y-2 mt-4 text-base text-slate-400">
               {/* PAN */}
               <div className="flex items-center space-x-2">
                 <span className="font-semibold text-slate-500">PAN:</span>
@@ -959,7 +959,7 @@ export default function ClientProfileContainer({
           <div className="bg-slate-900/40 border border-slate-800/80 rounded-3xl p-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 pb-6 border-b border-slate-800/40">
               <div>
-                <h2 className="text-lg font-bold text-white">ITR Case Status (AY {selectedAY})</h2>
+                <h2 className="text-2xl font-bold text-white">ITR Case Status (AY {selectedAY})</h2>
                 {/* Version Selector Dropdown */}
                 {ayFilings.length > 1 && (
                   <div className="flex items-center space-x-2 mt-2">
@@ -1010,7 +1010,7 @@ export default function ClientProfileContainer({
             </div>
 
             {currentFiling ? (
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 text-sm">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 text-base">
                 <div>
                   <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Filing Status</span>
                   <span className="px-2.5 py-0.5 inline-block bg-amber-500/10 text-amber-400 text-xs font-semibold rounded-full border border-amber-500/15 mt-1">

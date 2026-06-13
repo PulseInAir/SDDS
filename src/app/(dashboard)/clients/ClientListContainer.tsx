@@ -182,7 +182,7 @@ export default function ClientListContainer({ initialClients }: { initialClients
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
-            className={`font-semibold pb-2 -mb-[9px] transition-colors ${
+            className={`text-lg font-bold pb-2 -mb-[9px] transition-colors ${
               activeTab === tab
                 ? 'text-blue-500 border-b-2 border-blue-500'
                 : 'text-slate-400 hover:text-slate-200'
@@ -217,7 +217,7 @@ export default function ClientListContainer({ initialClients }: { initialClients
 
       {/* Client Table List */}
       <div className="bg-slate-900/20 border border-slate-800/80 rounded-2xl overflow-hidden">
-        <table className="w-full border-collapse text-left text-sm">
+        <table className="w-full border-collapse text-left text-base">
           <thead>
             <tr className="border-b border-slate-800/80 bg-slate-900/30 text-slate-400 font-semibold select-none">
               <th className="p-4 w-12 text-center">
@@ -259,7 +259,7 @@ export default function ClientListContainer({ initialClients }: { initialClients
                         <span>{index + 1}</span>
                       )}
                     </td>
-                    <td className="p-4 font-bold text-white group-hover:text-white max-w-[200px] truncate">
+                    <td className="p-4 text-lg font-bold text-white group-hover:text-white max-w-[200px] truncate">
                       {client.name}
                     </td>
                     <td className="p-4 font-mono font-bold tracking-wide">
@@ -295,7 +295,7 @@ export default function ClientListContainer({ initialClients }: { initialClients
                         <span>{maskText(client.mobile, isMasked)}</span>
                       </div>
                       {client.email && (
-                        <div className="flex items-center space-x-2 text-slate-400 group-hover:text-blue-200 text-xs">
+                        <div className="flex items-center space-x-2 text-slate-400 group-hover:text-blue-200 text-sm">
                           <Mail className="h-3 w-3 text-slate-600 group-hover:text-blue-300 shrink-0" />
                           <span className="truncate max-w-[150px]">{maskText(client.email, isMasked)}</span>
                         </div>

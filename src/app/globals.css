@@ -7,7 +7,7 @@
 
 html {
   /* Scale 1rem proportionately to 1672x941 reference design */
-  font-size: min(0.9569vw, 1.7vh);
+  font-size: min(1.1vw, 1.9vh);
 }
 
 @theme inline {
@@ -18,7 +18,7 @@ html {
 }
 
 body {
-  background: var(--background);
+  background: var(--sdds-bg-gradient);
   color: var(--foreground);
   font-family: var(--font-sans);
   overflow-x: hidden;

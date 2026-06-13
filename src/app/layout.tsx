@@ -1,12 +1,11 @@
 import type { Metadata } from "next";
-import { Poppins, Geist_Mono } from "next/font/google";
+import { Outfit, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { createClient } from "@/utils/supabase/server";
 
-const poppins = Poppins({
-  weight: ["300", "400", "500", "600", "700", "800"],
+const outfit = Outfit({
   subsets: ["latin"],
-  variable: "--font-poppins",
+  variable: "--font-sans",
 });
 
 const geistMono = Geist_Mono({
@@ -39,7 +38,7 @@ export default async function RootLayout({
 
   return (
     <html lang="en" data-theme={theme}>
-      <body className={poppins.className}>
+      <body className={outfit.className}>
         {children}
       </body>
     </html>
