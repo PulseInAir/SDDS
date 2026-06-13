@@ -7,7 +7,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { 
   Search, Eye, EyeOff, Phone, Mail, 
-  UserPlus, Calendar, Loader2, Trash2
+  UserPlus, Calendar, Loader2, Trash2, Settings, Edit, ExternalLink, MoreVertical
 } from 'lucide-react';
 
 interface Client {
@@ -33,6 +33,7 @@ export default function ClientListContainer({ initialClients }: { initialClients
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [isDeleting, setIsDeleting] = useState(false);
   const [showCheckboxes, setShowCheckboxes] = useState(false);
+  const [activeTab, setActiveTab] = useState('Active Clients');
   const router = useRouter();
 
   // Local masks for specific rows when privacy mode is ON
@@ -175,28 +176,21 @@ export default function ClientListContainer({ initialClients }: { initialClients
 
   return (
     <div className="space-y-6">
-      {/* Controls: Search & Add */}
-      <div className="flex flex-col sm:flex-row gap-4 justify-between items-center bg-slate-900/40 p-4 border border-slate-800/80 rounded-2xl">
-        <div className="relative w-full sm:max-w-md">
-          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500">
-            <Search className="h-4 w-4" />
-          </div>
-          <input
-            type="text"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search by client name, PAN, or mobile..."
-            className="w-full pl-10 pr-4 py-2 bg-slate-950 border border-slate-800 rounded-xl text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500 transition-all"
-          />
-        </div>
-
-        <Link
-          href="/clients/new"
-          className="w-full sm:w-auto flex items-center justify-center space-x-2 px-4 py-2 rounded-xl text-sm font-semibold text-white bg-blue-600 hover:bg-blue-500 transition-colors shadow-lg shadow-blue-500/10 shrink-0 select-none"
-        >
-          <UserPlus className="h-4 w-4" />
-          <span>New Client</span>
-        </Link>
+      {/* Tabs */}
+      <div className="flex items-center space-x-8 border-b border-slate-800/80 mb-4 pb-2">
+        {['Active Clients', 'Inactive Clients', 'Archived'].map(tab => (
+          <button
+            key={tab}
+            onClick={() => setActiveTab(tab)}
+            className={`font-semibold pb-2 -mb-[9px] transition-colors ${
+              activeTab === tab
+                ? 'text-blue-500 border-b-2 border-blue-500'
+                : 'text-slate-400 hover:text-slate-200'
+            }`}
+          >
+            {tab}
+          </button>
+        ))}
       </div>
 
       {/* Selection Action Bar */}
@@ -250,7 +244,7 @@ export default function ClientListContainer({ initialClients }: { initialClients
                   <tr 
                     key={client.id} 
                     onClick={() => router.push(`/clients/${client.id}`)}
-                    className="hover:bg-slate-900/25 transition-colors group cursor-pointer"
+                    className="hover:bg-blue-600 hover:text-white hover:-translate-y-1 hover:shadow-[0_8px_30px_rgb(37,99,235,0.3)] transition-all duration-300 group cursor-pointer relative z-0 hover:z-10 rounded-xl overflow-hidden"
                   >
                     <td className="p-4 text-center font-bold text-slate-500 select-none">
                       {showCheckboxes ? (
@@ -265,7 +259,7 @@ export default function ClientListContainer({ initialClients }: { initialClients
                         <span>{index + 1}</span>
                       )}
                     </td>
-                    <td className="p-4 font-bold text-white max-w-[200px] truncate">
+                    <td className="p-4 font-bold text-white group-hover:text-white max-w-[200px] truncate">
                       {client.name}
                     </td>
                     <td className="p-4 font-mono font-bold tracking-wide">
@@ -278,7 +272,7 @@ export default function ClientListContainer({ initialClients }: { initialClients
                               e.stopPropagation();
                               toggleRowReveal(client.id);
                             }}
-                            className="p-1 hover:bg-slate-800 rounded text-slate-500 hover:text-slate-350 transition-colors cursor-pointer"
+                            className="p-1 hover:bg-slate-800 group-hover:hover:bg-blue-700 rounded text-slate-500 group-hover:text-blue-100 hover:text-slate-350 group-hover:hover:text-white transition-colors cursor-pointer"
                           >
                             {revealedClients[client.id] ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
                           </button>
@@ -286,8 +280,8 @@ export default function ClientListContainer({ initialClients }: { initialClients
                       </div>
                     </td>
                     <td className="p-4 text-slate-300 font-medium">
-                      <div className="flex items-center space-x-1.5">
-                        <Calendar className="h-3.5 w-3.5 text-slate-500 shrink-0" />
+                      <div className="flex items-center space-x-1.5 group-hover:text-blue-100">
+                        <Calendar className="h-3.5 w-3.5 text-slate-500 group-hover:text-blue-200 shrink-0" />
                         <span>
                           {isMasked 
                             ? '••••••••••' 
@@ -296,13 +290,13 @@ export default function ClientListContainer({ initialClients }: { initialClients
                       </div>
                     </td>
                     <td className="p-4 space-y-1">
-                      <div className="flex items-center space-x-2 text-slate-300">
-                        <Phone className="h-3.5 w-3.5 text-slate-500 shrink-0" />
+                      <div className="flex items-center space-x-2 text-slate-300 group-hover:text-blue-100">
+                        <Phone className="h-3.5 w-3.5 text-slate-500 group-hover:text-blue-200 shrink-0" />
                         <span>{maskText(client.mobile, isMasked)}</span>
                       </div>
                       {client.email && (
-                        <div className="flex items-center space-x-2 text-slate-400 text-xs">
-                          <Mail className="h-3 w-3 text-slate-600 shrink-0" />
+                        <div className="flex items-center space-x-2 text-slate-400 group-hover:text-blue-200 text-xs">
+                          <Mail className="h-3 w-3 text-slate-600 group-hover:text-blue-300 shrink-0" />
                           <span className="truncate max-w-[150px]">{maskText(client.email, isMasked)}</span>
                         </div>
                       )}
@@ -311,19 +305,37 @@ export default function ClientListContainer({ initialClients }: { initialClients
                       {client.family_group || '-'}
                     </td>
                     <td className="p-4 text-right" onClick={(e) => e.stopPropagation()}>
-                      <div className="flex items-center justify-end space-x-2">
+                      <div className="flex items-center justify-end space-x-2 relative group/dropdown">
                         <button
                           type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleDeleteSingle(client.id, client.name);
-                          }}
-                          disabled={isDeleting}
-                          title="Delete Client Profile"
-                          className="p-2 bg-slate-950 border border-slate-800 text-slate-500 hover:text-red-400 hover:border-red-900/50 rounded-xl transition-all cursor-pointer"
+                          className="p-2 text-slate-500 group-hover:text-blue-100 hover:bg-slate-800 group-hover:hover:bg-blue-700 rounded-xl transition-all cursor-pointer"
                         >
-                          <Trash2 className="h-4 w-4" />
+                          <Settings className="h-4 w-4" />
                         </button>
+
+                        {/* Dropdown Menu */}
+                        <div className="absolute right-0 top-full mt-1 w-40 bg-slate-900 border border-slate-800 rounded-xl shadow-xl opacity-0 invisible group-hover/dropdown:opacity-100 group-hover/dropdown:visible transition-all duration-200 z-50 py-1 flex flex-col">
+                          <Link href={`/clients/${client.id}`} className="px-4 py-2 text-sm text-slate-300 hover:text-white hover:bg-slate-800 flex items-center space-x-2">
+                            <ExternalLink className="h-4 w-4" />
+                            <span>Quick View</span>
+                          </Link>
+                          <Link href={`/clients/${client.id}/edit`} className="px-4 py-2 text-sm text-slate-300 hover:text-white hover:bg-slate-800 flex items-center space-x-2">
+                            <Edit className="h-4 w-4" />
+                            <span>Edit</span>
+                          </Link>
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDeleteSingle(client.id, client.name);
+                            }}
+                            disabled={isDeleting}
+                            className="px-4 py-2 text-sm text-red-400 hover:text-red-300 hover:bg-red-950/30 flex items-center space-x-2 w-full text-left"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                            <span>Delete</span>
+                          </button>
+                        </div>
                       </div>
                     </td>
                   </tr>

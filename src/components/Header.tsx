@@ -35,16 +35,9 @@ export default function Header() {
       </div>
 
       {/* Right: Controls Stack */}
-      <div className="flex flex-col items-end space-y-4">
-        {/* Top Row: Badges */}
-        <div className="flex items-center space-x-3">
-          {/* Quick Status */}
-          <div className="flex items-center space-x-2 text-[11px] font-semibold text-slate-500 bg-white border border-slate-200 px-4 h-8 rounded-full shadow-sm">
-            <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-            <span>SDDS Operating Environment Active</span>
-          </div>
-
-          {/* Privacy Toggle Button */}
+      <div className="flex flex-col items-end space-y-4 flex-1 ml-8">
+        {/* Top Row: Privacy Toggle Button */}
+        <div className="flex items-center justify-end w-full">
           <button
             type="button"
             onClick={togglePrivacyMode}
@@ -66,29 +59,18 @@ export default function Header() {
               </>
             )}
           </button>
-
-          {/* Security Badge */}
-          <div className="flex items-center justify-center space-x-1.5 px-4 h-8 bg-white border border-slate-200 rounded-full text-[11px] font-medium text-slate-600 shadow-sm">
-            <ShieldCheck className="h-3.5 w-3.5 text-emerald-500" />
-            <span>SSL Secure Connection</span>
-          </div>
         </div>
 
         {/* Bottom Row: Search & Actions */}
-        <div className="flex items-center space-x-4">
+        <div className="flex items-center space-x-4 w-full">
           {/* Search */}
-          <div className="relative">
+          <div className="relative flex-1">
             <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
             <input
               type="text"
               placeholder="Search..."
-              className="bg-slate-50 border border-slate-200 rounded-full pl-10 pr-4 h-10 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500/40 w-72 shadow-sm transition-all focus:bg-white"
+              className="bg-slate-50 border border-slate-200 rounded-full pl-10 pr-4 h-10 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500/40 w-full shadow-sm transition-all focus:bg-white"
             />
-          </div>
-
-          {/* Avatar */}
-          <div className="h-10 w-10 rounded-full overflow-hidden border border-slate-200 shadow-sm">
-            <img src="https://i.pravatar.cc/150?u=a042581f4e29026024d" alt="User Avatar" className="h-full w-full object-cover" />
           </div>
 
           {/* AY Select */}
@@ -106,7 +88,6 @@ export default function Header() {
             <Plus className="h-4 w-4" />
             <span>Add Client</span>
           </Link>
-        </div>
       </div>
     </header>
   );

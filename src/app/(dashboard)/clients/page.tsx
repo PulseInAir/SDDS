@@ -24,7 +24,7 @@ export default async function ClientsPage() {
   return (
     <div className="space-y-6 animate-in fade-in duration-300">
       <div>
-        <h1 className="text-3xl font-extrabold text-white tracking-tight">Clients Directory</h1>
+        <h1 className="text-3xl font-extrabold text-white tracking-tight">Client Management</h1>
         <p className="text-slate-400 text-sm mt-1">Manage client profiles, contact numbers, and login credentials.</p>
       </div>
 
