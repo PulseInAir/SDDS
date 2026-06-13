@@ -63,27 +63,27 @@ export function Sidebar() {
       <div
         className="absolute right-0 bg-white transition-all duration-300 ease-out"
         style={{
-          left: '12px',
+          left: '0.75rem',
           top: style.top,
           height: style.height,
           opacity: style.opacity,
-          borderTopLeftRadius: '24px',
-          borderBottomLeftRadius: '24px',
+          borderTopLeftRadius: '1.5rem',
+          borderBottomLeftRadius: '1.5rem',
           zIndex: 0
         }}
       >
         <div 
-          className="absolute right-0 w-[24px] h-[24px] pointer-events-none" 
+          className="absolute right-0 w-[1.5rem] h-[1.5rem] pointer-events-none" 
           style={{ 
-            top: '-24px',
-            background: 'radial-gradient(circle at top left, transparent 24px, #ffffff 24px)' 
+            top: '-1.5rem',
+            background: 'radial-gradient(circle at top left, transparent 1.5rem, #ffffff 1.5rem)' 
           }} 
         />
         <div 
-          className="absolute right-0 w-[24px] h-[24px] pointer-events-none" 
+          className="absolute right-0 w-[1.5rem] h-[1.5rem] pointer-events-none" 
           style={{ 
-            bottom: '-24px',
-            background: 'radial-gradient(circle at bottom left, transparent 24px, #ffffff 24px)' 
+            bottom: '-1.5rem',
+            background: 'radial-gradient(circle at bottom left, transparent 1.5rem, #ffffff 1.5rem)' 
           }} 
         />
       </div>
