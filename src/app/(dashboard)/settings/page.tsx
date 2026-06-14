@@ -10,10 +10,20 @@ export default async function SettingsPage() {
   const supabase = await createClient();
 
   // Check server environment variables configuration status
+  const encKey = process.env.ENCRYPTION_KEY;
+  let encryptionKeyStatus: 'valid' | 'missing' | 'invalid' = 'missing';
+  if (encKey) {
+    if (encKey.length === 64 && /^[0-9a-fA-F]+$/.test(encKey)) {
+      encryptionKeyStatus = 'valid';
+    } else {
+      encryptionKeyStatus = 'invalid';
+    }
+  }
+
   const configStatus = {
     supabaseUrl: !!process.env.NEXT_PUBLIC_SUPABASE_URL,
     supabaseAnonKey: !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
-    encryptionKey: !!(process.env.PORTAL_PASSWORD_KEY || process.env.ENCRYPTION_KEY),
+    encryptionKey: encryptionKeyStatus,
   };
 
   // Fetch settings from the system_settings table

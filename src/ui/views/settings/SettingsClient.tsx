@@ -13,7 +13,7 @@ interface SettingsClientProps {
   configStatus: {
     supabaseUrl: boolean;
     supabaseAnonKey: boolean;
-    encryptionKey: boolean;
+    encryptionKey: 'valid' | 'missing' | 'invalid';
   };
   initialFirmProfile: {
     firmName: string;
@@ -511,8 +511,10 @@ export default function SettingsClient({
                 <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest block">Reversible Cryptography</span>
                 <span className="text-xs text-white font-semibold mt-0.5 block">Portal Password Decryption</span>
               </div>
-              {configStatus.encryptionKey ? (
+              {configStatus.encryptionKey === 'valid' ? (
                 <span className="px-2 py-0.5 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[10px] font-bold rounded-full uppercase tracking-wider">Enabled</span>
+              ) : configStatus.encryptionKey === 'invalid' ? (
+                <span className="px-2 py-0.5 bg-amber-500/10 text-amber-400 border border-amber-500/20 text-[10px] font-bold rounded-full uppercase tracking-wider">Invalid Format</span>
               ) : (
                 <span className="px-2 py-0.5 bg-red-500/10 text-red-400 border border-red-500/20 text-[10px] font-bold rounded-full uppercase tracking-wider">Missing Key</span>
               )}
