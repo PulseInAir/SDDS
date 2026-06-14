@@ -23,7 +23,7 @@ export default async function DashboardLayout({
         <div className="sdds-app-frame">
           <div className="sdds-inner-frame">
             {/* Sidebar Wrapper */}
-            <div className="relative h-full flex-shrink-0 bg-[var(--sdds-sidebar-blue)] [&_.bg-white.absolute]:hidden">
+            <div className="relative h-full flex-shrink-0 bg-[var(--sdds-sidebar-blue)] [&_a:not(.text-blue-700)]:text-white [&_a:not(.text-blue-700)]:bg-transparent hover:[&_a:not(.text-blue-700)]:bg-white/10">
               <Sidebar />
 
               {/* Overlay SD badge and brand block */}
