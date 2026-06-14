@@ -18,19 +18,33 @@ export default async function DashboardLayout({
 
   return (
     <PrivacyProvider>
-      <div className="sdds-app-bg">
-        <div className="sdds-app-frame">
+      <div
+        className="sdds-app-bg"
+        style={{ padding: 'var(--sdds-spacing-padding-large)' }}
+      >
+        <div
+          className="sdds-app-frame"
+          style={{
+            height: 'calc(100vh - calc(var(--sdds-spacing-padding-large) * 2))',
+            maxWidth: '1672px',
+            padding: '12px',
+            margin: '0 auto'
+          }}
+        >
           <div className="sdds-inner-frame">
             {/* Sidebar */}
             <Sidebar />
 
             {/* Right Side Content */}
-            <div className="flex-1 flex flex-col overflow-hidden">
+            <div className="flex-1 flex flex-col overflow-hidden bg-[var(--sdds-content-canvas-bg)]">
               {/* Header */}
               <Header />
 
               {/* Main Scrollable Area */}
-              <main className="flex-1 overflow-y-auto p-6">
+              <main
+                className="flex-1 overflow-y-auto"
+                style={{ padding: 'var(--sdds-spacing-padding-large)' }}
+              >
                 {children}
               </main>
             </div>
