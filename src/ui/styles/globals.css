@@ -204,3 +204,36 @@ textarea:focus {
   height: 100%;
   border-radius: var(--sdds-radius-pill);
 }
+
+/* Sidebar Active Cut-out */
+.sdds-sidebar a.text-blue-700 {
+  background-color: var(--sdds-content-canvas-bg);
+  color: var(--sdds-sidebar-blue) !important;
+  position: relative;
+  border-top-left-radius: 1.5rem !important;
+  border-bottom-left-radius: 1.5rem !important;
+  border-top-right-radius: 0 !important;
+  border-bottom-right-radius: 0 !important;
+  margin-right: -1px; /* Ensure seamless connection to canvas */
+}
+
+.sdds-sidebar a.text-blue-700::before,
+.sdds-sidebar a.text-blue-700::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  width: 1.5rem;
+  height: 1.5rem;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.sdds-sidebar a.text-blue-700::before {
+  top: -1.5rem;
+  background: radial-gradient(circle at top left, transparent 1.5rem, var(--sdds-content-canvas-bg) 1.5rem);
+}
+
+.sdds-sidebar a.text-blue-700::after {
+  bottom: -1.5rem;
+  background: radial-gradient(circle at bottom left, transparent 1.5rem, var(--sdds-content-canvas-bg) 1.5rem);
+}
