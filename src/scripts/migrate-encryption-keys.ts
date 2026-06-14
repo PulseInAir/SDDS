@@ -31,7 +31,7 @@ export async function migrate(supabaseClient: any, isDryRun: boolean) {
   // Fetch all client secrets
   const { data: records, error: fetchError } = await supabaseClient
     .from('client_secrets')
-    .select('client_id, portal_password');
+    .select('client_id, encrypted_password');
 
   if (fetchError) {
     console.error('Failed to fetch records:', fetchError.message);
@@ -50,12 +50,12 @@ export async function migrate(supabaseClient: any, isDryRun: boolean) {
   let updated = 0;
 
   for (const record of records) {
-    if (!record.portal_password) continue;
+    if (!record.encrypted_password) continue;
 
     // 1. Can we decrypt it with the configured key directly?
     let decryptableWithConfigured = false;
     try {
-      const parts = record.portal_password.split(':');
+      const parts = record.encrypted_password.split(':');
       if (parts.length === 3) {
         const iv = Buffer.from(parts[0], 'hex');
         const ciphertext = parts[1];
@@ -77,7 +77,7 @@ export async function migrate(supabaseClient: any, isDryRun: boolean) {
     }
 
     // 2. Try decrypting using the general decrypt() which will fall back to legacy
-    const plaintext = decrypt(record.portal_password);
+    const plaintext = decrypt(record.encrypted_password);
     
     if (plaintext === '' || plaintext === '[Decryption Error]' || plaintext.startsWith('Portal Password Decryption MISSING KEY')) {
       // Malformed or undecryptable data
@@ -95,9 +95,9 @@ export async function migrate(supabaseClient: any, isDryRun: boolean) {
       // Update only when the stored ciphertext still matches the originally read value
       const { error: updateError, count } = await supabaseClient
         .from('client_secrets')
-        .update({ portal_password: newCiphertext })
+        .update({ encrypted_password: newCiphertext })
         .eq('client_id', record.client_id)
-        .eq('portal_password', record.portal_password); // optimistic concurrency control
+        .eq('encrypted_password', record.encrypted_password); // optimistic concurrency control
 
       if (updateError) {
         console.error('Failed to update record:', updateError.message);
