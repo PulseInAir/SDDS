@@ -30,7 +30,7 @@ FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 -- 2. Filings Table (One Client -> Multiple Assessment Years)
 CREATE TABLE IF NOT EXISTS filings (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  client_id UUID NOT NULL REFERENCES clients(id) ON DELETE CASCADE,
+  client_id UUID NOT NULL REFERENCES clients(id) ON DELETE RESTRICT,
   assessment_year TEXT NOT NULL,
   itr_type TEXT,
   filing_status TEXT NOT NULL DEFAULT 'Yet To File',
@@ -54,8 +54,8 @@ FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 -- 3. Filing Documents Table (Links Supabase Storage files)
 CREATE TABLE IF NOT EXISTS filing_documents (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  filing_id UUID NOT NULL REFERENCES filings(id) ON DELETE CASCADE,
-  client_id UUID NOT NULL REFERENCES clients(id) ON DELETE CASCADE,
+  filing_id UUID NOT NULL REFERENCES filings(id) ON DELETE RESTRICT,
+  client_id UUID NOT NULL REFERENCES clients(id) ON DELETE RESTRICT,
   assessment_year TEXT NOT NULL,
   document_type TEXT NOT NULL CHECK (document_type IN ('itr-v', 'intimation-order', 'form-16', 'computation', 'tax-report', 'acknowledgement', 'other')),
   bucket_name TEXT NOT NULL DEFAULT 'sdds-documents',
@@ -71,7 +71,7 @@ CREATE TABLE IF NOT EXISTS filing_documents (
 -- 4. Invoices Table (One Filing -> One Invoice)
 CREATE TABLE IF NOT EXISTS invoices (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  filing_id UUID UNIQUE REFERENCES filings(id) ON DELETE CASCADE,
+  filing_id UUID UNIQUE REFERENCES filings(id) ON DELETE RESTRICT,
   invoice_number TEXT UNIQUE NOT NULL,
   serial_number INT NOT NULL,
   assessment_year TEXT NOT NULL,
@@ -95,7 +95,7 @@ FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 -- 5. Payments Table (Tracks manual invoice installment payments)
 CREATE TABLE IF NOT EXISTS payments (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  invoice_id UUID NOT NULL REFERENCES invoices(id) ON DELETE CASCADE,
+  invoice_id UUID NOT NULL REFERENCES invoices(id) ON DELETE RESTRICT,
   amount NUMERIC(15, 2) NOT NULL,
   payment_mode TEXT NOT NULL,
   payment_date DATE NOT NULL DEFAULT CURRENT_DATE,
@@ -105,7 +105,7 @@ CREATE TABLE IF NOT EXISTS payments (
 
 -- 6. Client Secrets Table (Separate table for sensitive credentials storage)
 CREATE TABLE IF NOT EXISTS client_secrets (
-  client_id UUID PRIMARY KEY REFERENCES clients(id) ON DELETE CASCADE,
+  client_id UUID PRIMARY KEY REFERENCES clients(id) ON DELETE RESTRICT,
   encrypted_password TEXT NOT NULL,
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
@@ -113,7 +113,7 @@ CREATE TABLE IF NOT EXISTS client_secrets (
 -- 7. Activity Logs Table (Chronological client activity/timeline)
 CREATE TABLE IF NOT EXISTS activity_logs (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  client_id UUID NOT NULL REFERENCES clients(id) ON DELETE CASCADE,
+  client_id UUID NOT NULL REFERENCES clients(id) ON DELETE RESTRICT,
   filing_id UUID REFERENCES filings(id) ON DELETE SET NULL,
   action_type TEXT NOT NULL,
   description TEXT NOT NULL,
@@ -154,7 +154,7 @@ CREATE POLICY "Allow all operations for authenticated users" ON activity_logs
 -- 8. Revenue Invoices Table (Generics for practice collections)
 CREATE TABLE IF NOT EXISTS revenue_invoices (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  client_id UUID NOT NULL REFERENCES clients(id) ON DELETE CASCADE,
+  client_id UUID NOT NULL REFERENCES clients(id) ON DELETE RESTRICT,
   filing_id UUID REFERENCES filings(id) ON DELETE SET NULL,
   invoice_number TEXT UNIQUE NOT NULL,
   financial_year TEXT NOT NULL,
@@ -177,8 +177,8 @@ CREATE TABLE IF NOT EXISTS revenue_invoices (
 -- 9. Revenue Payments Table (Installments for generic practice invoices)
 CREATE TABLE IF NOT EXISTS revenue_payments (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  invoice_id UUID NOT NULL REFERENCES revenue_invoices(id) ON DELETE CASCADE,
-  client_id UUID NOT NULL REFERENCES clients(id) ON DELETE CASCADE,
+  invoice_id UUID NOT NULL REFERENCES revenue_invoices(id) ON DELETE RESTRICT,
+  client_id UUID NOT NULL REFERENCES clients(id) ON DELETE RESTRICT,
   payment_date DATE NOT NULL DEFAULT CURRENT_DATE,
   amount NUMERIC(15, 2) NOT NULL CHECK (amount >= 0),
   payment_method TEXT NOT NULL,
