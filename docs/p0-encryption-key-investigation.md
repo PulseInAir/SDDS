@@ -43,10 +43,10 @@ The exact literal `"Portal Password Decryption MISSING KEY: ..."` is produced wh
 evaluates to `true` at the *exact moment of the function call*.
 
 **The Ambiguity & Defect**:
-1. `const RAW_KEY = ...` is evaluated **at module load time**. If environment variables are not populated at the exact millisecond the module is loaded (e.g., during certain dev or edge initialization sequences), `RAW_KEY` evaluates to `undefined`.
-2. Later, at runtime, the `decrypt` or `encrypt` function is called. The environment variables might now be populated. The `if` check passes.
-3. `getEncryptionKey()` executes and uses `RAW_KEY`. Because `RAW_KEY` is a constant evaluated earlier as `undefined`, it silently falls back to `'default_fallback_sdds_key_for_development'`.
-4. This results in the system silently encrypting/decrypting using the insecure fallback key instead of the active environment variable.
+1. `const RAW_KEY = ...` is evaluated **at module load time**. Module-level caching is only a demonstrated cause if a test proves `process.env` changes after import.
+2. The system has a hardcoded fallback key (`'default_fallback_sdds_key_for_development'`) which is a confirmed defect.
+3. There are inconsistent accepted env-variable names (`PORTAL_PASSWORD_KEY` vs `ENCRYPTION_KEY`).
+4. There is a possible environment scope/redeployment mismatch causing the environment variable to be missing.
 
 ## Recovery Risk
 If records were silently encrypted with the `'default_fallback_sdds_key_for_development'` due to this module-load timing defect, fixing the bug to correctly use the environment variable will instantly break decryption for all those records (since they were saved with the fallback key).
