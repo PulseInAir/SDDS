@@ -19,22 +19,11 @@ export default async function DashboardLayout({
 
   return (
     <PrivacyProvider>
-      <div
-        className="sdds-app-bg"
-        style={{ padding: 'var(--sdds-spacing-padding-large)' }}
-      >
-        <div
-          className="sdds-app-frame"
-          style={{
-            height: 'calc(100vh - calc(var(--sdds-spacing-padding-large) * 2))',
-            maxWidth: '1672px',
-            padding: '12px',
-            margin: '0 auto'
-          }}
-        >
+      <div className="sdds-app-bg">
+        <div className="sdds-app-frame">
           <div className="sdds-inner-frame">
             {/* Sidebar Wrapper */}
-            <div className="relative h-full flex-shrink-0 bg-[var(--sdds-sidebar-blue)] rounded-l-[var(--sdds-radius-frame)] overflow-hidden [&_.bg-white.absolute]:hidden">
+            <div className="relative h-full flex-shrink-0 bg-[var(--sdds-sidebar-blue)] overflow-hidden [&_.bg-white.absolute]:hidden">
               <Sidebar />
 
               {/* Overlay SD badge and brand block */}
