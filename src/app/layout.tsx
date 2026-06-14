@@ -1,16 +1,11 @@
 import type { Metadata } from "next";
-import { Outfit, Geist_Mono } from "next/font/google";
+import { Playfair } from "next/font/google";
 import "@/ui/styles/globals.css";
 import { createClient } from "@/utils/supabase/server";
 
-const outfit = Outfit({
+const playfair = Playfair({
   subsets: ["latin"],
   variable: "--font-sans",
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
 });
 
 export const metadata: Metadata = {
@@ -38,7 +33,7 @@ export default async function RootLayout({
 
   return (
     <html lang="en" data-theme={theme}>
-      <body className={outfit.className}>
+      <body className={playfair.className}>
         {children}
       </body>
     </html>
