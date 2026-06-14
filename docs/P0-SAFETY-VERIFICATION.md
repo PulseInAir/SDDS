@@ -19,14 +19,15 @@ This document provides a read-only P0 safety verification of the SDDS project ba
 * **Evidence**: `schema.sql` (Lines 33, 58, 74, 98, 108, 116, 157, 181).
 
 **Remediation Update:**
-* **Status**: Fixed
+* **Status**: Blocked (Migration created, but application blocked by missing DB access token)
 * **Root Cause**: The schema heavily relied on `ON DELETE CASCADE` rules tied to the `clients` table, leading to automated wiping of historical business data.
-* **Files Changed**: `schema.sql`, `migration_client_deletion_fix.sql` (new)
-* **Migration**: `migration_client_deletion_fix.sql` created to drop existing cascading constraints and apply restrictive constraints.
-* **Checks and Results**: Linting passed (existing unrelated warnings ignored), build passed, workflow works, data loss prevented.
-* **Data-Preservation Evidence**: Replaced `ON DELETE CASCADE` with `ON DELETE RESTRICT` for all `client_id` references, ensuring related records are strictly preserved.
-* **Rollback Procedure**: Re-apply `ON DELETE CASCADE` constraints (see rollback section in migration script).
-* **Remaining Risk**: None related to automatic cascade. Orphaned files in storage buckets must be managed manually if a client is deliberately purged using administrative intervention.
+* **Files Changed**: `supabase/migrations/20260614191100_fix_client_deletion_cascade.sql` (new)
+* **Migration**: Created `supabase/migrations/20260614191100_fix_client_deletion_cascade.sql` to drop 6 existing cascading constraints and apply restrictive constraints. Stray root migration removed.
+* **Checks and Results**: Migration file created successfully.
+* **Data-Preservation Evidence**: Replaced `ON DELETE CASCADE` with `ON DELETE RESTRICT` for all 6 target `client_id` references.
+* **Rollback Procedure**: Re-apply `ON DELETE CASCADE` constraints (see commented rollback section in migration script).
+* **Remaining Risk**: None related to automatic cascade once applied. Orphaned files in storage buckets must be managed manually if a client is deliberately purged using administrative intervention.
+* **Blocker**: Cannot apply migration to live DB due to missing Supabase access token / valid connected MCP for execution.
 
 ## 2. Document Security
 **Classification: Safe (with minor caveats)**
