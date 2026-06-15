@@ -1,39 +1,61 @@
 # Dashboard Component API Contract
 
-This document defines the exact props for the new dashboard components based strictly on existing data shapes and variables. No new backend fields or routes are introduced.
+This document defines the exact props for the operational dashboard components based strictly on existing data shapes and variables. No new backend fields, charts, or fake UI elements are introduced.
 
-## 1. OverviewCard
-Displays the main chart and three key metrics: "Filed This AY", "Yet To File", and "Pending Filings".
+## Core Types
+
+Every metric must accept a value, state indicators, and an action to navigate to the relevant filtered records.
+
 ```typescript
-interface OverviewCardProps {
-  completedFilings: number;
-  yetToFileFilings: number;
-  pendingFilings: number;
+interface MetricProps {
+  value: number;
+  isLoading: boolean;
+  error?: string;
+  href?: string;
+  onClick?: () => void;
+}
+```
+
+## 1. OperationalOverview
+
+Functional area replacing the old chart. Focuses on actionable filing states.
+
+```typescript
+interface OperationalOverviewProps {
+  completedFilings: MetricProps;
+  yetToFileFilings: MetricProps;
+  pendingFilings: MetricProps;
 }
 ```
 
 ## 2. StackedStatCards
-Displays "Refunds Pending" and "Outstanding Bal." with "Billed" subtext.
+
+Focuses on pending financial and closure workflows.
+
 ```typescript
 interface StackedStatCardsProps {
-  refundsPending: number;
-  totalOutstanding: number;
-  totalBilled: number;
+  refundsPending: MetricProps;
+  totalOutstanding: MetricProps;
+  totalBilled: MetricProps;
 }
 ```
 
 ## 3. SummaryCards
-Three equal-width cards displaying "Filed This AY", "Intimations Pending", and "Revenue / Collections" (Outstanding).
+
+Core operational summaries. No progress percentages are included since valid numerators/denominators are not provided.
+
 ```typescript
 interface SummaryCardsProps {
-  completedFilings: number;
-  intimationsPending: number;
-  totalOutstanding: number;
+  completedFilings: MetricProps;
+  intimationsPending: MetricProps;
+  totalOutstanding: MetricProps;
 }
 ```
 
 ## 4. RecentActivityPanel
-Displays a list of recent activity logs.
+
+List of recent system actions. Supports empty states and optional actions per row.
+
 ```typescript
 interface RecentActivity {
   id: string | number;
@@ -42,15 +64,22 @@ interface RecentActivity {
   };
   description: string;
   created_at: string;
+  actionHref?: string;
+  onActionClick?: () => void;
 }
 
 interface RecentActivityPanelProps {
   recentLogs: RecentActivity[];
+  isLoading: boolean;
+  error?: string;
+  emptyStateMessage: string;
 }
 ```
 
 ## 5. QueueSnapshotPanel
-Displays a snapshot of clients in the filing queue.
+
+Snapshot of the current filing work queue. Every row must link to the client's working record.
+
 ```typescript
 interface QueueItem {
   id: string | number;
@@ -61,9 +90,13 @@ interface QueueItem {
     mobile: string;
   };
   filing_status: string;
+  recordUrl: string;
 }
 
 interface QueueSnapshotPanelProps {
   queueItems: QueueItem[];
+  isLoading: boolean;
+  error?: string;
+  emptyStateMessage: string;
 }
 ```
