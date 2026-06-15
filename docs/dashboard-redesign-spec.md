@@ -1,6 +1,6 @@
 # Dashboard Redesign Specification
 
-This document serves as the visual and operational specification for the SDDS dashboard redesign. 
+This document serves as the visual and operational specification for the SDDS dashboard redesign.
 **Note:** \SDDS_SOURCE.md\ is authoritative. The design reference image (\public/design-reference/sdds-dashboard-target.webp\) serves as the visual source only and must not override product or operational rules.
 
 ## Core Principles
@@ -42,7 +42,7 @@ This document serves as the visual and operational specification for the SDDS da
 ## Operational Overview Area
 - Replaces the decorative chart with a functional, data-driven area spanning the top-left content area.
 - Deep blue gradient background.
-- **Content**: 
+- **Content**:
   - Real dashboard metrics.
   - Next-30-day filings, invoice dues, and follow-ups where existing data supports them.
   - Working navigation to corresponding filtered records.
