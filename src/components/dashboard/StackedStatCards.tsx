@@ -37,28 +37,28 @@ function StatCard({
   };
 
   const content = (
-    <div className={`relative flex flex-col justify-between h-full p-6 rounded-[24px] overflow-hidden group focus:outline-none focus:ring-2 focus:ring-white/50 shadow-sm ${className}`}>
+    <div className={`relative flex flex-col justify-between h-full p-8 md:p-10 rounded-[32px] overflow-hidden group focus:outline-none focus:ring-2 focus:ring-white/50 shadow-md ${className}`}>
       <div className="flex justify-between items-start z-10">
-        <div className="bg-white/20 p-3 rounded-2xl">
+        <div className="bg-white/20 p-3.5 rounded-[18px]">
           <Icon className="w-6 h-6 text-white" />
         </div>
-        <div className="bg-white/20 p-2.5 rounded-full transform group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform">
+        <div className="bg-white/20 p-3 rounded-full transform group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform shadow-sm">
           <ArrowUpRight className="w-5 h-5 text-white" />
         </div>
       </div>
       
-      <div className="mt-8 z-10">
-        <h3 className="text-white/80 text-sm font-medium mb-1.5">{title}</h3>
+      <div className="mt-10 z-10">
+        <h3 className="text-white/90 text-[15px] font-semibold mb-2">{title}</h3>
         {metric.isLoading ? (
-          <div className="text-3xl font-bold text-white animate-pulse">--</div>
+          <div className="text-4xl font-extrabold text-white animate-pulse">--</div>
         ) : metric.error ? (
           <div className="text-sm font-bold text-red-200">Error</div>
         ) : (
-          <div className="text-4xl font-bold text-white tracking-tight">
+          <div className="text-5xl font-extrabold text-white tracking-tight">
             {formatValue(metric.value)}
           </div>
         )}
-        {subtext && <div className="mt-2">{subtext}</div>}
+        {subtext && <div className="mt-3">{subtext}</div>}
       </div>
     </div>
   );
@@ -89,7 +89,7 @@ export function StackedStatCards({
         title="Refunds Pending"
         metric={refundsPending}
         icon={RefreshCw}
-        className="bg-blue-500 hover:bg-blue-400 transition-colors border border-blue-400/30"
+        className="bg-blue-600 hover:bg-blue-500 transition-colors border border-blue-400/20"
       />
       <StatCard
         title="Outstanding Amount"
@@ -97,20 +97,20 @@ export function StackedStatCards({
         icon={IndianRupee}
         isCurrency={true}
         subtext={
-          <div className="flex items-center gap-1.5 text-sm text-white/80">
+          <div className="flex items-center gap-1.5 text-sm text-white/90 font-medium">
             <span>Billed:</span>
             {totalBilled.isLoading ? (
               <span className="animate-pulse">--</span>
             ) : totalBilled.error ? (
               <span className="text-red-200">Error</span>
             ) : (
-              <span className="font-semibold text-white">
+              <span className="font-bold text-white tracking-wide">
                 {totalBilled.value === 0 ? '₹0' : `₹${totalBilled.value.toLocaleString('en-IN')}`}
               </span>
             )}
           </div>
         }
-        className="bg-gradient-to-br from-rose-500 to-orange-400 hover:from-rose-400 hover:to-orange-300 transition-colors border border-rose-400/30"
+        className="bg-gradient-to-br from-pink-500 to-rose-400 hover:from-pink-400 hover:to-rose-300 transition-colors border border-pink-400/20"
       />
     </div>
   );

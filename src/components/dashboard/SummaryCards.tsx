@@ -35,24 +35,24 @@ function SummaryCard({
   };
 
   const content = (
-    <div className="flex flex-col justify-between h-full p-6 bg-gradient-to-br from-blue-900 to-blue-800 rounded-[24px] border border-blue-700/50 hover:bg-blue-800/80 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 group shadow-sm">
-      <div className="flex justify-between items-start mb-6">
-        <div className="bg-blue-400/20 p-3 rounded-2xl">
-          <Icon className="w-5 h-5 text-blue-200" />
+    <div className="flex flex-col justify-between h-full p-8 bg-gradient-to-br from-[#1e3a8a] to-[#172554] rounded-[32px] border border-blue-700/40 hover:bg-[#1e3a8a]/90 transition-all focus:outline-none focus:ring-2 focus:ring-blue-400 group shadow-md hover:shadow-lg">
+      <div className="flex justify-between items-start mb-8">
+        <div className="bg-blue-400/10 p-3.5 rounded-[18px]">
+          <Icon className="w-6 h-6 text-blue-300" />
         </div>
       </div>
       <div>
-        <h3 className="text-blue-100 text-sm font-medium mb-1">{title}</h3>
+        <h3 className="text-blue-200 text-[14px] font-semibold mb-1.5 tracking-wide">{title}</h3>
         {metric.isLoading ? (
-          <div className="text-3xl font-bold text-white animate-pulse">--</div>
+          <div className="text-3xl font-extrabold text-white animate-pulse">--</div>
         ) : metric.error ? (
-          <div className="text-sm font-bold text-red-300">Error</div>
+          <div className="text-[15px] font-bold text-red-300">Error</div>
         ) : (
-          <div className="text-3xl font-bold text-white tracking-tight">
+          <div className="text-4xl font-extrabold text-white tracking-tight">
             {formatValue(metric.value)}
           </div>
         )}
-        <div className="mt-2 text-sm text-blue-300">{subtext}</div>
+        <div className="mt-3 text-[13px] font-medium text-blue-300/80">{subtext}</div>
       </div>
     </div>
   );
@@ -78,7 +78,7 @@ export function SummaryCards({
   totalOutstanding,
 }: SummaryCardsProps) {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 h-full">
       <SummaryCard
         title="Filed This AY"
         metric={completedFilings}
