@@ -84,35 +84,34 @@ export default function DashboardClient({
   });
 
   return (
-    <div className="grid grid-cols-1 xl:grid-cols-[1fr_400px] gap-6 xl:gap-8 w-full min-w-0">
-      {/* ── Main two-column layout: Left dashboard area │ Right column ── */}
-
+    <div className="grid grid-cols-1 xl:grid-cols-[1fr_360px] 2xl:grid-cols-[1fr_400px] gap-6 xl:gap-8 w-full min-w-0">
       {/* ── LEFT COLUMN ── */}
-      <div className="flex flex-col gap-6 xl:gap-8 min-w-0">
-        {/* Top row: OperationalOverview + StackedStatCards side by side */}
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-6 xl:gap-8">
+      <div className="grid grid-cols-1 xl:grid-cols-[1fr_320px] gap-6 xl:gap-8 min-w-0">
+
+        {/* Left Side: Overview + Summary Cards */}
+        <div className="flex flex-col gap-6 xl:gap-8 min-w-0">
           <OperationalOverview
             completedFilings={{ value: completedFilings, isLoading: false, href: '/data' }}
             yetToFileFilings={{ value: yetToFileFilings, isLoading: false, href: '/queue' }}
             pendingFilings={{ value: pendingFilings, isLoading: false, href: '/queue' }}
           />
-          <StackedStatCards
-            refundsPending={{ value: refundsPending, isLoading: false }}
-            totalOutstanding={{ value: totalOutstanding, isLoading: false }}
-            totalBilled={{ value: totalBilled, isLoading: false }}
+          <SummaryCards
+            completedFilings={{ value: completedFilings, isLoading: false, href: '/data' }}
+            intimationsPending={{ value: intimationsPending, isLoading: false, href: '/queue' }}
+            totalOutstanding={{ value: totalOutstanding, isLoading: false, href: '/revenue' }}
           />
         </div>
 
-        {/* Bottom row: Three summary cards */}
-        <SummaryCards
-          completedFilings={{ value: completedFilings, isLoading: false, href: '/data' }}
-          intimationsPending={{ value: intimationsPending, isLoading: false, href: '/queue' }}
-          totalOutstanding={{ value: totalOutstanding, isLoading: false, href: '/revenue' }}
+        {/* Right Side: Stacked Stat Cards */}
+        <StackedStatCards
+          refundsPending={{ value: refundsPending, isLoading: false }}
+          totalOutstanding={{ value: totalOutstanding, isLoading: false }}
+          totalBilled={{ value: totalBilled, isLoading: false }}
         />
       </div>
 
       {/* ── RIGHT COLUMN ── */}
-      <div className="flex flex-col gap-6 xl:gap-8 min-w-0">
+      <div className="flex flex-col xl:grid xl:grid-rows-2 gap-6 xl:gap-8 min-w-0 h-full">
         <RecentActivityPanel
           recentLogs={mappedRecentLogs}
           isLoading={false}
