@@ -21,7 +21,7 @@ interface DashboardClientProps {
   intimationsPending: number;
   totalOutstanding: number;
   totalBilled: number;
-  queueItems: QueueItem[];
+  queueItems: any[]; // Using any[] to accept raw data and map it safely
   recentLogs: any[]; // Using any[] to accept raw data and map it safely
   currentAY: string;
   ayOptions: string[];
@@ -56,6 +56,30 @@ export default function DashboardClient({
       description: log.description || "No description provided",
       created_at: log.created_at || new Date().toISOString(),
       // We don't invent fallback business data or links, so actionHref is omitted unless we had one.
+    };
+  });
+
+  // Map raw queue data safely and limit to 3 records
+  const mappedQueueItems: QueueItem[] = (queueItems || []).slice(0, 3).map((item: any) => {
+    let clientData = { name: "Unknown Client", pan: "", mobile: "" };
+    if (item.clients) {
+      if (Array.isArray(item.clients)) {
+        clientData = item.clients[0] || clientData;
+      } else if (typeof item.clients === 'object' && item.clients !== null) {
+        clientData = item.clients;
+      }
+    }
+
+    return {
+      id: item.id || Math.random(),
+      client_id: item.client_id || "",
+      clients: {
+        name: clientData.name || "Unknown Client",
+        pan: clientData.pan || "",
+        mobile: clientData.mobile || "",
+      },
+      filing_status: item.filing_status || "Unknown",
+      recordUrl: item.client_id ? `/clients/${item.client_id}` : "#",
     };
   });
 
@@ -95,7 +119,7 @@ export default function DashboardClient({
           emptyStateMessage="No recent activity found."
         />
         <QueueSnapshotPanel
-          queueItems={queueItems}
+          queueItems={mappedQueueItems}
           isLoading={false}
           emptyStateMessage="Filing queue is empty."
         />
