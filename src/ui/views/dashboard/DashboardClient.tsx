@@ -21,8 +21,8 @@ interface DashboardClientProps {
   intimationsPending: number;
   totalOutstanding: number;
   totalBilled: number;
-  queueItems: any[]; // Using any[] to accept raw data and map it safely
-  recentLogs: any[]; // Using any[] to accept raw data and map it safely
+  queueItems: Record<string, unknown>[]; // Accept raw data and map it safely
+  recentLogs: Record<string, unknown>[]; // Accept raw data and map it safely
   currentAY: string;
   ayOptions: string[];
 }
@@ -39,19 +39,21 @@ export default function DashboardClient({
   recentLogs,
 }: DashboardClientProps) {
   // Map raw data safely to RecentActivity prop contract
-  const mappedRecentLogs: RecentActivity[] = (recentLogs || []).map((log) => {
+  type RawLogType = { id?: string; clients?: unknown; description?: string; created_at?: string };
+  const mappedRecentLogs: RecentActivity[] = (recentLogs || []).map((rawLog, index) => {
+    const log = rawLog as RawLogType;
     // Safely extract client name, handling array or object or null
     let clientName = "Unknown Client";
     if (log.clients) {
       if (Array.isArray(log.clients)) {
         clientName = log.clients[0]?.name || "Unknown Client";
       } else if (typeof log.clients === 'object' && log.clients !== null) {
-        clientName = log.clients.name || "Unknown Client";
+        clientName = (log.clients as Record<string, unknown>).name as string || "Unknown Client";
       }
     }
 
     return {
-      id: log.id,
+      id: log.id || `fallback-id-${index}`,
       clients: { name: clientName },
       description: log.description || "No description provided",
       created_at: log.created_at || new Date().toISOString(),
@@ -60,18 +62,25 @@ export default function DashboardClient({
   });
 
   // Map raw queue data safely and limit to 3 records
-  const mappedQueueItems: QueueItem[] = (queueItems || []).slice(0, 3).map((item: any) => {
+  type RawQueueItemType = { id?: string; client_id?: string; clients?: unknown; filing_status?: string };
+  const mappedQueueItems: QueueItem[] = (queueItems || []).slice(0, 3).map((rawItem, index) => {
+    const item = rawItem as RawQueueItemType;
     let clientData = { name: "Unknown Client", pan: "", mobile: "" };
     if (item.clients) {
       if (Array.isArray(item.clients)) {
         clientData = item.clients[0] || clientData;
       } else if (typeof item.clients === 'object' && item.clients !== null) {
-        clientData = item.clients;
+        const c = item.clients as Record<string, unknown>;
+        clientData = {
+          name: (c.name as string) || "Unknown Client",
+          pan: (c.pan as string) || "",
+          mobile: (c.mobile as string) || ""
+        };
       }
     }
 
     return {
-      id: item.id || Math.random(),
+      id: item.id || `fallback-id-${index}`,
       client_id: item.client_id || "",
       clients: {
         name: clientData.name || "Unknown Client",
