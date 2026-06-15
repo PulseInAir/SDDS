@@ -19,7 +19,7 @@ export default function AYSelect({ currentAY, ayOptions }: AYSelectProps) {
         onChange={(e) => {
           router.push(`/?ay=${e.target.value}`);
         }}
-        className="appearance-none bg-white border border-slate-200 rounded-full pl-4 pr-10 h-10 text-[13px] font-bold text-slate-700 cursor-pointer outline-none min-w-[110px] shadow-sm transition-all focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 hover:bg-slate-50"
+        className="appearance-none bg-white border border-slate-200 rounded-full pl-4 pr-10 h-11 text-[13px] font-bold text-slate-700 cursor-pointer outline-none min-w-[120px] shadow-sm transition-all focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 hover:bg-slate-50 hover:border-slate-300"
       >
         {ayOptions.map((ay) => (
           <option key={ay} value={ay}>
