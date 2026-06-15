@@ -60,9 +60,9 @@ export default function DashboardClient({
 
         {/* Bottom row: Three summary cards */}
         <SummaryCards
-          completedFilings={{ value: completedFilings, isLoading: false }}
-          intimationsPending={{ value: intimationsPending, isLoading: false }}
-          totalOutstanding={{ value: totalOutstanding, isLoading: false }}
+          completedFilings={{ value: completedFilings, isLoading: false, href: '/data' }}
+          intimationsPending={{ value: intimationsPending, isLoading: false, href: '/queue' }}
+          totalOutstanding={{ value: totalOutstanding, isLoading: false, href: '/revenue' }}
         />
       </div>
 
