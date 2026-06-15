@@ -47,9 +47,9 @@ export default function DashboardClient({
         {/* Top row: OperationalOverview + StackedStatCards side by side */}
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-6 xl:gap-8">
           <OperationalOverview
-            completedFilings={{ value: completedFilings, isLoading: false }}
-            yetToFileFilings={{ value: yetToFileFilings, isLoading: false }}
-            pendingFilings={{ value: pendingFilings, isLoading: false }}
+            completedFilings={{ value: completedFilings, isLoading: false, href: '/data' }}
+            yetToFileFilings={{ value: yetToFileFilings, isLoading: false, href: '/queue' }}
+            pendingFilings={{ value: pendingFilings, isLoading: false, href: '/queue' }}
           />
           <StackedStatCards
             refundsPending={{ value: refundsPending, isLoading: false }}
