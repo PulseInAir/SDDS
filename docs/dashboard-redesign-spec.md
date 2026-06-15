@@ -22,7 +22,7 @@ This document serves as the visual and operational specification for the SDDS da
 - Features a distinct soft drop shadow elevating the frame from the canvas background.
 
 ## Sidebar
-- Solid deep royal blue background.
+- Solid bright blue background.
 - Features the logo area at the top.
 - Navigation links stack vertically with left-aligned icons.
 - Bottom section contains a prominent "Sign Out" button with an exit icon.
@@ -49,7 +49,7 @@ This document serves as the visual and operational specification for the SDDS da
 - **Restrictions**:
   - No SVG trend chart.
   - No Monthly selector.
-  - No Jan–Oct labels.
+  - No Janâ€“Oct labels.
   - No April highlight.
   - No decorative tooltip.
   - No invented historical values.
@@ -57,8 +57,8 @@ This document serves as the visual and operational specification for the SDDS da
 
 ## Functional Stacked Stat Cards
 - Positioned to the right of the Overview area.
-- **Top Card**: "Refunds Pending" - vibrant solid blue background. Includes a circular icon wrapper.
-- **Bottom Card**: "Outstanding Amount" - vibrant pink/coral gradient background. Includes a circular icon wrapper.
+- **Top Card**: "Refunds Pending" - vibrant solid blue background. Use a compact semantic icon tile only where it improves recognition; it must not be a separate non-functional action.
+- **Bottom Card**: "Outstanding Amount" - vibrant pink/coral gradient background. Use a compact semantic icon tile only where it improves recognition; it must not be a separate non-functional action.
 - **Rules**:
   - Values must come from existing real data.
   - The complete card or its visible action must navigate to the corresponding records.
@@ -68,7 +68,9 @@ This document serves as the visual and operational specification for the SDDS da
 ## Lower Summary Cards
 - Three equal-width cards below the Overview area.
 - Deep blue gradient backgrounds.
-- Distinctive overlapping icons at the top center of each card, housed in fully rounded shapes that break the top border of the card.
+- Use a compact semantic icon tile only where it improves recognition.
+- The icon must not be a separate non-functional action.
+- Do not require an icon when it adds no operational or recognition value.
 - **Cards**:
   1. "Filed This AY"
   2. "Intimations Pending"
@@ -98,7 +100,7 @@ This document serves as the visual and operational specification for the SDDS da
 - Subtitles, labels, and secondary text are muted and smaller.
 
 ## Colors
-- **Primary Blue**: Deep royal blue used for the sidebar, overview area, and bottom cards.
+- **Primary Blue**: Bright blue used for the sidebar, overview area, and bottom cards.
 - **Accent Blue**: Vibrant blue for primary buttons, active interactive areas, and icons.
 - **Accent Coral/Pink**: Used for the "Outstanding Amount" card.
 - **Background White**: Main content wrapper background.
@@ -112,9 +114,10 @@ This document serves as the visual and operational specification for the SDDS da
 - **Overlapping Icons (Bottom Cards)**: Rounded square or circle.
 
 ## Shadows
-- **Outer Frame**: Large, diffuse drop shadow.
-- **White Panels (Recent Activity, Queue)**: Soft, subtle drop shadows to lift them off the background.
-- **Colored Cards**: Inner glows or soft, colored drop shadows to enhance depth.
+- Use one subtle, consistent soft shadow system.
+- Shadows must be used only for visual hierarchy.
+- No glowing cards, inner glows, coloured glow shadows, or decorative illumination.
+- No glassmorphism.
 
 ## Spacing
 - Generous internal padding within cards and panels (typically \24px\ or \32px\).
