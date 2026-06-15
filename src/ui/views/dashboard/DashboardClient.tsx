@@ -22,7 +22,7 @@ interface DashboardClientProps {
   totalOutstanding: number;
   totalBilled: number;
   queueItems: QueueItem[];
-  recentLogs: RecentActivity[];
+  recentLogs: any[]; // Using any[] to accept raw data and map it safely
   currentAY: string;
   ayOptions: string[];
 }
@@ -38,6 +38,27 @@ export default function DashboardClient({
   queueItems,
   recentLogs,
 }: DashboardClientProps) {
+  // Map raw data safely to RecentActivity prop contract
+  const mappedRecentLogs: RecentActivity[] = (recentLogs || []).map((log) => {
+    // Safely extract client name, handling array or object or null
+    let clientName = "Unknown Client";
+    if (log.clients) {
+      if (Array.isArray(log.clients)) {
+        clientName = log.clients[0]?.name || "Unknown Client";
+      } else if (typeof log.clients === 'object' && log.clients !== null) {
+        clientName = log.clients.name || "Unknown Client";
+      }
+    }
+
+    return {
+      id: log.id,
+      clients: { name: clientName },
+      description: log.description || "No description provided",
+      created_at: log.created_at || new Date().toISOString(),
+      // We don't invent fallback business data or links, so actionHref is omitted unless we had one.
+    };
+  });
+
   return (
     <div className="grid grid-cols-1 xl:grid-cols-[1fr_400px] gap-6 xl:gap-8 w-full min-w-0">
       {/* ── Main two-column layout: Left dashboard area │ Right column ── */}
@@ -69,7 +90,7 @@ export default function DashboardClient({
       {/* ── RIGHT COLUMN ── */}
       <div className="flex flex-col gap-6 xl:gap-8 min-w-0">
         <RecentActivityPanel
-          recentLogs={recentLogs}
+          recentLogs={mappedRecentLogs}
           isLoading={false}
           emptyStateMessage="No recent activity found."
         />
