@@ -37,22 +37,24 @@ export default async function DashboardLayout({
               </div>
 
               {/* Overlay real user data and sign-out */}
-              <div className="absolute bottom-0 left-0 w-full bg-[var(--sdds-sidebar-blue)] pb-6 z-10">
-                <div className="pt-6 border-t border-blue-800/50 px-4">
-                  <div className="flex items-center gap-3 mb-4">
-                    <ShieldCheck className="w-8 h-8 text-blue-200" />
-                    <div className="flex flex-col">
-                      <span className="font-semibold text-white">
+              <div className="absolute bottom-0 left-0 w-full bg-[var(--sdds-sidebar-blue)] pb-6 px-4 z-10">
+                <div className="bg-blue-900/40 rounded-2xl p-4 flex flex-col gap-4">
+                  <div className="flex items-center gap-3">
+                    <div className="bg-blue-800 rounded-full p-2 shrink-0">
+                      <ShieldCheck className="w-5 h-5 text-blue-200" />
+                    </div>
+                    <div className="flex flex-col overflow-hidden">
+                      <span className="font-semibold text-white truncate text-sm">
                         {user?.user_metadata?.full_name || 'Admin User'}
                       </span>
-                      <span className="text-xs text-blue-200">
+                      <span className="text-xs text-blue-200 truncate">
                         {user?.email || 'singledigitalsolutions@gmail.com'}
                       </span>
                     </div>
                   </div>
-                  <button className="flex items-center gap-2 text-red-400 hover:text-red-300 w-full px-2 py-2 transition-colors">
-                    <LogOut className="w-5 h-5" />
-                    <span className="font-medium">Sign Out</span>
+                  <button className="flex items-center justify-center gap-2 bg-pink-500/10 text-pink-400 hover:bg-pink-500/20 rounded-xl w-full py-2.5 transition-colors">
+                    <LogOut className="w-4 h-4" />
+                    <span className="font-medium text-sm">Sign Out</span>
                   </button>
                 </div>
               </div>
