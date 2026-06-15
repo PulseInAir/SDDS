@@ -2,7 +2,7 @@ import { redirect } from 'next/navigation';
 import { createClient } from '@/utils/supabase/server';
 import { PrivacyProvider } from '@/context/PrivacyContext';
 import { Sidebar } from "@/ui/components/Sidebar";
-import Header from "@/ui/components/Header"; // Import the Header
+import Header from "@/ui/components/Header";
 import { ShieldCheck, LogOut } from 'lucide-react';
 
 export default async function DashboardLayout({
@@ -19,15 +19,15 @@ export default async function DashboardLayout({
 
   return (
     <PrivacyProvider>
-      <div className="sdds-app-bg">
-        <div className="sdds-app-frame">
-          <div className="sdds-inner-frame">
+      <div className="min-h-dvh w-full bg-[linear-gradient(135deg,#d8b4fe_0%,#818cf8_100%)] p-4 lg:p-8 flex items-stretch">
+        <div className="flex-1 flex bg-[#eef2ff] rounded-[32px] lg:rounded-[40px] p-2 lg:p-4 shadow-[0_25px_50px_-12px_rgba(0,0,0,0.25)]">
+          <div className="flex-1 flex overflow-hidden bg-white rounded-[24px] lg:rounded-[32px] shadow-sm relative">
             {/* Sidebar Wrapper */}
-            <div className="sdds-sidebar relative h-full flex-shrink-0 bg-[var(--sdds-sidebar-blue)] w-[300px] [&_a:not(.text-blue-700)]:text-white [&_a:not(.text-blue-700)]:bg-transparent hover:[&_a:not(.text-blue-700)]:bg-white/10">
+            <div className="relative h-full flex flex-col flex-shrink-0 bg-[#1e3a8a] w-[280px] lg:w-[300px] [&_a:not(.text-blue-700)]:text-white [&_a:not(.text-blue-700)]:bg-transparent hover:[&_a:not(.text-blue-700)]:bg-white/10">
               <Sidebar />
 
               {/* Overlay SD badge and brand block */}
-              <div className="absolute top-0 left-0 w-full bg-[var(--sdds-sidebar-blue)] pt-8 z-10 pointer-events-none">
+              <div className="absolute top-0 left-0 w-full bg-[#1e3a8a] pt-8 z-10 pointer-events-none">
                 <div className="flex items-center gap-3.5 mb-10 px-6">
                   <div className="bg-blue-800 rounded-xl w-12 h-12 flex items-center justify-center font-bold text-white pointer-events-auto shadow-sm">
                     SD
@@ -37,7 +37,7 @@ export default async function DashboardLayout({
               </div>
 
               {/* Overlay real user data and sign-out */}
-              <div className="absolute bottom-0 left-0 w-full bg-[var(--sdds-sidebar-blue)] pb-8 px-6 z-10">
+              <div className="absolute bottom-0 left-0 w-full bg-[#1e3a8a] pb-8 px-6 z-10">
                 <div className="bg-blue-900/40 rounded-2xl p-5 flex flex-col gap-4 border border-blue-800/50 shadow-sm">
                   <div className="flex items-center gap-3.5">
                     <div className="bg-blue-800 rounded-full p-2.5 shrink-0">
@@ -61,15 +61,12 @@ export default async function DashboardLayout({
             </div>
 
             {/* Right Side Content */}
-            <div className="flex-1 flex flex-col overflow-hidden bg-[var(--sdds-content-canvas-bg)]">
+            <div className="flex-1 flex flex-col overflow-hidden bg-white">
               {/* Header */}
               <Header />
 
               {/* Main Scrollable Area */}
-              <main
-                className="flex-1 overflow-y-auto"
-                style={{ padding: 'var(--sdds-spacing-padding-large)' }}
-              >
+              <main className="flex-1 overflow-y-auto p-6 lg:p-8">
                 {children}
               </main>
             </div>
