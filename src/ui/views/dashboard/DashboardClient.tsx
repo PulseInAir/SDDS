@@ -84,44 +84,64 @@ export default function DashboardClient({
   });
 
   return (
-    <div className="grid grid-cols-1 xl:grid-cols-[1fr_360px] 2xl:grid-cols-[1fr_400px] gap-6 xl:gap-8 w-full min-w-0">
+    <div className="grid grid-cols-1 xl:grid-cols-[1fr_360px] 2xl:grid-cols-[1fr_400px] gap-6 xl:gap-8 w-full min-w-0 max-w-full">
       {/* ── LEFT COLUMN ── */}
-      <div className="grid grid-cols-1 xl:grid-cols-[1fr_320px] gap-6 xl:gap-8 min-w-0">
+      <div className="grid grid-cols-1 xl:grid-cols-[1fr_320px] gap-6 xl:gap-8 min-w-0 max-w-full">
 
         {/* Left Side: Overview + Summary Cards */}
-        <div className="flex flex-col gap-6 xl:gap-8 min-w-0">
-          <OperationalOverview
-            completedFilings={{ value: completedFilings, isLoading: false, href: '/data' }}
-            yetToFileFilings={{ value: yetToFileFilings, isLoading: false, href: '/queue' }}
-            pendingFilings={{ value: pendingFilings, isLoading: false, href: '/queue' }}
-          />
-          <SummaryCards
-            completedFilings={{ value: completedFilings, isLoading: false, href: '/data' }}
-            intimationsPending={{ value: intimationsPending, isLoading: false, href: '/queue' }}
-            totalOutstanding={{ value: totalOutstanding, isLoading: false, href: '/revenue' }}
-          />
+        <div className="flex flex-col gap-6 xl:gap-8 min-w-0 max-w-full">
+          <div className="w-full overflow-x-auto pb-1 max-w-[100vw]">
+            <div className="min-w-[600px] xl:min-w-0">
+              <OperationalOverview
+                completedFilings={{ value: completedFilings, isLoading: false, href: '/data' }}
+                yetToFileFilings={{ value: yetToFileFilings, isLoading: false, href: '/queue' }}
+                pendingFilings={{ value: pendingFilings, isLoading: false, href: '/queue' }}
+              />
+            </div>
+          </div>
+          <div className="w-full overflow-x-auto pb-1 max-w-[100vw]">
+            <div className="min-w-[600px] xl:min-w-0">
+              <SummaryCards
+                completedFilings={{ value: completedFilings, isLoading: false, href: '/data' }}
+                intimationsPending={{ value: intimationsPending, isLoading: false, href: '/queue' }}
+                totalOutstanding={{ value: totalOutstanding, isLoading: false, href: '/revenue' }}
+              />
+            </div>
+          </div>
         </div>
 
         {/* Right Side: Stacked Stat Cards */}
-        <StackedStatCards
-          refundsPending={{ value: refundsPending, isLoading: false }}
-          totalOutstanding={{ value: totalOutstanding, isLoading: false }}
-          totalBilled={{ value: totalBilled, isLoading: false }}
-        />
+        <div className="w-full overflow-x-auto pb-1 max-w-[100vw]">
+          <div className="min-w-[280px] xl:min-w-0">
+            <StackedStatCards
+              refundsPending={{ value: refundsPending, isLoading: false }}
+              totalOutstanding={{ value: totalOutstanding, isLoading: false }}
+              totalBilled={{ value: totalBilled, isLoading: false }}
+            />
+          </div>
+        </div>
       </div>
 
       {/* ── RIGHT COLUMN ── */}
-      <div className="flex flex-col xl:grid xl:grid-rows-2 gap-6 xl:gap-8 min-w-0 h-full">
-        <RecentActivityPanel
-          recentLogs={mappedRecentLogs}
-          isLoading={false}
-          emptyStateMessage="No recent activity found."
-        />
-        <QueueSnapshotPanel
-          queueItems={mappedQueueItems}
-          isLoading={false}
-          emptyStateMessage="Filing queue is empty."
-        />
+      <div className="flex flex-col xl:grid xl:grid-rows-2 gap-6 xl:gap-8 min-w-0 max-w-full h-full">
+        <div className="w-full overflow-x-auto pb-1 max-w-[100vw] h-full">
+          <div className="min-w-[340px] xl:min-w-0 h-full">
+            <RecentActivityPanel
+              recentLogs={mappedRecentLogs}
+              isLoading={false}
+              emptyStateMessage="No recent activity found."
+            />
+          </div>
+        </div>
+        <div className="w-full overflow-x-auto pb-1 max-w-[100vw] h-full">
+          <div className="min-w-[340px] xl:min-w-0 h-full">
+            <QueueSnapshotPanel
+              queueItems={mappedQueueItems}
+              isLoading={false}
+              emptyStateMessage="Filing queue is empty."
+            />
+          </div>
+        </div>
       </div>
     </div>
   );
