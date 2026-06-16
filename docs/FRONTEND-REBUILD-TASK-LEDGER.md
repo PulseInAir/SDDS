@@ -1,13 +1,22 @@
 # Frontend Rebuild Task Ledger
 
 - Task 00: `BLOCKED`
-  - Blocker: inherited baseline lint failure remains present at `87` errors and `59` warnings across `23` affected files
+  - Blocker: inherited baseline lint failure remains present at `86` errors and `59` warnings across the repo after Task 00F
   - Build: passed
   - `git diff --check`: passed
   - Application code changed by Task 00: no
 - Task 00E: `COMPLETED`
   - Evidence document: `docs/frontend-rebuild-lint-baseline.md`
+- Task 00F: `COMPLETED`
+  - Title: Fix single mechanical `prefer-const` error
+  - Changed file: `src/scripts/migrate-encryption-keys.ts`
+  - Exact change: one `let` changed to `const`
+  - Behaviour change: none
+  - Target-file lint: `2` errors, `5` warnings, zero `prefer-const`
+  - Full lint: `86` errors, `59` warnings
+  - Production build: passed
+  - `git diff --check`: passed
 - Task 01: `PENDING`
 - Current task: none
-- Next action: await exact Task 00 lint-remediation prompt
+- Next action: await the next exact lint-remediation prompt
 - Ledger rule: live HEAD must always be verified from Git at task start and must not be permanently frozen here

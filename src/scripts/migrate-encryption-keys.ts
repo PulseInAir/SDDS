@@ -43,7 +43,7 @@ export async function migrate(supabaseClient: any, isDryRun: boolean) {
     return { total: 0, migrated: 0, failed: 0, alreadyValid: 0 };
   }
 
-  let totalRecords = records.length;
+  const totalRecords = records.length;
   let alreadyMigrated = 0;
   let toMigrate = 0;
   let failed = 0;
