@@ -587,7 +587,7 @@ export default function DataManagerClient({
                     <td className="p-3 font-mono font-bold text-white">Client Name</td>
                     <td className="p-3 text-slate-500">No</td>
                     <td className="p-3">Rahul Sharma</td>
-                    <td className="p-3 text-slate-500">Legal name of client. Defaults to 'Unnamed Client' if blank.</td>
+                    <td className="p-3 text-slate-500">Legal name of client. Defaults to &apos;Unnamed Client&apos; if blank.</td>
                   </tr>
                   <tr className="text-slate-300">
                     <td className="p-3 font-mono font-bold text-white">PAN</td>
@@ -605,7 +605,7 @@ export default function DataManagerClient({
                     <td className="p-3 font-mono font-bold text-white">Date of Birth</td>
                     <td className="p-3 text-slate-500">No</td>
                     <td className="p-3">31-01-1990</td>
-                    <td className="p-3 text-slate-500">Date of birth in DD-MM-YYYY format. Defaults to '01-01-1900' if blank.</td>
+                    <td className="p-3 text-slate-500">Date of birth in DD-MM-YYYY format. Defaults to &apos;01-01-1900&apos; if blank.</td>
                   </tr>
                   <tr className="text-slate-300">
                     <td className="p-3 font-mono font-bold text-white">ITR Portal Password</td>

@@ -1,7 +1,7 @@
 # Frontend Rebuild Task Ledger
 
 - Task 00: `BLOCKED`
-  - Blocker: inherited baseline lint failure remains present at `86` errors and `59` warnings across the repo after Task 00F
+  - Blocker: inherited baseline lint failure remains present at `80` errors and `59` warnings across the repo after Task 00G
   - Build: passed
   - `git diff --check`: passed
   - Application code changed by Task 00: no
@@ -14,6 +14,18 @@
   - Behaviour change: none
   - Target-file lint: `2` errors, `5` warnings, zero `prefer-const`
   - Full lint: `86` errors, `59` warnings
+  - Production build: passed
+  - `git diff --check`: passed
+- Task 00G: `COMPLETED`
+  - Title: Fix six JSX text-escaping errors
+  - Changed source files:
+    - `src/ui/views/data/DataManagerClient.tsx`
+    - `src/ui/views/revenue/RevenueClient.tsx`
+  - Corrections: six JSX entities only
+  - Rendered wording changed: no
+  - Behaviour change: none
+  - `react/no-unescaped-entities` remaining: zero
+  - Full lint: `80` errors, `59` warnings
   - Production build: passed
   - `git diff --check`: passed
 - Task 01: `PENDING`

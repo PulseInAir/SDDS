@@ -918,7 +918,7 @@ export default function RevenueClient({ clients, invoices, payments, filings }: 
               <div className="py-16 text-center space-y-3">
                 <FileText className="h-10 w-10 text-slate-600 mx-auto" />
                 <p className="text-slate-300 font-semibold text-sm">No invoices found</p>
-                <p className="text-slate-500 text-xs max-w-xs mx-auto">Try resetting filters or click "Create Invoice" to add a new billing entry.</p>
+                <p className="text-slate-500 text-xs max-w-xs mx-auto">Try resetting filters or click &quot;Create Invoice&quot; to add a new billing entry.</p>
               </div>
             ) : (
               <div className="overflow-x-auto">
