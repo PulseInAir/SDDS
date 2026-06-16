@@ -1,14 +1,16 @@
 # Frontend Rebuild Baseline
 
-## 1. Current verified rebuild branch
+## 1. Active rebuild branch
 - `frontend-rebuild-v2`
 - Working tree was clean before this final verification pass
+- The live branch HEAD is intentionally not frozen in this document because it advances with each approved task. It must be verified directly from Git at the start of every task.
 
-## 2. Current verified HEAD commit
-- `4f0aadb99b0635852135f4e84643d06b330ce74b`
-- Original baseline commit: `99fb0950e67fda85bb22cef978d5a047851168a4`
+## 2. Baseline commit references
+- Stable pre-rebuild base: `99fb0950e67fda85bb22cef978d5a047851168a4`
+- Baseline establishment commit: `4f0aadb99b0635852135f4e84643d06b330ce74b`
+- Baseline finalisation commit: `30bffb1c0136212b29f8073b6f76dccbbdf28139`
 - Ancestry check: `git merge-base --is-ancestor 99fb0950e67fda85bb22cef978d5a047851168a4 HEAD` -> true
-- Recent history reviewed: `4f0aadb`, `99fb095`, `0e255d6`, `254ba3c`, `377d4f9`
+- Recent history reviewed during baseline establishment/finalisation: `30bffb1`, `4f0aadb`, `99fb095`, `0e255d6`, `254ba3c`
 
 ## 3. Rollback tag
 - `pre-frontend-rebuild-2026-06-16`
@@ -19,8 +21,9 @@
 ## 4. Rebuild branch status
 - `frontend-rebuild-v2`
 - Merge-base with `main`: `99fb0950e67fda85bb22cef978d5a047851168a4`
-- `origin/frontend-rebuild-v2` currently points to `4f0aadb99b0635852135f4e84643d06b330ce74b`
-- `origin/main` currently points to `99fb0950e67fda85bb22cef978d5a047851168a4`
+- Baseline establishment was recorded at `4f0aadb99b0635852135f4e84643d06b330ce74b`
+- Baseline finalisation was recorded at `30bffb1c0136212b29f8073b6f76dccbbdf28139`
+- `origin/main` pointed to `99fb0950e67fda85bb22cef978d5a047851168a4` when the baseline was established
 - `main` remained untouched by the rebuild work
 
 ## 5. Git cleanliness result
