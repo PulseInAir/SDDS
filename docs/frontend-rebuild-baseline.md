@@ -1,38 +1,52 @@
 # Frontend Rebuild Baseline
 
-## 1. Current branch before rebuild
-- `main`
+## 1. Current verified rebuild branch
+- `frontend-rebuild-v2`
+- Working tree was clean before this final verification pass
 
-## 2. Current HEAD commit
-- `99fb0950e67fda85bb22cef978d5a047851168a4`
-- Recent history reviewed: `99fb095`, `0e255d6`, `254ba3c`, `377d4f9`, `d056326`, `4366b5d`, `6c18cd6`, `b31ea2e`, `93b39a2e`, `5e312f5`, `4d65548`, `88787dd`
+## 2. Current verified HEAD commit
+- `4f0aadb99b0635852135f4e84643d06b330ce74b`
+- Original baseline commit: `99fb0950e67fda85bb22cef978d5a047851168a4`
+- Ancestry check: `git merge-base --is-ancestor 99fb0950e67fda85bb22cef978d5a047851168a4 HEAD` -> true
+- Recent history reviewed: `4f0aadb`, `99fb095`, `0e255d6`, `254ba3c`, `377d4f9`
 
 ## 3. Rollback tag
 - `pre-frontend-rebuild-2026-06-16`
-- Annotated tag created at `99fb0950e67fda85bb22cef978d5a047851168a4`
+- Required target commit: `99fb0950e67fda85bb22cef978d5a047851168a4`
+- Local status: exists and resolves to `99fb0950e67fda85bb22cef978d5a047851168a4`
+- Remote status: exists on `origin`
 
-## 4. New rebuild branch
+## 4. Rebuild branch status
 - `frontend-rebuild-v2`
-- Created from `99fb0950e67fda85bb22cef978d5a047851168a4`
+- Merge-base with `main`: `99fb0950e67fda85bb22cef978d5a047851168a4`
+- `origin/frontend-rebuild-v2` currently points to `4f0aadb99b0635852135f4e84643d06b330ce74b`
+- `origin/main` currently points to `99fb0950e67fda85bb22cef978d5a047851168a4`
+- `main` remained untouched by the rebuild work
 
 ## 5. Git cleanliness result
-- Starting state on `main`: clean
-- `git diff --check` on starting state: pass
-- Baseline work performed on isolated branch `frontend-rebuild-v2`
+- Verification start state on `frontend-rebuild-v2`: clean
+- `git diff --check`: pass
+- `git diff --name-status 99fb0950e67fda85bb22cef978d5a047851168a4..HEAD` shows only `A docs/frontend-rebuild-baseline.md`
+- Only baseline documentation changed after the original baseline commit
+- No application code changed after the original baseline commit
 
 ## 6. Build/type/lint baseline
 - TypeScript/type check:
-  - No dedicated type-check script exists in `package.json`
-  - `npm run build` runs the framework TypeScript phase and passed
+  - Command: `npx tsc --noEmit`
+  - Result: fail
+  - Exact failure: `src/utils/crypto.test.ts(91,9): error TS2322: Type 'unknown' is not assignable to type 'string'.`
+  - Confirmed pre-rebuild status: yes, only baseline documentation changed after the original baseline commit
 - Lint:
   - Command: `npm run lint`
   - Result: fail
-  - Confirmed reason: `eslint` reports existing repository-wide issues including `no-explicit-any`, `no-unused-vars`, `react-hooks/set-state-in-effect`, `react-hooks/preserve-manual-memoization`, `react/no-unescaped-entities`, and one `@ts-ignore` violation
-  - Confirmed pre-rebuild status: yes, this is the current baseline before any frontend rebuild work
+  - Exact result: `146 problems (87 errors, 59 warnings)`
+  - Confirmed reason categories: `no-explicit-any`, `no-unused-vars`, `react-hooks/set-state-in-effect`, `react-hooks/preserve-manual-memoization`, `react/no-unescaped-entities`, `@typescript-eslint/ban-ts-comment`, and `prefer-const`
+  - Confirmed pre-rebuild status: yes, this is baseline technical debt because only baseline documentation changed after the original baseline commit
 - Production build:
   - Command: `npm run build`
   - Result: pass
-  - Confirmed notes: build succeeds, TypeScript phase finishes, and Next.js reports a middleware deprecation warning (`middleware` -> `proxy`)
+  - Confirmed notes: build succeeds on Next.js `16.2.7`, TypeScript phase finishes during the framework build, static pages generate successfully, and the output lists all current app routes
+  - Warnings observed: Next.js `middleware` -> `proxy` deprecation warning and Node.js `DEP0205` warning for `module.register()`
   - Confirmed pre-rebuild status: yes, this is the current baseline before any frontend rebuild work
 
 ## 7. Complete route map
